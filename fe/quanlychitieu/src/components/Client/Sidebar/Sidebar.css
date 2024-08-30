@@ -1,0 +1,68 @@
+.sidebar-nav {
+  padding: 1rem;
+}
+a {
+  color: #fff;
+}
+.sidebar-client {
+  width: 250px;
+  color: #fff;
+  background: linear-gradient(to right, #8e2de2, #4a00e0);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+}
+.logo-sidebar{
+  padding-left: 15px;
+}
+.nav-item{
+  
+  align-items: center;
+}
+.sidebar-head {
+  background: linear-gradient(to right, #8e2de2, #4a00e0);
+  top: 0;
+  left: 0;
+  bottom: 0;
+  padding: 1rem;
+}
+
+.sidebar-client {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
+.nav-link:hover {
+  padding: 10px 5px;
+  border-radius: 5px;
+  opacity: 0.8;
+
+}
+/* Ẩn Sidebar trên các thiết bị di động */
+@media (max-width: 767px) {
+  .sidebar-client {
+    display: none; /* Ẩn trên thiết bị di động */
+  }
+}
+
+/* Hiển thị Sidebar trên các thiết bị desktop */
+@media (min-width: 768px) {
+  .sidebar-client {
+    display: block; /* Hiển thị trên thiết bị desktop */
+  }
+}
+
+.btn-hamburger {
+  font-size: 24px; /* Kích thước biểu tượng */
+  width: 50px; /* Chiều rộng của nút */
+  height: 50px; /* Chiều cao của nút */
+  padding: 0; /* Bỏ padding để giữ kích thước chính xác */
+  border: none; /* Bỏ border nếu có */
+}
+
+.btn-hamburger .bi {
+  color: #fff; /* Màu sắc của biểu tượng */
+}

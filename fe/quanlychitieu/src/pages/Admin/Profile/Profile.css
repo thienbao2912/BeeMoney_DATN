@@ -1,0 +1,50 @@
+.card {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.card-title {
+    font-size: 1.25rem;
+}
+
+.info-box {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    margin-bottom: 15px;
+}
+
+.form-label {
+    font-weight: bold;
+    display: contents;
+    
+}
+.btn-submit{
+    float: right;
+    margin-right: 80px;
+    width: 80px;
+}
+.form-control[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* Profile.css */
+.profile-avatar {
+    width: 150px; /* Adjust the size as needed */
+    height: 150px; /* Adjust the size as needed */
+    object-fit: cover; /* Ensures the image covers the container */
+    border-radius: 50%; /* Makes the image circular */
+    /* border: 3px solid #007bff; Optional: Add a border for effect */
+}
+
+.avatar-section {
+    position: relative;
+    text-align: center;
+}
+
+.form-control-sm {
+    font-size: 14px;
+    padding: 8px;
+    height: auto; /* Allows the input to adjust height naturally */
+}
