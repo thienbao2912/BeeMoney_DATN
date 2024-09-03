@@ -1,0 +1,163 @@
+.primary {
+    color: #b199fd;
+    text-decoration: none;
+}
+
+.button-row {
+    margin-bottom: 15px;
+}
+
+.btn-primary,
+.btn-outline-primary,
+.wide-button {
+    background-color: #b199fd;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    width: 30%;
+}
+
+.btn-primary:hover,
+.wide-button:hover {
+    background-color: #9d88fc;
+}
+
+.btn-outline-primary {
+    background-color: #ffffff;
+    color: #b199fd;
+    border: 2px solid #b199fd;
+}
+
+.btn-outline-primary:hover {
+    background-color: #b199fd;
+    color: #fff;
+}
+
+label {
+    font-weight: bold;
+    color: #5d5c5c;
+    margin-bottom: 5px;
+    margin-top: 20px;
+}
+
+.category-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem; /* Consistent spacing */
+}
+
+.category-buttons button {
+    background-color: #f8f9fa;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 100px;
+    max-width: 150px;
+    height: 50px;
+    white-space: nowrap;
+    text-align: center;
+    overflow: hidden; /* Prevent overflow */
+    text-overflow: ellipsis; /* Add ellipsis for long text */
+}
+
+.category-buttons button img {
+    width: 25px;
+    height: 25px;
+    margin-right: 5px;
+    flex-shrink: 0; /* Prevent image from shrinking */
+}
+
+.category-buttons button span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Prevent text wrap */
+}
+
+.btn-secondary p {
+    margin: 0;
+    font-size: 12px;
+    color: #1b1b1b;
+    text-align: center;
+}
+
+.category-buttons button:hover {
+    background-color: #e2e6ea;
+    border: none;
+}
+
+.category-buttons button:focus {
+    background-color: #cdd0f5;
+    border: none;
+}
+
+.category-buttons button:active {
+    background-color: #b0b3e6;
+    border: none;
+}
+
+.category-buttons .btn-secondary.active {
+    background-color: #cdd0f5;
+    border: none;
+}
+
+.history-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.history-details {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.history-details img {
+    width: 2rem;
+    height: 2rem;
+}
+
+.history-details .text-center {
+    flex: 1;
+    text-align: center;
+}
+
+input[type="text"],
+input[type="date"] {
+    width: 100%;
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem; 
+}
+
+.category-btn {
+    flex: 1; /* Mỗi button sẽ chiếm một phần bằng nhau của hàng */
+    min-width: 100px;
+    max-width: 150px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    white-space: nowrap;
+    text-align: center;
+    overflow: hidden; /* Ngăn chặn tràn nội dung */
+    text-overflow: ellipsis; /* Thêm dấu "..." nếu nội dung quá dài */
+}
