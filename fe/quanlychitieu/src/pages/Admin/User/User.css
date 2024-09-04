@@ -1,0 +1,8 @@
+
+.dropdown-toggle::after {
+    display: none;
+}
+.btn-drop{
+    width: 50px;
+    
+}
