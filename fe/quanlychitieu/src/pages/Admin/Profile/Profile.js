@@ -164,16 +164,18 @@ const Profile = () => {
                                     </div>
                                 </div>
                                 <div className="mb-3">
-                                <div className="info-box">
+                                
                                 {isEditing && (
+                                    <div className="info-box">
                                     <input
                                         type="file"
                                         className="form-control mt-2"
                                         id="avatar"
                                         onChange={handleAvatarChange}
                                     />
+                                    </div>
                                 )}
-                                </div>
+                                
                                 </div>
 
                                 <div className="mb-3">
