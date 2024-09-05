@@ -1,0 +1,98 @@
+/* add-budget.css */
+
+.categories-overview {
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.income-overview .card {
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+}
+
+.budget-card {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.budget-card .card-body {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    justify-content: space-between;
+}
+
+.budget-card .category-image {
+    width: 40px; /* Resize to half of the original size */
+    height: 40px; /* Resize to half of the original size */
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.budget-card .placeholder-image {
+    width: 25px; /* Resize to half of the original size */
+    height: 25px; /* Resize to half of the original size */
+    background-color: #f0f0f0;
+    border-radius: 50%;
+}
+
+.budget-card .ml-3 {
+    margin-left: 1rem;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.budget-card h6, .budget-card p {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px; /* Adjust max-width as needed */
+}
+
+.budget-card .text-right {
+    text-align: right;
+}
+
+.category-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.category-buttons .btn {
+    flex: 2;
+    min-width: 100px;
+    max-width: 150px; /* Limit the maximum width */
+    height: 50px; /* Set a fixed height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    white-space: nowrap; /* Prevent text from wrapping */
+    text-align: center;
+}
+
+.category-buttons .btn img {
+    max-width: 25px; /* Resize to half of the original size */
+    max-height: 25px; /* Resize to half of the original size */
+    margin-right: 0.5rem;
+}
+
+.alert {
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .budget-card .card-body {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .budget-card .text-right {
+        text-align: left;
+        margin-top: 1rem;
+    }
+}
