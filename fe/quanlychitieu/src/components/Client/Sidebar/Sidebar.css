@@ -7,14 +7,17 @@ a {
 .sidebar-client {
   width: 250px;
   color: #fff;
-  background-color: #b4bafe;
+  background: linear-gradient(to right, #8e2de2, #4a00e0);
+  background-color: #711AE1;
+  z-index: 1;
 }
 .nav-item{
   
   align-items: center;
 }
 .sidebar-head {
-  background-color: #b199fd;
+  background: linear-gradient(to right, #8e2de2, #4a00e0);
+  background-color: #711AE1;
   padding: 1rem;
 }
 
@@ -27,8 +30,7 @@ a {
 .nav-link:hover {
   padding: 10px 5px;
   border-radius: 5px;
-  color: #b199fd;
-  background-color: #f7ecfa;
+  opacity: 0.8;
 }
 /* Ẩn Sidebar trên các thiết bị di động */
 @media (max-width: 767px) {

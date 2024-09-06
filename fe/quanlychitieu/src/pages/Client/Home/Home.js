@@ -245,7 +245,7 @@ const Home = () => {
     };
 
     return (
-        <div className="container mt-4">
+        <div className="container mt-4 mb-5">
                         <div className="row mb-4">
                 <div className="col-md-3">
                     <select className="form-select" value={filterOption} onChange={e => setFilterOption(e.target.value)}>
