@@ -89,16 +89,16 @@ const User = () => {
                 <table className="table table-striped">
                   <thead>
                     <tr>
-                      <th>#</th>
-                      <th>Tên</th>
-                      <th>Email</th>
-                      <th>Hành động</th>
+                      <th style={{width: '15%'}}>#</th>
+                      <th style={{width: '30%'}}>Tên</th>
+                      <th style={{width: '40%'}}>Email</th>
+                      <th style={{width: '30%'}}>Hành động</th>
                     </tr>
                   </thead>
                   <tbody>
                     {currentUsers.map((user, index) => (
                       <tr key={user._id}>
-                        <td>{indexOfFirstUser + index + 1}</td>
+                        <td >{indexOfFirstUser + index + 1}</td>
                         <td>{user.name}</td>
                         <td>{user.email}</td>
                         <td>

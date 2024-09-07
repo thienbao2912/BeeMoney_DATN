@@ -227,44 +227,47 @@ const DashboardStatistics = () => {
               <h5>Người Dùng Tạo Trong Tháng</h5>
             </div>
             <div className="card-body">
-              <table className="table">
-                <thead className="thead-dark">
-                  <tr>
-                    <th style={{ width: "20%" }} scope="col">
-                      #
-                    </th>
-                    <th style={{ width: "40%" }} scope="col">
-                      Tên Người Dùng
-                    </th>
-                    <th style={{ width: "40%" }} scope="col">
-                      Ngày Tạo
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentUsers.map((user, index) => (
-                    <tr key={user._id}>
-                      <th scope="row">{indexOfFirstUser + index + 1}</th>
-                      <td>{user.name}</td>
-                      <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <nav>
-                <ul className="pagination">
-                  {pageNumbers.map((number) => (
-                    <li key={number} className="page-item">
-                      <button
-                        onClick={() => paginate(number)}
-                        className="page-link"
-                      >
-                        {number}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
+              {currentUsers.length === 0 ? (
+                <p>Không có người dùng mới trong tháng này.</p>
+              ) : (
+                <>
+                  <table className="table">
+                    <thead className="thead-dark">
+                      <tr>
+                        <th style={{ width: "20%" }} scope="col">
+                          #
+                        </th>
+                        <th style={{ width: "40%" }} scope="col">
+                          Tên Người Dùng
+                        </th>
+                        <th style={{ width: "40%" }} scope="col">
+                          Ngày Tạo
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentUsers.map((user, index) => (
+                        <tr key={user._id}>
+                          <th scope="row">{indexOfFirstUser + index + 1}</th>
+                          <td>{user.name}</td>
+                          <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <nav>
+                    <ul className="pagination">
+                      {pageNumbers.map((number) => (
+                        <li key={number} className="page-item">
+                          <button onClick={() => paginate(number)} className="page-link">
+                            {number}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                </>
+              )}
             </div>
           </div>
         </div>
