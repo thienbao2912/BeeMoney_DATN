@@ -4,6 +4,7 @@ import { updateSavingGoalAmount } from '../../../../service/SavingGoal';
 const EditGoalModal = ({ goal, onClose, onUpdate }) => {
     const [additionalAmount, setAdditionalAmount] = useState('');
     const [error, setError] = useState(null);
+    const [warning, setWarning] = useState(null);
 
     const formatCurrency = (value) => {
         return Number(value).toLocaleString('vi-VN');
@@ -17,7 +18,7 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
         let value = e.target.value;
         value = unformatCurrency(value);
         if (Number(value) < 0) {
-            e.target.value = formatCurrency(0); // Đặt giá trị về 0 nếu nhập số âm
+            e.target.value = formatCurrency(0); 
         } else {
             setAdditionalAmount(value);
             e.target.value = formatCurrency(value);
@@ -27,11 +28,15 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
     const handleUpdate = async () => {
         try {
             const newCurrentAmount = parseFloat(goal.currentAmount) + parseFloat(additionalAmount);
+            if (newCurrentAmount > goal.targetAmount) {
+                setWarning(`Số tiền thêm vào đã vượt quá mục tiêu tiết kiệm, Bạn chỉ còn thiếu  ${formatCurrency(goal.targetAmount-goal.currentAmount)}.`);
+                return;
+            }
             await updateSavingGoalAmount(goal._id, { currentAmount: newCurrentAmount });
             onUpdate();
             onClose();
         } catch (error) {
-            setError('Error updating saving goal: ' + error.message);
+            setError('Lỗi khi cập nhật mục tiêu tiết kiệm: ' + error.message);
         }
     };
 
@@ -44,6 +49,7 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
                         <button type="button" className="btn-close" onClick={onClose}></button>
                     </div>
                     <div className="modal-body">
+                        {warning && <div className="alert alert-warning">{warning}</div>}
                         {error && <div className="alert alert-danger">{error}</div>}
                         <div className="mb-3">
                             <label htmlFor="additionalAmount" className="form-label">Số tiền thêm vào</label>
