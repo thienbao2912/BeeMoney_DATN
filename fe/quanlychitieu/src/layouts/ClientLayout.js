@@ -2,6 +2,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from '../components/Client/Header/Header';
+import Footer from '../components/Client/Footer/Footer';
 import Sidebar from '../components/Client/Sidebar/Sidebar';
 
 const ClientLayout = () => {
@@ -14,6 +15,7 @@ const ClientLayout = () => {
           <Outlet />
         </div>
       </div>
+      <Footer />
     </>
   );
 };
