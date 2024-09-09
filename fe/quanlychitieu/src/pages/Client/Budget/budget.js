@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAllBudgets, deleteBudget } from '../../../service/Budget'; // Import service functions
 import ConfirmationModal from '../SavingGoals/ConfirmationModal/ConfirmationModal'; 
 import './budget.css'; // Import the CSS file
+import { useNotifications } from '../../../components/Client/Header/NotificationContext'; // Import Context hook
 
 const Budget = () => {
     const [budgets, setBudgets] = useState([]);
@@ -11,6 +12,7 @@ const Budget = () => {
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [goalToDelete, setGoalToDelete] = useState(null);
     const [itemsPerPage] = useState(4); // Number of budgets per page
+    const { setNotifications } = useNotifications(); // Use notification context
 
     useEffect(() => {
         const fetchBudgets = async () => {
@@ -21,10 +23,26 @@ const Budget = () => {
                 }
                 const response = await getAllBudgets(userId);
                 console.log('API Response:', response); // Log response
-                if (response) {
+
+                if (Array.isArray(response)) {
                     setBudgets(response); // Update with valid response
+
+                    // Check for budgets exceeding the limit
+                    const notifications = response
+                        .filter(budget => budget.remainingBudget < 0)
+                        .map(budget => ({
+                            id: budget._id,
+                            title: `Ngân sách ${budget.categoryId ? budget.categoryId.name : 'Danh mục không xác định'} đã vượt quá giới hạn`,
+                            date: new Intl.DateTimeFormat('vi-VN').format(new Date()),
+                        }));
+
+                    if (notifications.length > 0) {
+                        setNotifications(notifications); // Set notifications
+                    } else {
+                        setNotifications([]); // Clear notifications
+                    }
                 } else {
-                    throw new Error('Invalid response structure');
+                    throw new Error('Invalid response structure: Expected an array');
                 }
             } catch (err) {
                 setError(err.message);
@@ -35,7 +53,7 @@ const Budget = () => {
         };
 
         fetchBudgets();
-    }, []);
+    }, [setNotifications]);
 
     const handleDelete = async (budgetId) => {
         try {
@@ -48,6 +66,7 @@ const Budget = () => {
             console.error('Error deleting budget:', err); // Log error
         }
     };
+
     const openConfirmationModal = (goalId) => {
         setGoalToDelete(goalId);
         setConfirmationModalOpen(true);
@@ -56,7 +75,8 @@ const Budget = () => {
     const closeConfirmationModal = () => {
         setGoalToDelete(null);
         setConfirmationModalOpen(false);
-    }
+    };
+
     const calculatePercentageRemaining = (budget) => {
         const totalAmount = budget.amount || 1; // Ensure not to divide by 0
         const remaining = budget.remainingBudget >= 0 ? budget.remainingBudget : 0;
@@ -78,7 +98,9 @@ const Budget = () => {
         <div className="categories-overview">
             <nav aria-label="breadcrumb">
                 <ol className="breadcrumb">
-                    <li className="breadcrumb-item active" aria-current="page">Ngân sách</li>
+                    <li className="breadcrumb-item">
+                        <a href="/" className='text-dark'>Trang chủ</a>
+                    </li>
                     <li className="breadcrumb-item">
                         <a href="/add-budget" className='text-dark'>Thêm ngân sách</a>
                     </li>
@@ -212,7 +234,7 @@ const Budget = () => {
                     </ul>
                 </div>
             )}
-              {isConfirmationModalOpen && (
+            {isConfirmationModalOpen && (
                 <ConfirmationModal
                     isOpen={isConfirmationModalOpen}
                     onClose={closeConfirmationModal}

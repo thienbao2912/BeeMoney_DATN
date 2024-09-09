@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import IncomeChart from '../Chart/IncomeChart';
 import OutcomeChart from '../Chart/OutcomeChart';
 import TotalOverviewChart from '../Chart/TotalOverviewChart';
+import { getAllBudgets } from '../../../service/Budget'; // Import service functions
 import { getExpensesByCategory, getIncomeByCategory } from '../../../service/Transaction';
+import { useNotifications } from '../../../components/Client/Header/NotificationContext'; // Import Context hook
 
 const Home = () => {
     const [expensesData, setExpensesData] = useState([]);
@@ -18,10 +20,29 @@ const Home = () => {
     const [incomeDetails, setIncomeDetails] = useState([]);
     const [showExpenses, setShowExpenses] = useState(true);
     const userId = localStorage.getItem('userId');
+    const { setNotifications } = useNotifications(); // Use notification context
+    const [budgets, setBudgets] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                const responseBudgets = await getAllBudgets(userId);
+                console.log('API Response:', responseBudgets); // Log response
+                if (responseBudgets) {
+                    setBudgets(responseBudgets); // Update with valid response
+                    // Check for budgets exceeding the limit
+                    const notifications = responseBudgets
+                        .filter(budget => budget.remainingBudget < 0)
+                        .map(budget => ({
+                            id: budget._id,
+                            title: `Ngân sách ${budget.categoryId ? budget.categoryId.name : 'Danh mục không xác định'} đã vượt quá giới hạn `,
+                            date: new Intl.DateTimeFormat('vi-VN').format(new Date()),
+                           
+                        }));
+                    setNotifications(notifications); // Set notifications
+                } else {
+                    throw new Error('Invalid response structure');
+                }
                 const expensesResponse = await getExpensesByCategory(userId);
                 const incomeResponse = await getIncomeByCategory(userId);
 
