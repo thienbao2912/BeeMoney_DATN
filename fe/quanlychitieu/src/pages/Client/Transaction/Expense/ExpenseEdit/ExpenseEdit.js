@@ -1,112 +1,110 @@
-import React, { useState, useEffect } from 'react';
-import './ExpenseEdit.css';
-import { getCategories, updateTransaction, getTransactionById } from '../../../../../service/Transaction';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import "./ExpenseEdit.css";
+import {
+  getCategories,
+  updateTransaction,
+  getTransactionById,
+} from "../../../../../service/Transaction";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form"; // Import useForm
 
 const ExpenseEdit = () => {
   const { id } = useParams(); // Get the transaction ID from the URL params
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem("userId");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    getValues,
+  } = useForm(); // Destructure form hooks
   const [categories, setCategories] = useState([]);
-  const [transaction, setTransaction] = useState(null);
-  const [formData, setFormData] = useState({
-    date: '',
-    amount: '',
-    description: '',
-    categoryId: ''
-  });
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const fetchCategoriesAndTransaction = async () => {
       try {
         if (!userId) {
-          console.error('User ID is not found in local storage');
+          console.error("User ID is not found in local storage");
           return;
         }
 
-        setLoading(true); // Start loading
+        setLoading(true);
 
-        const categoriesResponse = await getCategories('expense', userId);
-        console.log('Categories Response:', categoriesResponse);
-
-        if (Array.isArray(categoriesResponse)) {
-          const filteredCategories = categoriesResponse.filter(category => category.type === 'expense');
-          console.log('Filtered Categories:', filteredCategories);
-          setCategories(filteredCategories);
-        } else {
-          console.error('Expected an array but got:', categoriesResponse);
-        }
+        const categoriesResponse = await getCategories("expense", userId);
+        setCategories(
+          categoriesResponse.filter((category) => category.type === "expense")
+        );
 
         const transactionResponse = await getTransactionById(id);
-        console.log('Transaction Response:', transactionResponse);
-
         if (transactionResponse) {
-          // Ensure transactionResponse.date is formatted as yyyy-mm-dd
-          const formattedDate = new Date(transactionResponse.date).toISOString().split('T')[0];
-          setTransaction(transactionResponse);
-          setFormData({
-            date: formattedDate,
-            amount: formatCurrency(transactionResponse.amount),
-            description: transactionResponse.description,
-            categoryId: transactionResponse.categoryId
+          const formattedDate = new Date(transactionResponse.date)
+            .toISOString()
+            .split("T")[0];
+          setValue("date", formattedDate);
+          const amountValue = transactionResponse.amount
+            .toString()
+            .replace(/[^\d]/g, ""); 
+          setValue("amount", formatCurrency(amountValue), {
+            shouldValidate: true,
           });
-        } else {
-          console.error('Transaction data is missing');
+          setValue("description", transactionResponse.description);
+          setValue("categoryId", transactionResponse.categoryId);
         }
       } catch (err) {
-        console.error('Error fetching data:', err.response ? err.response.data : err.message);
-        setError('Failed to fetch data. Please try again later.');
+        setError("Failed to fetch data. Please try again later.");
       } finally {
-        setLoading(false); // End loading
+        setLoading(false);
       }
     };
 
     fetchCategoriesAndTransaction();
-  }, [id, userId]);
+  }, [id, userId, setValue]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const formatCurrency = (value) => {
+    if (!value) return "";
+    return Number(value).toLocaleString("vi-VN", { minimumFractionDigits: 0 }).replace(/\./g, ",");
   };
+  
 
-  const handleCategorySelect = (categoryId) => {
-    setFormData({ ...formData, categoryId });
-  };
+  const unformatCurrency = (value) => value.replace(/[^\d]/g, "");
 
   const handleAmountInput = (e) => {
-    // Allow only numbers and format the value as currency
-    const rawValue = e.target.value.replace(/[^\d]/g, '');
+    
+    const rawValue = e.target.value.replace(/[^\d]/g, "");
+
+    if (!rawValue) {
+      setValue("amount", "", { shouldValidate: true });
+      return;
+    }
+
     const formattedValue = formatCurrency(rawValue);
-    setFormData({ ...formData, amount: formattedValue });
-  };
-  const formatCurrency = (value) => {
-    if (!value) return '';
-    return Number(value).toLocaleString('vi-VN');
+
+    setValue("amount", formattedValue, { shouldValidate: true });
   };
 
-  const unformatCurrency = (value) => {
-    return value.replace(/[^\d]/g, '');
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     try {
-      const payload = { ...formData, amount: unformatCurrency(formData.amount), type: 'expense' };
-      console.log('Submitting payload:', payload);
-
+      const payload = {
+        ...data,
+        amount: unformatCurrency(data.amount),
+        type: "expense",
+      };
       if (!payload.date || !payload.amount || !payload.categoryId) {
-        throw new Error('Missing required fields');
+        throw new Error("Missing required fields");
       }
 
       await updateTransaction(id, payload);
-      console.log('Transaction updated successfully');
-      navigate('/expense/list'); // Redirect to the list page after update
+      navigate("/expense/list"); 
     } catch (err) {
-      console.error('Error updating transaction:', err.response ? err.response.data : err.message);
-      setError('Failed to update transaction. Please try again later.');
+      setError("Failed to update transaction. Please try again later.");
     }
+  };
+
+  const handleCategorySelect = (categoryId) => {
+    setValue("categoryId", categoryId);
   };
 
   if (loading) {
@@ -122,16 +120,20 @@ const ExpenseEdit = () => {
     <div className="categories-overview">
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
-          <li className="breadcrumb-item active" aria-current="page">Sửa chi tiêu</li>
+          <li className="breadcrumb-item active" aria-current="page">
+            Sửa chi tiêu
+          </li>
           <li className="breadcrumb-item">
-            <Link className='text-secondary' to="/expense/list">Danh sách chi tiêu</Link>
+            <Link className="text-secondary" to="/expense/list">
+              Danh sách chi tiêu
+            </Link>
           </li>
         </ol>
       </nav>
 
       <div className="income-overview card">
         <div className="card-body">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="form-row">
               <div className="form-group col">
                 <label htmlFor="date">Ngày</label>
@@ -140,10 +142,11 @@ const ExpenseEdit = () => {
                   id="date"
                   name="date"
                   className="form-control"
-                  value={formData.date}
-                  onChange={handleInputChange}
-                  required
+                  {...register("date", { required: "Bắt buộc nhập ngày" })}
                 />
+                {errors.date && (
+                  <span className="text-danger">{errors.date.message}</span>
+                )}
               </div>
               <div className="form-group col">
                 <label htmlFor="amount">Số tiền</label>
@@ -152,10 +155,13 @@ const ExpenseEdit = () => {
                   id="amount"
                   name="amount"
                   className="form-control"
-                  value={formData.amount}
+                  value={getValues("amount")} // Không thêm ₫ khi hiển thị
+                  {...register("amount", { required: "Số tiền là bắt buộc" })}
                   onChange={handleAmountInput}
-                  required
                 />
+                {errors.amount && (
+                  <span className="text-danger">{errors.amount.message}</span>
+                )}
               </div>
             </div>
             <div className="form-group">
@@ -165,21 +171,30 @@ const ExpenseEdit = () => {
                 id="description"
                 name="description"
                 className="form-control"
-                value={formData.description}
-                onChange={handleInputChange}
-                required
+                {...register("description", {
+                  required: "Ghi chú là bắt buộc",
+                })}
               />
+              {errors.description && (
+                <span className="text-danger">
+                  {errors.description.message}
+                </span>
+              )}
             </div>
 
             <div className="form-group">
               <label htmlFor="category">Danh mục</label>
               <div className="category-buttons">
                 {categories.length > 0 ? (
-                  categories.map((category) => (
+                  categories.map((category) =>
                     category && category.image ? (
                       <button
                         key={category._id}
-                        className={`btn btn-secondary ${category._id === formData.categoryId ? 'active' : ''}`}
+                        className={`btn btn-secondary ${
+                          category._id === getValues("categoryId")
+                            ? "active"
+                            : ""
+                        }`}
                         type="button"
                         onClick={() => handleCategorySelect(category._id)}
                       >
@@ -189,16 +204,21 @@ const ExpenseEdit = () => {
                     ) : (
                       <p key={category._id}>Dữ liệu bị thiếu</p>
                     )
-                  ))
+                  )
                 ) : (
                   <i className="fa-solid fa-circle-exclamation fa-2x"></i>
                 )}
               </div>
+              {errors.categoryId && (
+                <span className="text-danger">Hãy chọn một danh mục</span>
+              )}
             </div>
 
             <div className="col-12 text-center">
-            <button className="btn btn-primary" type="submit">Cập nhật</button>
-          </div>
+              <button className="btn btn-primary" type="submit">
+                Cập nhật
+              </button>
+            </div>
           </form>
           {error && <div className="alert alert-danger mt-3">{error}</div>}
         </div>

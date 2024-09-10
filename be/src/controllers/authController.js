@@ -91,6 +91,28 @@ const authController = {
         }
     },
 
+    verifyOldPassword: async (req, res) => {
+        const { userId, oldPassword } = req.body;
+
+        try {
+            const user = await User.findById(userId);
+
+            if (!user) {
+                return res.status(404).json({ success: false, msg: 'User not found' });
+            }
+
+            const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+            if (!isMatch) {
+                return res.status(400).json({ success: false, msg: 'Old password is incorrect' });
+            }
+
+            return res.status(200).json({ success: true, msg: 'Old password is correct' });
+        } catch (error) {
+            return res.status(500).json({ success: false, msg: 'Server error' });
+        }
+    },
+
     resetPassword: async (req, res) => {
         try {
             const { password, token } = req.body;

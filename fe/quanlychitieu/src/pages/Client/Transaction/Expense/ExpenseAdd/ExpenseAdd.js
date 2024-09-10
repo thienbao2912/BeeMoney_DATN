@@ -115,7 +115,7 @@ const ExpenseAdd = () => {
   };
 
   const handleAmountChange = (e) => {
-    // Allow only numbers and remove non-numeric characters
+   
     const value = e.target.value.replace(/[^\d]/g, '');
     setValue('amount', formatCurrency(value), { shouldValidate: true });
   };
