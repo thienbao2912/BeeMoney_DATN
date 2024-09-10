@@ -1,8 +1,6 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
-const NotificationContext = createContext();
-
-export const NotificationProvider = ({ children }) => {
+const useNotifications = () => {
     const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
@@ -17,11 +15,7 @@ export const NotificationProvider = ({ children }) => {
         localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
     };
 
-    return (
-        <NotificationContext.Provider value={{ notifications, addNotification }}>
-            {children}
-        </NotificationContext.Provider>
-    );
+    return { notifications, addNotification };
 };
 
-export const useNotifications = () => useContext(NotificationContext);
+export default useNotifications;

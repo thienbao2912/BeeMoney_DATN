@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAllBudgets, deleteBudget } from '../../../service/Budget'; // Import service functions
 import ConfirmationModal from '../SavingGoals/ConfirmationModal/ConfirmationModal'; 
 import './budget.css'; // Import the CSS file
-import { useNotifications } from '../../../components/Client/Header/NotificationContext'; // Import Context hook
+// import { useNotifications } from '../../../components/Client/Header/NotificationContext'; // Import Context hook
 
 const Budget = () => {
     const [budgets, setBudgets] = useState([]);
@@ -12,7 +12,7 @@ const Budget = () => {
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [goalToDelete, setGoalToDelete] = useState(null);
     const [itemsPerPage] = useState(4); // Number of budgets per page
-    const { setNotifications } = useNotifications(); // Use notification context
+    // const { setNotifications } = useNotifications(); // Use notification context
 
     useEffect(() => {
         const fetchBudgets = async () => {
@@ -28,19 +28,7 @@ const Budget = () => {
                     setBudgets(response); // Update with valid response
 
                     // Check for budgets exceeding the limit
-                    const notifications = response
-                        .filter(budget => budget.remainingBudget < 0)
-                        .map(budget => ({
-                            id: budget._id,
-                            title: `Ngân sách ${budget.categoryId ? budget.categoryId.name : 'Danh mục không xác định'} đã vượt quá giới hạn`,
-                            date: new Intl.DateTimeFormat('vi-VN').format(new Date()),
-                        }));
-
-                    if (notifications.length > 0) {
-                        setNotifications(notifications); // Set notifications
-                    } else {
-                        setNotifications([]); // Clear notifications
-                    }
+                   
                 } else {
                     throw new Error('Invalid response structure: Expected an array');
                 }
@@ -53,7 +41,7 @@ const Budget = () => {
         };
 
         fetchBudgets();
-    }, [setNotifications]);
+    },);
 
     const handleDelete = async (budgetId) => {
         try {
