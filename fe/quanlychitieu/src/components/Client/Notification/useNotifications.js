@@ -10,9 +10,11 @@ const useNotifications = () => {
     }, []);
 
     const addNotification = (notification) => {
-        const updatedNotifications = [...notifications, notification];
-        setNotifications(updatedNotifications);
-        localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+        setNotifications(prevNotifications => {
+            const updatedNotifications = [...prevNotifications, notification];
+            localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+            return updatedNotifications;
+        });
     };
 
     return { notifications, addNotification };

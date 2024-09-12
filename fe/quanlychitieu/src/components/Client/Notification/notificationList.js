@@ -1,6 +1,10 @@
+// NotificationList.js
 import React from 'react';
+import { useNotifications } from '../Header/NotificationContext';
 
-const NotificationList = ({ notifications }) => {
+const NotificationList = () => {
+    const { notifications } = useNotifications();
+
     return (
         <div className="notification-list">
             <div className="widget-media dz-scroll" style={{
