@@ -79,26 +79,44 @@ const loginUser = async ({ email, password }) => {
     }
 };
 
-
-const forgotPassword = async (email) => {
+const sendResetPasswordEmail = async (email) => {
+    // Assuming you have an API endpoint for sending reset emails
     const res = await request({
         method: "POST",
-        path: "/api/auth/forgot-password",
+        path: "/api/auth/forgot-password", 
         data: { email }
     });
-
     return res;
+  };
+
+const forgotPassword = async (email) => {
+    try {
+        const res = await request({
+          method: "POST",
+          path: "/api/auth/forgot-password",
+          data: { email },
+        });
+        return res.data;
+      } catch (error) {
+        throw error.response?.data?.message || "Đã có lỗi xảy ra.";
+      }
 };
 
 const resetPassword = async ({ password, token }) => {
-    const res = await request({
-        method: "POST",
-        path: "/api/auth/reset-password",
-        data: { password, token }
-    });
-
-    return res;
+    try {
+        console.log("Sending password reset request:", { password, token }); // Debugging
+        const res = await request({
+            method: "POST",
+            path: "/api/auth/reset-password",
+            data: { password, token },
+        });
+        return res.data;
+    } catch (error) {
+        console.error("Reset Password Error:", error.response?.data || error.message); // Debugging
+        throw error.response?.data?.message || "Đã có lỗi xảy ra.";
+    }
 };
+
 
 const getAllUsers = async () => {
     try {
@@ -175,5 +193,6 @@ export {
     getUserProfile,
     updateUser,
     deleteUser,
-    verifyOldPassword
+    verifyOldPassword,
+    sendResetPasswordEmail
 };
