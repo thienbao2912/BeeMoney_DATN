@@ -14,6 +14,7 @@ import ExpenseList from './pages/Client/Transaction/Expense/ExpenseList/ExpenseL
 import ExpenseEdit from './pages/Client/Transaction/Expense/ExpenseEdit/ExpenseEdit';
 import SavingGoalAdd from './pages/Client/SavingGoals/SavingGoalAdd/SavingGoalAdd';
 import SavingGoalList from './pages/Client/SavingGoals/SavingGoalList/SavingGoalList';
+import PassSaving from './pages/Client/SavingGoals/PassSaving/PassSaving';
 import SavingGoalEdit from './pages/Client/SavingGoals/SavingGoalEdit/SavingGoalEdit';
 import Home from './pages/Client/Home/Home';
 import Login from './pages/Auth/Login/Login';
@@ -25,6 +26,7 @@ import AuthLayout from './layouts/AuthLayout';
 import Budget from './pages/Client/Budget/budget';
 import AddBudget from './pages/Client/Budget/add-budget/add-budget';
 import BudgetDetail from './pages/Client/Budget/budget-detail/budget-detail';
+import PastBudget from './pages/Client/Budget/past-budget/past-budget';
 import ProfileForm from './pages/Client/Profile/Profile';
 import Categories from './pages/Client/Category/Categories';
 import AddCategory from './pages/Client/Category/Add-Category/add-category';
@@ -50,12 +52,14 @@ function App() {
           <Route path="/expense/edit/:id" element={<ExpenseEdit />} />
           <Route path="/saving-goal/add" element={<SavingGoalAdd />} />
           <Route path="/saving-goal/list" element={<SavingGoalList />} />
+          <Route path="/saving-goal/past" element={<PassSaving />} />
           <Route path="/saving-goal/edit/:id" element={<SavingGoalEdit />} />
           <Route path="/income/add" element={<IncomeAdd />} />
           <Route path="/income/list" element={<IncomeList />} />
           <Route path="/income/edit/:id" element={<IncomeEdit />} />
           <Route path="/add-budget" element={<AddBudget />} />
           <Route path="/budget" element={<Budget />} />
+          <Route path="/past-budget" element={<PastBudget />} />
           <Route path="/budget-detail/:budgetId" element={<BudgetDetail />} />
           <Route path="/profile" element={<ProfileForm />} />
           <Route path="/categories" element={<Categories />} />

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getAllBudgets, deleteBudget } from '../../../service/Budget'; // Import service functions
-import ConfirmationModal from '../SavingGoals/ConfirmationModal/ConfirmationModal'; 
-import './budget.css'; // Import the CSS file
+import {  getAllBudgets, deleteBudget } from '../../../../service/Budget'; // Import service functions
+import ConfirmationModal from '../../SavingGoals/ConfirmationModal/ConfirmationModal'; 
+import './past-budget.css'; // Import the CSS file
 
-const Budget = () => {
+const PastBudget = () => {
     const [budgets, setBudgets] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -17,32 +17,30 @@ const Budget = () => {
             try {
                 const userId = localStorage.getItem('userId');
                 if (!userId) {
-                    throw new Error('Người dùng chưa xác thực');
+                    throw new Error('User not authenticated');
                 }
-                let response = await getAllBudgets(userId);
-                
-                // Lọc ra các ngân sách chưa hết hạn
-                const currentDate = new Date();
-                response = response
-                    .filter(budget => new Date(budget.endDate) >= currentDate)
-                    .map(budget => ({
-                        ...budget,
-                        amount: budget.amount || 0,
-                        remainingBudget: budget.remainingBudget || 0,
-                    }));
-        
-                // Sắp xếp ngân sách theo thời gian tạo, mới nhất lên đầu
-                response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                
-                setBudgets(response);
+                const response = await getAllBudgets(userId);
+                console.log('API Response:', response);
+                if (response) {
+                    // Lọc ngân sách đã quá hạn ít nhất 1 ngày
+                    const currentDate = new Date();
+                    const pastBudgets = response.filter(budget => {
+                        const endDate = new Date(budget.endDate);
+                        const oneDayAfterEnd = new Date(endDate.getTime() + 24 * 60 * 60 * 1000);
+                        return currentDate > oneDayAfterEnd;
+                    });
+                    setBudgets(pastBudgets);
+                } else {
+                    throw new Error('Invalid response structure');
+                }
             } catch (err) {
                 setError(err.message);
-                console.error('Lỗi khi lấy tất cả ngân sách:', err);
+                console.error('Error fetching all budgets:', err);
             } finally {
                 setIsLoading(false);
             }
         };
-    
+
         fetchBudgets();
     }, []);
 
@@ -95,13 +93,8 @@ const Budget = () => {
             </nav>
 
             <div className="text-center mt-4">
-                <a href="/add-budget" className="btn btn-primary">
-                    Thêm ngân sách
-                </a>
-            </div>
-            <div className="text-center mt-4">
-                <a href="/past-budget" className="btn btn-primary">
-                    Ngân sách đã qua
+                <a href="/budget" className="btn btn-primary">
+                    Danh sách ngân sách
                 </a>
             </div>
 
@@ -240,4 +233,4 @@ const Budget = () => {
     );
 };
 
-export default Budget;
+export default PastBudget;
