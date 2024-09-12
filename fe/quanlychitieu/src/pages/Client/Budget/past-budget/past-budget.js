@@ -1,77 +1,69 @@
 import React, { useState, useEffect } from 'react';
-import { getAllBudgets, deleteBudget } from '../../../service/Budget'; // Import service functions
-import ConfirmationModal from '../SavingGoals/ConfirmationModal/ConfirmationModal'; 
-import './budget.css'; // Import the CSS file
-import { useNotifications } from '../../../components/Client/Header/NotificationContext'; // Import Context hook
+import {  getAllBudgets, deleteBudget } from '../../../../service/Budget'; // Import service functions
+import ConfirmationModal from '../../SavingGoals/ConfirmationModal/ConfirmationModal'; 
+import './past-budget.css'; // Import the CSS file
 
-const Budget = () => {
+const PastBudget = () => {
     const [budgets, setBudgets] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    // const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [goalToDelete, setGoalToDelete] = useState(null);
-    // const [itemsPerPage] = useState(4); // Number of budgets per page
-    const { handleBudgetDeletion } = useNotifications(); // Use notification context
+    const [itemsPerPage] = useState(4); // Number of budgets per page
 
     useEffect(() => {
         const fetchBudgets = async () => {
             try {
                 const userId = localStorage.getItem('userId');
                 if (!userId) {
-                    throw new Error('Người dùng chưa xác thực');
+                    throw new Error('User not authenticated');
                 }
-                let response = await getAllBudgets(userId);
-                
-                // Lọc ra các ngân sách chưa hết hạn
-                const currentDate = new Date();
-                response = response
-                    .filter(budget => new Date(budget.endDate) >= currentDate)
-                    .map(budget => ({
-                        ...budget,
-                        amount: budget.amount || 0,
-                        remainingBudget: budget.remainingBudget || 0,
-                    }));
-        
-                // Sắp xếp ngân sách theo thời gian tạo, mới nhất lên đầu
-                response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                
-                setBudgets(response);
+                const response = await getAllBudgets(userId);
+                console.log('API Response:', response);
+                if (response) {
+                    // Lọc ngân sách đã quá hạn ít nhất 1 ngày
+                    const currentDate = new Date();
+                    const pastBudgets = response.filter(budget => {
+                        const endDate = new Date(budget.endDate);
+                        const oneDayAfterEnd = new Date(endDate.getTime() + 24 * 60 * 60 * 1000);
+                        return currentDate > oneDayAfterEnd;
+                    });
+                    setBudgets(pastBudgets);
+                } else {
+                    throw new Error('Invalid response structure');
+                }
             } catch (err) {
                 setError(err.message);
-                console.error('Lỗi khi lấy tất cả ngân sách:', err);
+                console.error('Error fetching all budgets:', err);
             } finally {
                 setIsLoading(false);
             }
         };
-    
+
         fetchBudgets();
     }, []);
 
     const handleDelete = async (budgetId) => {
         try {
             await deleteBudget(budgetId);
-            setBudgets(prevBudgets =>
-                prevBudgets.filter(budget => budget._id !== budgetId)
-            );
-            handleBudgetDeletion(budgetId); // Xóa thông báo liên quan
             setConfirmationModalOpen(false);
+            // Reload the page to reflect changes
+            window.location.reload();
         } catch (err) {
             setError('Error deleting budget');
             console.error('Error deleting budget:', err); // Log error
         }
     };
-
-    const openConfirmationModal = (budgetId) => {
-        setGoalToDelete(budgetId);
+    const openConfirmationModal = (goalId) => {
+        setGoalToDelete(goalId);
         setConfirmationModalOpen(true);
     };
 
     const closeConfirmationModal = () => {
         setGoalToDelete(null);
         setConfirmationModalOpen(false);
-    };
-
+    }
     const calculatePercentageRemaining = (budget) => {
         const totalAmount = budget.amount || 1; // Ensure not to divide by 0
         const remaining = budget.remainingBudget >= 0 ? budget.remainingBudget : 0;
@@ -79,23 +71,21 @@ const Budget = () => {
     };
 
     // Pagination logic
-    // const indexOfLastBudget = currentPage * itemsPerPage;
-    // const indexOfFirstBudget = indexOfLastBudget - itemsPerPage;
-    // const currentBudgets = budgets.slice(indexOfFirstBudget, indexOfLastBudget);
+    const indexOfLastBudget = currentPage * itemsPerPage;
+    const indexOfFirstBudget = indexOfLastBudget - itemsPerPage;
+    const currentBudgets = budgets.slice(indexOfFirstBudget, indexOfLastBudget);
 
-    // const totalPages = Math.ceil(budgets.length / itemsPerPage);
+    const totalPages = Math.ceil(budgets.length / itemsPerPage);
 
-    // const handlePageChange = (pageNumber) => {
-    //     setCurrentPage(pageNumber);
-    // };
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
 
     return (
         <div className="categories-overview">
             <nav aria-label="breadcrumb">
                 <ol className="breadcrumb">
-                    <li className="breadcrumb-item">
-                        <a href="/" className='text-dark'>Trang chủ</a>
-                    </li>
+                    <li className="breadcrumb-item active" aria-current="page">Ngân sách</li>
                     <li className="breadcrumb-item">
                         <a href="/add-budget" className='text-dark'>Thêm ngân sách</a>
                     </li>
@@ -103,13 +93,8 @@ const Budget = () => {
             </nav>
 
             <div className="text-center mt-4">
-                <a href="/add-budget" className="btn btn-primary">
-                    Thêm ngân sách
-                </a>
-            </div>
-            <div className="text-center mt-4">
-                <a href="/past-budget" className="btn btn-primary">
-                    Ngân sách đã qua
+                <a href="/budget" className="btn btn-primary">
+                    Danh sách ngân sách
                 </a>
             </div>
 
@@ -120,9 +105,9 @@ const Budget = () => {
                 </div>
             )}
 
-            {!isLoading && !error && budgets.length > 0 && (
+            {!isLoading && !error && currentBudgets.length > 0 && (
                 <div className="row mt-3">
-                    {budgets.map(budget => (
+                    {currentBudgets.map(budget => (
                         <div key={budget._id} className="col-md-6 mb-3">
                             <div className="income-overview card">
                                 <div className="card-body">
@@ -213,7 +198,28 @@ const Budget = () => {
                     <p>{error}</p>
                 </div>
             )}
-            {isConfirmationModalOpen && (
+
+            {!isLoading && !error && budgets.length > itemsPerPage && (
+                <div className="pagination mt-4">
+                    <ul className="pagination justify-content-center">
+                        {[...Array(totalPages)].map((_, index) => (
+                            <li
+                                key={index + 1}
+                                className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                            >
+                                <a
+                                    className="page-link"
+                                    href="#!"
+                                    onClick={() => handlePageChange(index + 1)}
+                                >
+                                    {index + 1}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+              {isConfirmationModalOpen && (
                 <ConfirmationModal
                     isOpen={isConfirmationModalOpen}
                     onClose={closeConfirmationModal}
@@ -227,4 +233,4 @@ const Budget = () => {
     );
 };
 
-export default Budget;
+export default PastBudget;

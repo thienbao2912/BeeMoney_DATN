@@ -250,20 +250,21 @@ const SavingGoalAdd = () => {
             <div className="card-body">
               <Link to="/saving-goal/list" className="text-secondary">Xem tất cả mục tiêu</Link>
               {savingsGoals.length > 0 ? (
-                savingsGoals
-                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                  .slice(0, 2)
-                  .map((goal) => {
-                    const percentage = (goal.currentAmount / goal.targetAmount) * 100;
-                    let progressBarClass;
+          savingsGoals
+          .filter(goal => new Date(goal.endDate) >= new Date()) // Lọc bỏ các mục tiêu đã hết hạn
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sắp xếp theo ngày kết thúc giảm dần
+          .slice(0, 2)
+          .map((goal) => {
+            const percentage = (goal.currentAmount / goal.targetAmount) * 100;
+            let progressBarClass;
 
-                    if (percentage < 25) {
-                      progressBarClass = 'bg-danger';
-                    } else if (percentage >= 25 && percentage <= 50) {
-                      progressBarClass = 'bg-warning';
-                    } else {
-                      progressBarClass = 'bg-success';
-                    }
+            if (percentage < 25) {
+              progressBarClass = 'bg-danger';
+            } else if (percentage >= 25 && percentage <= 50) {
+              progressBarClass = 'bg-warning';
+            } else {
+              progressBarClass = 'bg-success';
+            }
 
                     return (
                       <div className="card mt-4" key={goal._id}>

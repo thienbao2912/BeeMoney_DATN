@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { getAllSavingsGoals, deleteSavingsGoal } from "../../../../service/SavingGoal";
-import "./SavingGoalList.css";
+import {
+  getAllSavingsGoals,
+  deleteSavingsGoal,
+} from "../../../../service/SavingGoal";
+import "./PassSaving.css";
 import { Link } from "react-router-dom";
-import EditGoalModal from "../EditGoalModal/EditGoalModal";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
-import { useNotifications } from "../../../../components/Client/Header/NotificationContext"; // Import hook thông báo
 
-// const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 4;
 
-const SavingGoalList = () => {
+const PassSaving = () => {
   const [savingsGoals, setSavingsGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedGoal, setSelectedGoal] = useState(null);
-  const [isModalOpen, setModalOpen] = useState(false);
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState(null);
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const [itemsPerPage] = useState(4);
-  const { checkSavingGoals, handleGoalDeletion } = useNotifications(); // Sử dụng hàm kiểm tra và xóa
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(4);
 
   useEffect(() => {
     const fetchSavingsGoals = async () => {
@@ -29,31 +27,28 @@ const SavingGoalList = () => {
         }
         let data = await getAllSavingsGoals(userId);
   
-        // Xử lý giá trị null và lọc ra các mục tiêu chưa hết hạn
+        // Xử lý giá trị null và lọc mục tiêu đã quá hạn ít nhất 1 ngày
         const currentDate = new Date();
+        currentDate.setDate(currentDate.getDate() - 1); // Lùi lại 1 ngày
         data = data
           .map((goal) => ({
             ...goal,
             currentAmount: goal.currentAmount || 0,
             targetAmount: goal.targetAmount || 0,
           }))
-          .filter((goal) => new Date(goal.endDate) >= currentDate);
+          .filter((goal) => new Date(goal.endDate) < currentDate);
   
         data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setSavingsGoals(data);
-
-        // Kiểm tra các mục tiêu còn 1 ngày
-        checkSavingGoals(userId);
-
       } catch (error) {
-        setError("Lỗi khi lấy danh sách mục tiêu tiết kiệm: " + error.message);
+        setError("Lỗi khi lấy mục tiêu tiết kiệm: " + error.message);
       } finally {
         setLoading(false);
       }
     };
   
     fetchSavingsGoals();
-  }, [checkSavingGoals]);
+  }, []);
 
   const handleDelete = async (goalId) => {
     try {
@@ -61,21 +56,10 @@ const SavingGoalList = () => {
       setSavingsGoals((prevGoals) =>
         prevGoals.filter((goal) => goal._id !== goalId)
       );
-      handleGoalDeletion(goalId); // Xóa thông báo liên quan
       setConfirmationModalOpen(false);
     } catch (error) {
       setError("Error deleting saving goals: " + error.message);
     }
-  };
-
-  const openModal = (goal) => {
-    setSelectedGoal(goal);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setSelectedGoal(null);
-    setModalOpen(false);
   };
 
   const openConfirmationModal = (item) => {
@@ -88,37 +72,15 @@ const SavingGoalList = () => {
     setConfirmationModalOpen(false);
   };
 
-  const handleUpdate = async () => {
-    try {
-      const userId = localStorage.getItem("userId");
-      let data = await getAllSavingsGoals(userId);
-      
-      // Lọc ra các mục tiêu chưa hết hạn
-      const currentDate = new Date();
-      data = data
-        .filter((goal) => new Date(goal.endDate) >= currentDate)
-        .map((goal) => ({
-          ...goal,
-          currentAmount: goal.currentAmount || 0,
-          targetAmount: goal.targetAmount || 0,
-        }));
-  
-      data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      setSavingsGoals(data);
-    } catch (error) {
-      setError("Lỗi khi lấy danh sách mục tiêu tiết kiệm: " + error.message);
-    }
-  };
+  const totalPages = Math.ceil(savingsGoals.length / ITEMS_PER_PAGE);
+  const paginatedGoals = savingsGoals.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
-  // const totalPages = Math.ceil(savingsGoals.length / ITEMS_PER_PAGE);
-  // const paginatedGoals = savingsGoals.slice(
-  //   (currentPage - 1) * ITEMS_PER_PAGE,
-  //   currentPage * ITEMS_PER_PAGE
-  // );
-
-  // const handlePageChange = (pageNumber) => {
-  //   setCurrentPage(pageNumber);
-  // };
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+};
 
   if (loading) {
     return (
@@ -141,26 +103,21 @@ const SavingGoalList = () => {
             Mục tiêu
           </li>
           <li className="breadcrumb-item">
-            <Link to="/saving-goal/add" className="text-secondary">
-              Thêm mục tiêu
+            <Link to="/saving-goal/past" className="text-secondary">
+              Mục tiêu đã qua
             </Link>
           </li>
         </ol>
       </nav>
       <div className="row">
         <div className="text-center mt-4">
-          <a href="/saving-goal/add" className="btn btn-primary">
-            Thêm mục tiêu
-          </a>
-        </div>
-        <div className="text-center mt-4">
-          <a href="/saving-goal/past" className="btn btn-primary">
-            Mục tiêu đã qua
+          <a href="/saving-goal/list" className="btn btn-primary">
+            Danh sách mục tiêu
           </a>
         </div>
       </div>
       <div className="row mt-3">
-        {savingsGoals.map((goal) => {
+        {paginatedGoals.map((goal) => {
           const percentage =
             goal.currentAmount != null && goal.targetAmount != null
               ? (goal.currentAmount / goal.targetAmount) * 100
@@ -229,23 +186,7 @@ const SavingGoalList = () => {
                   )}
 
                   <div className="d-flex justify-content-between align-items-center">
-                    {percentage < 100 && (
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => openModal(goal)}
-                      >
-                        Nạp tiền
-                      </button>
-                    )}
-
                     <div className="bg-action ms-auto">
-                      <Link
-                        to={`/saving-goal/edit/${goal._id}`}
-                        className="me-2"
-                        aria-label="Edit"
-                      >
-                        <i className="fa fa-edit text-success" />
-                      </Link>
                       <i
                         className="fa fa-trash text-danger ms-auto"
                         onClick={() => openConfirmationModal(goal)}
@@ -258,13 +199,26 @@ const SavingGoalList = () => {
           );
         })}
       </div>
-      {isModalOpen && selectedGoal && (
-        <EditGoalModal
-          goal={selectedGoal}
-          onClose={closeModal}
-          onUpdate={handleUpdate}
-        />
-      )}
+      {!loading && !error && savingsGoals.length > itemsPerPage && (
+                <div className="pagination mt-4">
+                    <ul className="pagination justify-content-center">
+                        {[...Array(totalPages)].map((_, index) => (
+                            <li
+                                key={index + 1}
+                                className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                            >
+                                <a
+                                    className="page-link"
+                                    href="#!"
+                                    onClick={() => handlePageChange(index + 1)}
+                                >
+                                    {index + 1}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
       {isConfirmationModalOpen && (
         <ConfirmationModal
@@ -280,4 +234,4 @@ const SavingGoalList = () => {
   );
 };
 
-export default SavingGoalList;
+export default PassSaving;
