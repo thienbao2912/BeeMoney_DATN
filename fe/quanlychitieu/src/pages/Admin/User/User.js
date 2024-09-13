@@ -15,6 +15,8 @@ const User = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const usersPerPage = 5;
 
   useEffect(() => {
@@ -61,7 +63,19 @@ const User = () => {
 
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  const filteredUsers = users
+    .filter((user) => {
+      if (roleFilter === "all") {
+        return true;
+      }
+      return user.role === roleFilter;
+    })
+    .filter((user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -76,6 +90,26 @@ const User = () => {
             </Link>
           </div>
           <div className="card-body">
+           
+            <div className="d-flex mb-4">
+              <input
+                type="text"
+                className="form-control me-3"
+                placeholder="Tìm kiếm theo tên người dùng..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <select
+                className="form-select"
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+              >
+                <option value="all">Tất cả</option>
+                <option value="admin">Admin</option>
+                <option value="user">Người dùng</option>
+              </select>
+            </div>
+
             {loading ? (
               <div
                 className="d-flex justify-content-center align-items-center"
@@ -89,18 +123,20 @@ const User = () => {
                 <table className="table table-striped">
                   <thead>
                     <tr>
-                      <th style={{width: '15%'}}>#</th>
-                      <th style={{width: '30%'}}>Tên</th>
-                      <th style={{width: '40%'}}>Email</th>
-                      <th style={{width: '30%'}}>Hành động</th>
+                      <th style={{ width: "15%" }}>#</th>
+                      <th style={{ width: "30%" }}>Tên</th>
+                      <th style={{ width: "30%" }}>Email</th>
+                      <th style={{ width: "15%" }}>Phân quyền</th>
+                      <th style={{ width: "20%" }}>Hành động</th>
                     </tr>
                   </thead>
                   <tbody>
                     {currentUsers.map((user, index) => (
                       <tr key={user._id}>
-                        <td >{indexOfFirstUser + index + 1}</td>
+                        <td>{indexOfFirstUser + index + 1}</td>
                         <td>{user.name}</td>
                         <td>{user.email}</td>
+                        <td>{user.role}</td>
                         <td>
                           <div className="dropdown ms-3">
                             <button
@@ -123,7 +159,12 @@ const User = () => {
                                   fill-rule="evenodd"
                                 >
                                   <rect x="0" y="0" width="24" height="24" />
-                                  <circle fill="#000000" cx="5" cy="12" r="2" />
+                                  <circle
+                                    fill="#000000"
+                                    cx="5"
+                                    cy="12"
+                                    r="2"
+                                  />
                                   <circle
                                     fill="#000000"
                                     cx="12"
@@ -169,7 +210,7 @@ const User = () => {
                 <nav>
                   <ul className="pagination justify-content-center">
                     {Array.from({
-                      length: Math.ceil(users.length / usersPerPage),
+                      length: Math.ceil(filteredUsers.length / usersPerPage),
                     }).map((_, index) => (
                       <li key={index} className="page-item">
                         <button
