@@ -36,22 +36,23 @@ const AddBudget = () => {
                 const userId = localStorage.getItem('userId');
                 if (userId) {
                     const budgetResponse = await getAllBudgets(userId);
-                    console.log('Budget Response:', budgetResponse); // Debug line
+                    console.log('Budget Response:', budgetResponse);
                     const updatedBudgets = Array.isArray(budgetResponse) ? budgetResponse.map(budget => ({
                         ...budget,
                         categoryId: expenseCategories.find(cat => cat._id === (budget.categoryId ? budget.categoryId._id : null)) || { name: 'Danh mục đã biến mất', image: null }
                     })) : [];
-
-                    // Debugging the createdAt field
+    
                     console.log('Budgets with createdAt:', updatedBudgets);
+    
+                    // Lọc ra các ngân sách chưa hết hạn và sắp xếp giảm dần theo ngày kết thúc
+                    const currentDate = new Date();
+                    const validBudgets = updatedBudgets
+                    .filter(budget => new Date(budget.endDate) >= currentDate)
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .slice(0, 5);
 
-                    // Sort budgets by createdAt in descending order and limit to 5
-                    const sortedBudgets = updatedBudgets
-                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                        .slice(0, 5);
-
-                    setBudgets(sortedBudgets);
-                    setLoadingBudgets(false);
+                setBudgets(validBudgets);
+                setLoadingBudgets(false);
                 }
             } catch (err) {
                 setError('Có lỗi xảy ra khi tải dữ liệu');
