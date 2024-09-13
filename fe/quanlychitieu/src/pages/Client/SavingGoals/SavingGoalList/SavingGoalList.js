@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {
-  getAllSavingsGoals,
-  deleteSavingsGoal,
-} from "../../../../service/SavingGoal";
+import { getAllSavingsGoals, deleteSavingsGoal } from "../../../../service/SavingGoal";
 import "./SavingGoalList.css";
 import { Link } from "react-router-dom";
 import EditGoalModal from "../EditGoalModal/EditGoalModal";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
+import { useNotifications } from "../../../../components/Client/Header/NotificationContext"; // Import hook thông báo
 
-const ITEMS_PER_PAGE = 4;
+// const ITEMS_PER_PAGE = 4;
 
 const SavingGoalList = () => {
   const [savingsGoals, setSavingsGoals] = useState([]);
@@ -18,8 +16,9 @@ const SavingGoalList = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(4);
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [itemsPerPage] = useState(4);
+  const { checkSavingGoals, handleGoalDeletion } = useNotifications(); // Sử dụng hàm kiểm tra và xóa
 
   useEffect(() => {
     const fetchSavingsGoals = async () => {
@@ -42,6 +41,10 @@ const SavingGoalList = () => {
   
         data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setSavingsGoals(data);
+
+        // Kiểm tra các mục tiêu còn 1 ngày
+        checkSavingGoals(userId);
+
       } catch (error) {
         setError("Lỗi khi lấy danh sách mục tiêu tiết kiệm: " + error.message);
       } finally {
@@ -50,7 +53,7 @@ const SavingGoalList = () => {
     };
   
     fetchSavingsGoals();
-  }, []);
+  }, [checkSavingGoals]);
 
   const handleDelete = async (goalId) => {
     try {
@@ -58,6 +61,7 @@ const SavingGoalList = () => {
       setSavingsGoals((prevGoals) =>
         prevGoals.filter((goal) => goal._id !== goalId)
       );
+      handleGoalDeletion(goalId); // Xóa thông báo liên quan
       setConfirmationModalOpen(false);
     } catch (error) {
       setError("Error deleting saving goals: " + error.message);
@@ -106,15 +110,15 @@ const SavingGoalList = () => {
     }
   };
 
-  const totalPages = Math.ceil(savingsGoals.length / ITEMS_PER_PAGE);
-  const paginatedGoals = savingsGoals.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  // const totalPages = Math.ceil(savingsGoals.length / ITEMS_PER_PAGE);
+  // const paginatedGoals = savingsGoals.slice(
+  //   (currentPage - 1) * ITEMS_PER_PAGE,
+  //   currentPage * ITEMS_PER_PAGE
+  // );
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-};
+  // const handlePageChange = (pageNumber) => {
+  //   setCurrentPage(pageNumber);
+  // };
 
   if (loading) {
     return (
@@ -156,7 +160,7 @@ const SavingGoalList = () => {
         </div>
       </div>
       <div className="row mt-3">
-        {paginatedGoals.map((goal) => {
+        {savingsGoals.map((goal) => {
           const percentage =
             goal.currentAmount != null && goal.targetAmount != null
               ? (goal.currentAmount / goal.targetAmount) * 100
@@ -254,27 +258,6 @@ const SavingGoalList = () => {
           );
         })}
       </div>
-      {!loading && !error && savingsGoals.length > itemsPerPage && (
-                <div className="pagination mt-4">
-                    <ul className="pagination justify-content-center">
-                        {[...Array(totalPages)].map((_, index) => (
-                            <li
-                                key={index + 1}
-                                className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
-                            >
-                                <a
-                                    className="page-link"
-                                    href="#!"
-                                    onClick={() => handlePageChange(index + 1)}
-                                >
-                                    {index + 1}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-
       {isModalOpen && selectedGoal && (
         <EditGoalModal
           goal={selectedGoal}

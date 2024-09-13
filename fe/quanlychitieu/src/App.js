@@ -38,6 +38,9 @@ import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
 // Import Admin Routes
 import AdminRoutes from './pages/Admin/Router/AdminRoutes';
 
+// Import NotificationProvider
+import { NotificationProvider } from './components/Client/Header/NotificationContext';
+
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -73,11 +76,14 @@ function App() {
         {/* Route cho Admin */}
         <Route path="/admin/*" element={<PrivateRoute element={<AdminRoutes />} requiredRole="admin" />} />
       </>
-
     )
   );
 
-  return <RouterProvider router={router} />;
+  return (
+    <NotificationProvider>
+      <RouterProvider router={router} />
+    </NotificationProvider>
+  );
 }
 
 export default App;

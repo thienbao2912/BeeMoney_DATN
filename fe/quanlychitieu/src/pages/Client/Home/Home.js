@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import IncomeChart from '../Chart/IncomeChart';
 import OutcomeChart from '../Chart/OutcomeChart';
 import TotalOverviewChart from '../Chart/TotalOverviewChart';
+import { getAllBudgets } from '../../../service/Budget'; // Import service functions
 import { getExpensesByCategory, getIncomeByCategory } from '../../../service/Transaction';
 
 const Home = () => {
@@ -18,10 +19,19 @@ const Home = () => {
     const [incomeDetails, setIncomeDetails] = useState([]);
     const [showExpenses, setShowExpenses] = useState(true);
     const userId = localStorage.getItem('userId');
+    const [budgets, setBudgets] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                const responseBudgets = await getAllBudgets(userId);
+                console.log('API Response:', responseBudgets); // Log response
+                if (responseBudgets) {
+                    setBudgets(responseBudgets); // Update with valid response
+                    // Check for budgets exceeding the limit
+                } else {
+                    throw new Error('Invalid response structure');
+                }
                 const expensesResponse = await getExpensesByCategory(userId);
                 const incomeResponse = await getIncomeByCategory(userId);
 
