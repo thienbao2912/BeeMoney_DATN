@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { getAllSavingsGoals, deleteSavingsGoal } from "../../../../service/SavingGoal";
 import "./SavingGoalList.css";
 import { Link } from "react-router-dom";
 import EditGoalModal from "../EditGoalModal/EditGoalModal";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
 import { useNotifications } from "../../../../components/Client/Header/NotificationContext"; // Import hook thông báo
-
-// const ITEMS_PER_PAGE = 4;
 
 const SavingGoalList = () => {
   const [savingsGoals, setSavingsGoals] = useState([]);
@@ -16,45 +14,45 @@ const SavingGoalList = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState(null);
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const [itemsPerPage] = useState(4);
   const { checkSavingGoals, handleGoalDeletion } = useNotifications(); // Sử dụng hàm kiểm tra và xóa
 
-  useEffect(() => {
-    const fetchSavingsGoals = async () => {
-      try {
-        const userId = localStorage.getItem("userId");
-        if (!userId) {
-          throw new Error("User ID not found in localStorage");
-        }
-        let data = await getAllSavingsGoals(userId);
-  
-        // Xử lý giá trị null và lọc ra các mục tiêu chưa hết hạn
-        const currentDate = new Date();
-        data = data
-          .map((goal) => ({
-            ...goal,
-            currentAmount: goal.currentAmount || 0,
-            targetAmount: goal.targetAmount || 0,
-          }))
-          .filter((goal) => new Date(goal.endDate) >= currentDate);
-  
-        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        setSavingsGoals(data);
-
-        // Kiểm tra các mục tiêu còn 1 ngày
-        checkSavingGoals(userId);
-
-      } catch (error) {
-        setError("Lỗi khi lấy danh sách mục tiêu tiết kiệm: " + error.message);
-      } finally {
-        setLoading(false);
+  // Hàm fetch dữ liệu và kiểm tra mục tiêu tiết kiệm
+  const fetchSavingsGoals = useCallback(async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        throw new Error("User ID not found in localStorage");
       }
-    };
-  
-    fetchSavingsGoals();
-  }, [checkSavingGoals]);
+      let data = await getAllSavingsGoals(userId);
 
+      // Xử lý giá trị null và lọc ra các mục tiêu chưa hết hạn
+      const currentDate = new Date();
+      data = data
+        .map((goal) => ({
+          ...goal,
+          currentAmount: goal.currentAmount || 0,
+          targetAmount: goal.targetAmount || 0,
+        }))
+        .filter((goal) => new Date(goal.endDate) >= currentDate);
+
+      data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setSavingsGoals(data);
+
+      // Chỉ kiểm tra các mục tiêu còn 1 ngày nếu cần thiết
+      await checkSavingGoals(userId);
+    } catch (error) {
+      setError("Lỗi khi lấy danh sách mục tiêu tiết kiệm: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []); // Thêm checkSavingGoals vào dependency
+
+  // Sử dụng useEffect để fetch dữ liệu chỉ một lần khi component mount
+  useEffect(() => {
+    fetchSavingsGoals();
+  }, [fetchSavingsGoals]); // fetchSavingsGoals không thay đổi giữa các lần render
+
+  // Hàm xóa mục tiêu tiết kiệm
   const handleDelete = async (goalId) => {
     try {
       await deleteSavingsGoal(goalId);
@@ -90,35 +88,11 @@ const SavingGoalList = () => {
 
   const handleUpdate = async () => {
     try {
-      const userId = localStorage.getItem("userId");
-      let data = await getAllSavingsGoals(userId);
-      
-      // Lọc ra các mục tiêu chưa hết hạn
-      const currentDate = new Date();
-      data = data
-        .filter((goal) => new Date(goal.endDate) >= currentDate)
-        .map((goal) => ({
-          ...goal,
-          currentAmount: goal.currentAmount || 0,
-          targetAmount: goal.targetAmount || 0,
-        }));
-  
-      data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      setSavingsGoals(data);
+      await fetchSavingsGoals(); // Cập nhật lại danh sách mục tiêu sau khi chỉnh sửa
     } catch (error) {
-      setError("Lỗi khi lấy danh sách mục tiêu tiết kiệm: " + error.message);
+      setError("Lỗi khi cập nhật danh sách mục tiêu tiết kiệm: " + error.message);
     }
   };
-
-  // const totalPages = Math.ceil(savingsGoals.length / ITEMS_PER_PAGE);
-  // const paginatedGoals = savingsGoals.slice(
-  //   (currentPage - 1) * ITEMS_PER_PAGE,
-  //   currentPage * ITEMS_PER_PAGE
-  // );
-
-  // const handlePageChange = (pageNumber) => {
-  //   setCurrentPage(pageNumber);
-  // };
 
   if (loading) {
     return (

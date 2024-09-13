@@ -16,7 +16,8 @@ const Header = () => {
             checkBudgetExceed(userId); // Kiểm tra ngân sách để thêm thông báo nếu vượt
             checkSavingGoals(userId); // Kiểm tra mục tiêu để thêm thông báo nếu còn 1 ngày
         }
-    }, [checkBudgetExceed, checkSavingGoals]);
+    }, []); // Không theo dõi bất kỳ trạng thái nào, chỉ gọi một lần khi component mount
+    
 
     return (
         <nav className="navbar navbar-expand-lg shadow-sm">

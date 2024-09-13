@@ -365,7 +365,7 @@ const DashboardStatistics = () => {
                             </table>
                             <button
                                 className="btn btn-primary mt-3"
-                                onClick={() => navigate("/admin/user")}
+                                onClick={() => navigate("/admin/users")}
                             >
                                 Xem Thêm
                             </button>
