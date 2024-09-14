@@ -1,0 +1,37 @@
+.category-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .category-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    border-radius: 8px; 
+    background-color: #f8f9fa;
+    border: 1px solid #ddd; 
+  }
+   
+  .category-button img {
+    max-width: 60px; 
+    height: auto;
+    margin-bottom: 10px;
+  }
+  
+  .category-button p {
+    margin: 0;
+    font-size: 14px;
+  }
+  .button-container {
+    display: flex;
+    justify-content: center; 
+    gap: 20px; 
+  }
+  .category-btn.active {
+    background-color: #cdd0f5;
+  }
+  
+  
