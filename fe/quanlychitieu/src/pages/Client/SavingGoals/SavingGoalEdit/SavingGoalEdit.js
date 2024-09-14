@@ -17,7 +17,6 @@ const SavingGoalEdit = () => {
     categoryId: '',
   });
 
-  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,9 +31,11 @@ const SavingGoalEdit = () => {
         setLoading(true);
 
         const categoriesResponse = await getCategories(userId);
+        console.log('Categories Response:', categoriesResponse);
         setCategories(categoriesResponse);
 
         const savingGoalResponse = await getSavingsGoalById(id);
+        console.log('SavingGoal Response:', savingGoalResponse);
 
         const formatDate = (dateStr) => {
           if (!dateStr) return '';
@@ -86,44 +87,8 @@ const SavingGoalEdit = () => {
     return value.replace(/[^\d]/g, '');
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.name) {
-      newErrors.name = 'Tên mục tiêu không được để trống';
-    }
-
-    if (!formData.targetAmount || unformatCurrency(formData.targetAmount) <= 0) {
-      newErrors.targetAmount = 'Số tiền mục tiêu phải lớn hơn 0';
-    }
-
-    if (unformatCurrency(formData.currentAmount) < 0) {
-      newErrors.currentAmount = 'Số tiền hiện tại không được nhỏ hơn 0';
-    }
-
-    if (!formData.startDate) {
-      newErrors.startDate = 'Vui lòng chọn ngày bắt đầu';
-    }
-
-    if (!formData.endDate) {
-      newErrors.endDate = 'Vui lòng chọn ngày kết thúc';
-    }
-
-    if (formData.startDate && formData.endDate && formData.startDate > formData.endDate) {
-      newErrors.dateRange = 'Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
     try {
       const payload = {
         ...formData,
@@ -131,7 +96,7 @@ const SavingGoalEdit = () => {
         targetAmount: unformatCurrency(formData.targetAmount),
         type: 'expense'
       };
-
+      console.log('Submitting payload:', payload);
       if (!id) {
         throw new Error('Goal ID is undefined');
       }
@@ -153,6 +118,7 @@ const SavingGoalEdit = () => {
       </div>
     );
   }
+
   return (
     <div className="container">
       <nav aria-label="breadcrumb">
@@ -175,7 +141,6 @@ const SavingGoalEdit = () => {
                 value={formData.name}
                 onChange={handleInputChange}
               />
-              {errors.name && <p className="text-danger">{errors.name}</p>}
             </div>
             <div className="form-row">
               <div className="form-group col">
@@ -188,7 +153,6 @@ const SavingGoalEdit = () => {
                   value={formData.targetAmount}
                   onChange={handleAmountInput}
                 />
-                {errors.targetAmount && <p className="text-danger">{errors.targetAmount}</p>}
               </div>
               <div className="form-group col">
                 <label htmlFor="currentAmount" className="form-label">Số tiền tiết kiệm</label>
@@ -200,7 +164,6 @@ const SavingGoalEdit = () => {
                   value={formData.currentAmount}
                   onChange={handleAmountInput}
                 />
-                {errors.currentAmount && <p className="text-danger">{errors.currentAmount}</p>}
               </div>
             </div>
             <div className="form-row">
@@ -214,7 +177,6 @@ const SavingGoalEdit = () => {
                   value={formData.startDate}
                   onChange={handleInputChange}
                 />
-                {errors.startDate && <p className="text-danger">{errors.startDate}</p>}
               </div>
               <div className="form-group col">
                 <label htmlFor="endDate" className="form-label">Ngày kết thúc</label>
@@ -226,11 +188,8 @@ const SavingGoalEdit = () => {
                   value={formData.endDate}
                   onChange={handleInputChange}
                 />
-                {errors.endDate && <p className="text-danger">{errors.endDate}</p>}
               </div>
             </div>
-            {errors.dateRange && <p className="text-danger">{errors.dateRange}</p>}
-
             <div className="form-group">
               <label htmlFor="category">Danh mục</label>
               <div className="category-buttons">

@@ -17,6 +17,7 @@ const PassSaving = () => {
   const [goalToDelete, setGoalToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(4);
+  const [selectedMonth, setSelectedMonth] = useState('all');
 
   useEffect(() => {
     const fetchSavingsGoals = async () => {
@@ -72,8 +73,26 @@ const PassSaving = () => {
     setConfirmationModalOpen(false);
   };
 
-  const totalPages = Math.ceil(savingsGoals.length / ITEMS_PER_PAGE);
-  const paginatedGoals = savingsGoals.slice(
+  const handleMonthChange = (event) => {
+    setSelectedMonth(event.target.value);
+    setCurrentPage(1); // Reset về trang đầu tiên khi thay đổi tháng
+  };
+
+  const filterGoalsByMonth = (goals) => {
+    if (selectedMonth === 'all') {
+      return goals;
+    }
+    const month = parseInt(selectedMonth);
+    return goals.filter(goal => {
+      const startDate = new Date(goal.startDate);
+      const endDate = new Date(goal.endDate);
+      return startDate.getMonth() + 1 === month || endDate.getMonth() + 1 === month;
+    });
+  };
+
+  const filteredGoals = filterGoalsByMonth(savingsGoals);
+  const totalPages = Math.ceil(filteredGoals.length / ITEMS_PER_PAGE);
+  const paginatedGoals = filteredGoals.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
@@ -116,6 +135,23 @@ const PassSaving = () => {
           </a>
         </div>
       </div>
+      <div className="col-md-3">
+        <select className="form-select" value={selectedMonth} onChange={handleMonthChange}>
+            <option value="all">Hiển thị tất cả</option>
+            <option value="1">Tháng 1</option>
+            <option value="2">Tháng 2</option>
+            <option value="3">Tháng 3</option>
+            <option value="4">Tháng 4</option>
+            <option value="5">Tháng 5</option>
+            <option value="6">Tháng 6</option>
+            <option value="7">Tháng 7</option>
+            <option value="8">Tháng 8</option>
+            <option value="9">Tháng 9</option>
+            <option value="10">Tháng 10</option>
+            <option value="11">Tháng 11</option>
+            <option value="12">Tháng 12</option>
+          </select>
+                </div>
       <div className="row mt-3">
         {paginatedGoals.map((goal) => {
           const percentage =

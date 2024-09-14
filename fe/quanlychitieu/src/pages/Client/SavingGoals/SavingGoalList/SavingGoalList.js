@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { getAllSavingsGoals, deleteSavingsGoal } from "../../../../service/SavingGoal";
+import {
+  getAllSavingsGoals,
+  deleteSavingsGoal,
+} from "../../../../service/SavingGoal";
 import "./SavingGoalList.css";
 import { Link } from "react-router-dom";
 import EditGoalModal from "../EditGoalModal/EditGoalModal";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
-import { useNotifications } from "../../../../components/Client/Header/NotificationContext"; // Import hook thông báo
 
-// const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 4;
 
 const SavingGoalList = () => {
   const [savingsGoals, setSavingsGoals] = useState([]);
@@ -16,9 +18,9 @@ const SavingGoalList = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState(null);
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const [itemsPerPage] = useState(4);
-  const { checkSavingGoals, handleGoalDeletion } = useNotifications(); // Sử dụng hàm kiểm tra và xóa
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(4);
+  const [selectedMonth, setSelectedMonth] = useState("all");
 
   useEffect(() => {
     const fetchSavingsGoals = async () => {
@@ -28,7 +30,7 @@ const SavingGoalList = () => {
           throw new Error("User ID not found in localStorage");
         }
         let data = await getAllSavingsGoals(userId);
-  
+
         // Xử lý giá trị null và lọc ra các mục tiêu chưa hết hạn
         const currentDate = new Date();
         data = data
@@ -38,22 +40,18 @@ const SavingGoalList = () => {
             targetAmount: goal.targetAmount || 0,
           }))
           .filter((goal) => new Date(goal.endDate) >= currentDate);
-  
+
         data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setSavingsGoals(data);
-
-        // Kiểm tra các mục tiêu còn 1 ngày
-        checkSavingGoals(userId);
-
       } catch (error) {
         setError("Lỗi khi lấy danh sách mục tiêu tiết kiệm: " + error.message);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchSavingsGoals();
-  }, [checkSavingGoals]);
+  }, []);
 
   const handleDelete = async (goalId) => {
     try {
@@ -61,7 +59,6 @@ const SavingGoalList = () => {
       setSavingsGoals((prevGoals) =>
         prevGoals.filter((goal) => goal._id !== goalId)
       );
-      handleGoalDeletion(goalId); // Xóa thông báo liên quan
       setConfirmationModalOpen(false);
     } catch (error) {
       setError("Error deleting saving goals: " + error.message);
@@ -92,7 +89,7 @@ const SavingGoalList = () => {
     try {
       const userId = localStorage.getItem("userId");
       let data = await getAllSavingsGoals(userId);
-      
+
       // Lọc ra các mục tiêu chưa hết hạn
       const currentDate = new Date();
       data = data
@@ -102,7 +99,7 @@ const SavingGoalList = () => {
           currentAmount: goal.currentAmount || 0,
           targetAmount: goal.targetAmount || 0,
         }));
-  
+
       data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setSavingsGoals(data);
     } catch (error) {
@@ -110,15 +107,35 @@ const SavingGoalList = () => {
     }
   };
 
-  // const totalPages = Math.ceil(savingsGoals.length / ITEMS_PER_PAGE);
-  // const paginatedGoals = savingsGoals.slice(
-  //   (currentPage - 1) * ITEMS_PER_PAGE,
-  //   currentPage * ITEMS_PER_PAGE
-  // );
+  const handleMonthChange = (event) => {
+    setSelectedMonth(event.target.value);
+    setCurrentPage(1); // Reset về trang đầu tiên khi thay đổi tháng
+  };
 
-  // const handlePageChange = (pageNumber) => {
-  //   setCurrentPage(pageNumber);
-  // };
+  const filterGoalsByMonth = (goals) => {
+    if (selectedMonth === "all") {
+      return goals;
+    }
+    const month = parseInt(selectedMonth);
+    return goals.filter((goal) => {
+      const startDate = new Date(goal.startDate);
+      const endDate = new Date(goal.endDate);
+      return (
+        startDate.getMonth() + 1 === month || endDate.getMonth() + 1 === month
+      );
+    });
+  };
+
+  const filteredGoals = filterGoalsByMonth(savingsGoals);
+  const totalPages = Math.ceil(filteredGoals.length / ITEMS_PER_PAGE);
+  const paginatedGoals = filteredGoals.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   if (loading) {
     return (
@@ -158,9 +175,30 @@ const SavingGoalList = () => {
             Mục tiêu đã qua
           </a>
         </div>
+        <div className="col-md-3">
+          <select
+            className="form-select"
+            value={selectedMonth}
+            onChange={handleMonthChange}
+          >
+            <option value="all">Hiển thị tất cả</option>
+            <option value="1">Tháng 1</option>
+            <option value="2">Tháng 2</option>
+            <option value="3">Tháng 3</option>
+            <option value="4">Tháng 4</option>
+            <option value="5">Tháng 5</option>
+            <option value="6">Tháng 6</option>
+            <option value="7">Tháng 7</option>
+            <option value="8">Tháng 8</option>
+            <option value="9">Tháng 9</option>
+            <option value="10">Tháng 10</option>
+            <option value="11">Tháng 11</option>
+            <option value="12">Tháng 12</option>
+          </select>
+        </div>
       </div>
       <div className="row mt-3">
-        {savingsGoals.map((goal) => {
+        {paginatedGoals.map((goal) => {
           const percentage =
             goal.currentAmount != null && goal.targetAmount != null
               ? (goal.currentAmount / goal.targetAmount) * 100
@@ -258,6 +296,29 @@ const SavingGoalList = () => {
           );
         })}
       </div>
+      {!loading && !error && savingsGoals.length > itemsPerPage && (
+        <div className="pagination mt-4">
+          <ul className="pagination justify-content-center">
+            {[...Array(totalPages)].map((_, index) => (
+              <li
+                key={index + 1}
+                className={`page-item ${
+                  currentPage === index + 1 ? "active" : ""
+                }`}
+              >
+                <a
+                  className="page-link"
+                  href="#!"
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {isModalOpen && selectedGoal && (
         <EditGoalModal
           goal={selectedGoal}
