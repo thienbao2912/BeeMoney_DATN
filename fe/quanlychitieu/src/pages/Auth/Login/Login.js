@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -12,14 +12,25 @@ function Login() {
     formState: { errors },
     setError,
     clearErrors,
+    setValue,
   } = useForm();
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSubmit(onSubmit)();
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
       const response = await loginUser(data);
@@ -43,7 +54,14 @@ function Login() {
     }
   };
 
-  const handleInputChange = () => {
+  const handleInputChange = (e, field) => {
+    if (field === 'email') {
+      setEmail(e.target.value);
+      setValue('email', e.target.value);
+    } else if (field === 'password') {
+      setPassword(e.target.value);
+      setValue('password', e.target.value);
+    }
     clearErrors("email");
     clearErrors("password");
     clearErrors("api");
@@ -59,7 +77,7 @@ function Login() {
         </p>
       </div>
       <div className={styles.loginSection}>
-        <form className="form-login" onSubmit={handleSubmit(onSubmit)}>
+        <form className="form-login" onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyDown}>
           <div className="text-center mb-4">
             <img
               src="/images/piggy-bank.png"
@@ -80,7 +98,9 @@ function Login() {
                   message: "Email không hợp lệ.",
                 },
               })}
-              onChange={handleInputChange}
+              value={email}
+              onChange={(e) => handleInputChange(e, 'email')}
+              onKeyDown={handleKeyDown}
               style={{ width: "20rem" }}
             />
             {errors.email && (
@@ -96,7 +116,9 @@ function Login() {
                 {...register("password", {
                   required: "Mật khẩu không được để trống.",
                 })}
-                onChange={handleInputChange}
+                value={password}
+                onChange={(e) => handleInputChange(e, 'password')}
+                onKeyDown={handleKeyDown}
               />
               <span
                 className="toggle-password"
