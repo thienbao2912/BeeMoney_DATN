@@ -55,3 +55,18 @@
 .sidebar .nav .collapse .nav-link:hover {
   background-color: #f1f3f5; 
 }
+.nav-link {
+  color: #343a40;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background-color: #e9ecef;
+  color: #007bff;
+  border-radius: 5px;
+}
+
+.nav-link.active {
+  color: #007bff;
+  font-weight: 600;
+}
