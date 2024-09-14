@@ -82,6 +82,9 @@ const Sidebar = () => {
               <a className="nav-link" href="/saving-goal/list">Mục tiêu tiết kiệm</a>
             </li>
             <li className="nav-item">
+              <a className="nav-link" href="/savings-fund/list">Quỹ tiết kiệm</a>
+            </li>
+            <li className="nav-item">
               <a className="nav-link" href="/profile">Hồ Sơ Người Dùng</a>
             </li>
             {user.role === 'admin' && (
