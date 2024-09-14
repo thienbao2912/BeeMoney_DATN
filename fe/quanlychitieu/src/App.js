@@ -31,8 +31,9 @@ import AddCategory from './pages/Client/Category/Add-Category/add-category';
 import EditCategory from './pages/Client/Category/Update-Category/Update-Category';
 import Register from './pages/Auth/Register/Register';
 import PrivateRoute from './components/PrivateRoute';
+import SavingsFundList from './pages/Client/SavingsFund/List/List';
+import SavingsFundAdd from './pages/Client/SavingsFund/Add/add';
 
-// Import Admin Routes
 import AdminRoutes from './pages/Admin/Router/AdminRoutes';
 
 function App() {
@@ -61,8 +62,9 @@ function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/add-category" element={<AddCategory />} />
           <Route path="/edit-category/:id" element={<EditCategory />} />
+          <Route path="/savings-fund/list" element={<SavingsFundList/>} />
+          <Route path="/savings-fund/add" element={<SavingsFundAdd/>} />
         </Route>
-        {/* Route cho Admin */}
         <Route path="/admin/*" element={<PrivateRoute element={<AdminRoutes />} requiredRole="admin" />} />
       </>
 
