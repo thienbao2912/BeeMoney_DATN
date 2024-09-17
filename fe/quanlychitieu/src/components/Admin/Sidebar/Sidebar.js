@@ -10,11 +10,8 @@ const Sidebar = () => {
   const handleLogout = () => {
     try {
       localStorage.clear();
-
       sessionStorage.clear();
-
       clearCookies();
-
       navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
@@ -28,10 +25,10 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="sidebar border-end" >
-      <div className="d-flex flex-column align-items-start p-3">
+    <aside className="sidebar border-end" style={{ backgroundColor: '#f8f9fa', minHeight: '115vh', width: '250px' }}>
+      <div className="d-flex flex-column align-items-start">
         <button
-          className="btn btn-secondary d-xl-none mb-3"
+          className="btn btn-outline-secondary d-xl-none mb-3"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#sidebarCollapse"
@@ -40,50 +37,55 @@ const Sidebar = () => {
         >
           <span>&times;</span>
         </button>
-        <Link className="sidebar-title" to="/admin/dashboard">
-          <img
-            src="../../../images/piggy-bank.png"
-            alt=""
-            style={{ width: '30px', height: '30px', marginRight: '10px' }}
-          />
-          Admin
-        </Link>
-        <hr />
-        <div className="collapse d-xl-block" id="sidebarCollapse">
+
+        <div className="p-3 text-center w-100">
+          <Link className="sidebar-title d-flex align-items-center justify-content-center" to="/admin/dashboard" >
+            <img
+              src="../../../images/piggy-bank.png"
+              alt="Admin Logo"
+              style={{ width: '40px', height: '40px', marginRight: '10px' }}
+            />
+            <span className="fs-5 fw-bold text-dark">Admin</span>
+          </Link>
+        </div>
+
+        <hr className="w-100" />
+
+        <div className="collapse d-xl-block w-100" id="sidebarCollapse">
           <ul className="nav flex-column">
             <li className="nav-item">
-              <Link className="nav-link" to="/admin/dashboard">
-                <House className="me-2" />
+              <Link className="nav-link d-flex align-items-center p-2" to="/admin/dashboard">
+                <House className="me-3" size={20} />
                 <span>Trang chủ</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/admin/users">
-                <Person className="me-2" />
+              <Link className="nav-link d-flex align-items-center p-2" to="/admin/users">
+                <Person className="me-3" size={20} />
                 <span>Quản lý tài khoản</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/admin/categories">
-                <Box className="me-2" />
+              <Link className="nav-link d-flex align-items-center p-2" to="/admin/categories">
+                <Box className="me-3" size={20} />
                 <span>Danh mục chi thu</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/admin/profile">
-                <PersonCircle className="me-2" />
+              <Link className="nav-link d-flex align-items-center p-2" to="/admin/profile">
+                <PersonCircle className="me-3" size={20} />
                 <span>Quản lý hồ sơ</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/">
-                <Globe className="me-2" />
+              <Link className="nav-link d-flex align-items-center p-2" to="/">
+                <Globe className="me-3" size={20} />
                 <span>Website</span>
               </Link>
             </li>
             <li className="nav-item">
-              <button className="nav-link btn btn-link" onClick={handleLogout}>
-                <BoxArrowRight className="me-2" />
+              <button className="nav-link btn btn-link d-flex align-items-center p-2 text-start" onClick={handleLogout}>
+                <BoxArrowRight className="me-3" size={20} />
                 <span>Đăng xuất</span>
               </button>
             </li>

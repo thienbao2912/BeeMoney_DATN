@@ -10,7 +10,8 @@ const PastBudget = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [goalToDelete, setGoalToDelete] = useState(null);
-    const [itemsPerPage] = useState(4); // Number of budgets per page
+    const [itemsPerPage] = useState(4); 
+    const [selectedMonth, setSelectedMonth] = useState('all');
 
     useEffect(() => {
         const fetchBudgets = async () => {
@@ -22,14 +23,23 @@ const PastBudget = () => {
                 const response = await getAllBudgets(userId);
                 console.log('API Response:', response);
                 if (response) {
-                    // Lọc ngân sách đã quá hạn ít nhất 1 ngày
                     const currentDate = new Date();
-                    const pastBudgets = response.filter(budget => {
+                    let filteredBudgets = response.filter(budget => {
                         const endDate = new Date(budget.endDate);
                         const oneDayAfterEnd = new Date(endDate.getTime() + 24 * 60 * 60 * 1000);
                         return currentDate > oneDayAfterEnd;
                     });
-                    setBudgets(pastBudgets);
+    
+                    if (selectedMonth !== 'all') {
+                        filteredBudgets = filteredBudgets.filter(budget => {
+                            const startDate = new Date(budget.startDate);
+                            const endDate = new Date(budget.endDate);
+                            const month = parseInt(selectedMonth);
+                            return (startDate.getMonth() + 1 === month || endDate.getMonth() + 1 === month);
+                        });
+                    }
+    
+                    setBudgets(filteredBudgets);
                 } else {
                     throw new Error('Invalid response structure');
                 }
@@ -42,7 +52,7 @@ const PastBudget = () => {
         };
 
         fetchBudgets();
-    }, []);
+    }, [selectedMonth]);
 
     const handleDelete = async (budgetId) => {
         try {
@@ -70,6 +80,11 @@ const PastBudget = () => {
         return ((remaining / totalAmount) * 100).toFixed(0);
     };
 
+    const handleMonthChange = (event) => {
+        setSelectedMonth(event.target.value);
+        setCurrentPage(1); // Reset về trang đầu tiên khi thay đổi tháng
+      };
+
     // Pagination logic
     const indexOfLastBudget = currentPage * itemsPerPage;
     const indexOfFirstBudget = indexOfLastBudget - itemsPerPage;
@@ -91,13 +106,34 @@ const PastBudget = () => {
                     </li>
                 </ol>
             </nav>
-
+            <div className="row">
             <div className="text-center mt-4">
                 <a href="/budget" className="btn btn-primary">
                     Danh sách ngân sách
                 </a>
             </div>
-
+            <div className="col-md-3">
+          <select
+            className="form-select"
+            value={selectedMonth}
+            onChange={handleMonthChange}
+          >
+            <option value="all">Hiển thị tất cả</option>
+            <option value="1">Tháng 1</option>
+            <option value="2">Tháng 2</option>
+            <option value="3">Tháng 3</option>
+            <option value="4">Tháng 4</option>
+            <option value="5">Tháng 5</option>
+            <option value="6">Tháng 6</option>
+            <option value="7">Tháng 7</option>
+            <option value="8">Tháng 8</option>
+            <option value="9">Tháng 9</option>
+            <option value="10">Tháng 10</option>
+            <option value="11">Tháng 11</option>
+            <option value="12">Tháng 12</option>
+          </select>
+        </div>
+        </div>
             {isLoading && (
                 <div className="text-center mt-5">
                     <i className="fa fa-spinner fa-spin fa-2x primary"></i>
