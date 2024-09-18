@@ -1,5 +1,6 @@
 import request from "../../config/API/api";
 
+// Tạo ngân sách mới
 const createBudget = async (budgetData) => {
     try {
         const response = await request({
@@ -14,12 +15,12 @@ const createBudget = async (budgetData) => {
     }
 };
 
-// Get all budgets for a user
+// Lấy tất cả ngân sách của một người dùng
 const getAllBudgets = async (userId) => {
     try {
         const response = await request({
             method: 'GET',
-            path: `/api/budgets/budgets?userId=${userId}`, // Thay đổi để thêm userId vào query string
+            path: `/api/budgets/budgets?userId=${userId}`, // Thêm userId vào query string
         });
         return response; // Giả sử response đã bao gồm dữ liệu cần thiết
     } catch (error) {
@@ -27,14 +28,15 @@ const getAllBudgets = async (userId) => {
         throw error;
     }
 };
-// Get a budget by ID
+
+// Lấy ngân sách theo ID
 const getBudgetById = async (budgetId, userId) => {
     try {
         const response = await request({
             method: 'GET',
             path: `/api/budgets/${budgetId}`,
             headers: {
-                'Authorization': `Bearer ${userId}` // Nếu cần thiết
+                'Authorization': `Bearer ${userId}` 
             }
         });
         return response;
@@ -44,7 +46,7 @@ const getBudgetById = async (budgetId, userId) => {
     }
 };
 
-// Delete a budget by ID
+// Xóa ngân sách theo ID
 const deleteBudget = async (budgetId) => {
     try {
         const response = await request({
@@ -58,17 +60,13 @@ const deleteBudget = async (budgetId) => {
     }
 };
 
-// Get expenses for a specific budget
+// Lấy các khoản chi tiêu cho ngân sách cụ thể
 const getExpensesForBudget = async (budgetId) => {
     try {
         const response = await request({
             method: 'GET',
             path: `/api/budgets/${budgetId}/expenses`
         });
-        
-        // Kiểm tra phản hồi
-        console.log('Expenses response:', response);
-
         return response;
     } catch (error) {
         console.error('Error fetching expenses for budget:', error.message);
@@ -76,7 +74,29 @@ const getExpensesForBudget = async (budgetId) => {
     }
 };
 
+// Cập nhật số tiền của ngân sách
+// Cập nhật số tiền của ngân sách
+const updateBudget = async (budgetId, updateData) => {
+    try {
+        const response = await request({
+            method: 'PATCH',
+            path: `/api/budgets/${budgetId}`,
+            data: updateData
+        });
 
+        // Trả về toàn bộ phản hồi hoặc chỉ dữ liệu nếu có
+        return response.data || response;
+    } catch (error) {
+        console.error('Error updating budget:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+
+
+
+
+
+// Lấy danh sách các danh mục
 const getCategories = async () => {
     try {
         const response = await request({
@@ -96,5 +116,6 @@ export {
     getBudgetById,
     deleteBudget,
     getExpensesForBudget,
-    getCategories
+    getCategories,
+    updateBudget
 };

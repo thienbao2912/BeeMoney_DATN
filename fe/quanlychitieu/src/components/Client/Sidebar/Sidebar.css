@@ -27,10 +27,17 @@ a {
   left: 0;
   bottom: 0;
 }
+.nav-link{
+  color: #fff !important;
+}.nav-item:hover{
+  background-color: none !important;
+
+}
 .nav-link:hover {
-  padding: 10px 5px;
-  border-radius: 5px;
-  opacity: 0.8;
+  background-color: none !important;
+  padding: 10px 5px !important;
+  border-radius: 0px !important;
+  opacity: 0.8 !important;
 }
 /* Ẩn Sidebar trên các thiết bị di động */
 @media (max-width: 767px) {

@@ -279,15 +279,17 @@ const SavingGoalList = () => {
                     <div className="bg-action ms-auto">
                       <Link
                         to={`/saving-goal/edit/${goal._id}`}
-                        className="me-2"
+                        className="btn btn-sm btn-success me-2"
                         aria-label="Edit"
                       >
-                        <i className="fa fa-edit text-success" />
+                        <i className="fa fa-edit" />
                       </Link>
+                      <div className="btn btn-sm btn-danger">
                       <i
-                        className="fa fa-trash text-danger ms-auto"
+                        className="fa fa-trash ms-auto"
                         onClick={() => openConfirmationModal(goal)}
                       />
+                      </div>
                     </div>
                   </div>
                 </div>

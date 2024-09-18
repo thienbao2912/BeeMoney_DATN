@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getAllBudgets, deleteBudget } from "../../../service/Budget"; // Import service functions
 import ConfirmationModal from "../SavingGoals/ConfirmationModal/ConfirmationModal";
+import EditBudgetModal from "../Budget/edit-budget/edit-budget"; // Import modal chỉnh sửa ngân sách
 import "./budget.css"; // Import the CSS file
 
 const Budget = () => {
@@ -12,6 +13,8 @@ const Budget = () => {
   const [goalToDelete, setGoalToDelete] = useState(null);
   const [itemsPerPage] = useState(4);
   const [selectedMonth, setSelectedMonth] = useState("all");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Modal chỉnh sửa
+  const [budgetToEdit, setBudgetToEdit] = useState(null); // Ngân sách được chọn để chỉnh sửa
 
   useEffect(() => {
     const fetchBudgets = async () => {
@@ -22,7 +25,6 @@ const Budget = () => {
         }
         let response = await getAllBudgets(userId);
 
-        // Lọc ra các ngân sách chưa hết hạn
         const currentDate = new Date();
         response = response
           .filter((budget) => new Date(budget.endDate) >= currentDate)
@@ -32,7 +34,6 @@ const Budget = () => {
             remainingBudget: budget.remainingBudget || 0,
           }));
 
-        // Sắp xếp ngân sách theo thời gian tạo, mới nhất lên đầu
         response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         if (selectedMonth !== "all") {
@@ -43,7 +44,6 @@ const Budget = () => {
             const startMonth = startDate.getMonth() + 1;
             const endMonth = endDate.getMonth() + 1;
 
-            // Chỉ lọc ra ngân sách có tháng bắt đầu hoặc tháng kết thúc trùng với tháng đã chọn
             return (
               startMonth === selectedMonthNumber ||
               endMonth === selectedMonthNumber
@@ -66,13 +66,23 @@ const Budget = () => {
     try {
       await deleteBudget(budgetId);
       setConfirmationModalOpen(false);
-      // Reload the page to reflect changes
-      window.location.reload();
+      setBudgets((prev) => prev.filter((budget) => budget._id !== budgetId)); // Cập nhật danh sách sau khi xóa
     } catch (err) {
       setError("Error deleting budget");
       console.error("Error deleting budget:", err); // Log error
     }
   };
+
+  const openEditModal = (budget) => {
+    setBudgetToEdit(budget);
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setBudgetToEdit(null);
+    setIsEditModalOpen(false);
+  };
+
   const openConfirmationModal = (goalId) => {
     setGoalToDelete(goalId);
     setConfirmationModalOpen(true);
@@ -82,6 +92,7 @@ const Budget = () => {
     setGoalToDelete(null);
     setConfirmationModalOpen(false);
   };
+
   const calculatePercentageRemaining = (budget) => {
     const totalAmount = budget.amount || 1; // Ensure not to divide by 0
     const remaining = budget.remainingBudget >= 0 ? budget.remainingBudget : 0;
@@ -92,7 +103,6 @@ const Budget = () => {
     setSelectedMonth(event.target.value);
     setCurrentPage(1); // Reset về trang đầu tiên khi thay đổi tháng
   };
-  // Pagination logic
   const indexOfLastBudget = currentPage * itemsPerPage;
   const indexOfFirstBudget = indexOfLastBudget - itemsPerPage;
   const currentBudgets = budgets.slice(indexOfFirstBudget, indexOfLastBudget);
@@ -204,117 +214,121 @@ const Budget = () => {
                           : "text-danger"
                       }`}
                     >
-                      Còn lại:{" "}
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(budget.remainingBudget)}
+                      {budget.remainingBudget >= 0 ? (
+                        <>
+                          Còn lại:{" "}
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(budget.remainingBudget)}
+                        </>
+                      ) : (
+                        <>
+                          Đã vượt quá ngân sách:{" "}
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(Math.abs(budget.remainingBudget))}
+                        </>
+                      )}
                     </span>
                   </div>
-                  {budget.remainingBudget >= 0 ? (
+
+                  <div className="progress-wrapper">
                     <div className="progress">
                       <div
-                        className="progress-bar bg-success"
-                        role="progressbar"
+                        className={`progress-bar ${
+                          budget.remainingBudget <= 0
+                            ? "bg-danger" // Full red if remaining budget is 0 or less
+                            : calculatePercentageRemaining(budget) < 50
+                            ? "bg-warning" // Yellow if below 50%
+                            : "bg-success" // Green if above 50%
+                        }`}
                         style={{
-                          width: `${calculatePercentageRemaining(budget)}%`,
+                          width:
+                            budget.remainingBudget <= 0
+                              ? "100%"
+                              : `${calculatePercentageRemaining(budget)}%`, // Full width if 0%
                         }}
-                        aria-valuenow={calculatePercentageRemaining(budget)}
-                        aria-valuemin="0"
-                        aria-valuemax="100"
-                      >
-                        {calculatePercentageRemaining(budget)}%
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="progress">
-                      <div
-                        className="progress-bar bg-danger"
                         role="progressbar"
-                        style={{ width: "100%" }}
-                        aria-valuenow="100"
+                        aria-valuenow={calculatePercentageRemaining(budget)}
                         aria-valuemin="0"
                         aria-valuemax="100"
                       ></div>
                     </div>
-                  )}
-                  <p
-                    className={`text-success font-weight-bold ${
-                      budget.remainingBudget <= 0 ? "d-none" : ""
-                    }`}
-                  >
-                    Ngân sách còn {calculatePercentageRemaining(budget)}%
-                  </p>
-                  <p
-                    className={`text-danger font-weight-bold ${
-                      budget.remainingBudget !== 0 ? "d-none" : ""
-                    }`}
-                  >
-                    Ngân sách đã hết
-                  </p>
-                  <p
-                    className={`text-danger font-weight-bold ${
-                      budget.remainingBudget < 0 ? "" : "d-none"
-                    }`}
-                  >
-                    Chi tiêu vượt ngân sách
-                  </p>
-                </div>
-                <div className="card-footer d-flex justify-content-between align-items-center">
-                  <a
-                    href={`/budget-detail/${budget._id}`}
-                    className="text-secondary font-weight-bold"
-                  >
-                    Xem chi tiết
-                  </a>
-                  <i
-                    className="fa fa-trash text-danger ms-auto"
-                    onClick={() => openConfirmationModal(budget._id)}
-                    style={{ cursor: "pointer" }}
-                  />
+                    <span className="progress-percentage">
+                      {calculatePercentageRemaining(budget)}%
+                    </span>
+                  </div>
+
+                  <div style={{float:"right"}} className="bg-action ms-auto">
+                    <button
+                      className="btn btn-sm btn-success me-2"
+                      onClick={() => openEditModal(budget)}
+                    >
+                      <i className="fas fa-edit"></i>
+                    </button>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => openConfirmationModal(budget._id)}
+                    >
+                      <i className="fas fa-trash ms-auto"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
       )}
+      {!isLoading && !error && currentBudgets.length === 0 && (
+        <div className="text-center mt-3">Không có ngân sách nào.</div>
+      )}
 
       {error && (
-        <div className="text-danger text-center">
-          <p>{error}</p>
+        <div className="text-center mt-3">
+          <p className="text-danger">Error loading data: {error}</p>
         </div>
       )}
 
-      {!isLoading && !error && budgets.length > itemsPerPage && (
-        <div className="pagination mt-4">
+      {budgets.length > itemsPerPage && (
+        <div className="pagination-wrapper mt-4">
           <ul className="pagination justify-content-center">
-            {[...Array(totalPages)].map((_, index) => (
-              <li
-                key={index + 1}
-                className={`page-item ${
-                  currentPage === index + 1 ? "active" : ""
-                }`}
-              >
-                <a
-                  className="page-link"
-                  href="#!"
-                  onClick={() => handlePageChange(index + 1)}
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+              (page) => (
+                <li
+                  key={page}
+                  className={`page-item ${
+                    page === currentPage ? "active" : ""
+                  }`}
                 >
-                  {index + 1}
-                </a>
-              </li>
-            ))}
+                  <button
+                    className="page-link"
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </button>
+                </li>
+              )
+            )}
           </ul>
         </div>
       )}
-      {isConfirmationModalOpen && (
-        <ConfirmationModal
-          isOpen={isConfirmationModalOpen}
-          onClose={closeConfirmationModal}
-          onConfirm={() => {
-            if (goalToDelete) handleDelete(goalToDelete);
-          }}
-          message="Bạn có chắc chắn muốn xóa mục tiêu này?"
+
+      <ConfirmationModal
+        isOpen={isConfirmationModalOpen}
+        onClose={closeConfirmationModal}
+        onConfirm={() => handleDelete(goalToDelete)}
+        title="Xóa ngân sách"
+        message="Bạn có chắc chắn muốn xóa ngân sách này không?"
+      />
+
+      {isEditModalOpen && budgetToEdit && (
+        <EditBudgetModal
+          budget={budgetToEdit}
+          isOpen={isEditModalOpen}
+          onClose={closeEditModal}
+          setBudgets={setBudgets}
         />
       )}
     </div>
