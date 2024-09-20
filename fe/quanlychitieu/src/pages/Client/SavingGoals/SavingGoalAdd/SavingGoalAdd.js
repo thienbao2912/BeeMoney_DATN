@@ -3,14 +3,14 @@ import { useForm } from 'react-hook-form';
 import './SavingGoalAdd.css';
 import { getCategories, addSavingsGoal, getAllSavingsGoals } from '../../../../service/SavingGoal';
 import { Link, useNavigate } from 'react-router-dom';
-const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu']; // Add forbidden words here
+const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu']; 
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 };
 
 const normalizeText = (text) => {
-  return removeAccents(text).toLowerCase().replace(/\s+/g, ''); // Remove spaces
+  return removeAccents(text).toLowerCase().replace(/\s+/g, ''); 
 };
 
 const containsForbiddenWords = (value) => {
@@ -22,8 +22,8 @@ const SavingGoalAdd = () => {
   const { register, handleSubmit, setValue, watch, setError, formState: { errors } } = useForm({
     defaultValues: {
       name: '',
-      targetAmount: '', // Default as empty string
-      currentAmount: 0, // Default as 0
+      targetAmount: '', 
+      currentAmount: 0, 
       startDate: '',
       endDate: '',
       categoryId: ''
@@ -34,6 +34,8 @@ const SavingGoalAdd = () => {
   const [savingsGoals, setSavingsGoals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setErrorMessage] = useState(null);
+  const [globalError, setGlobalError] = useState(null);
+
 
   const userId = localStorage.getItem('userId');
   const categoryId = watch('categoryId');
@@ -50,8 +52,8 @@ const SavingGoalAdd = () => {
         const savingsGoalsData = await getAllSavingsGoals(userId);
         setSavingsGoals(savingsGoalsData || []);
       } catch (error) {
-        setErrorMessage('Failed to fetch categories or savings goals.');
-        console.error('Failed to fetch categories:', error);
+        setErrorMessage('Lỗi hiển thị danh mục');
+        console.error('Lỗi hiển thị danh mục', error);
       } finally {
         setLoading(false);
       }
@@ -60,14 +62,16 @@ const SavingGoalAdd = () => {
     fetchCategoriesAndSavingsGoals();
   }, [userId]);
 
-  useEffect(() => {
-    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-      setError('endDate', {
-        type: 'manual',
-        message: 'Ngày kết thúc phải sau ngày bắt đầu'
-      });
-    }
-  }, [startDate, endDate, setError]);
+  const validateEndDate = (value) => {
+    return new Date(startDate) <= new Date(value) || 'Ngày kết thúc phải sau ngày bắt đầu';
+  };
+  
+  <input
+    type="date"
+    id="endDate"
+    {...register('endDate', { required: 'Ngày kết thúc là bắt buộc', validate: validateEndDate })}
+  />
+  
 
   const formatCurrency = (value) => {
     return Number(value).toLocaleString('vi-VN');
@@ -77,16 +81,15 @@ const SavingGoalAdd = () => {
     if (typeof value === 'string') {
       return value.replace(/[^\d]/g, '');
     }
-    return ''; // Return empty string if value is not a string
+    return ''; 
   };
 
   const handleAmountChange = (e) => {
     let value = e.target.value;
-    // Ensure value is a string before processing
     if (typeof value === 'string') {
       value = unformatCurrency(value);
       if (Number(value) < 0) {
-        e.target.value = formatCurrency(0); // Set to 0 if negative
+        e.target.value = formatCurrency(0); 
       } else {
         e.target.value = formatCurrency(value);
       }
@@ -96,29 +99,24 @@ const SavingGoalAdd = () => {
   const onSubmit = async (formData) => {
     setLoading(true);
     try {
-        // Ensure currentAmount is set to 0 if not provided
-        const payload = {
-            ...formData,
-            targetAmount: unformatCurrency(formData.targetAmount),
-            currentAmount: unformatCurrency(formData.currentAmount) || '0' // Set to '0' if empty
-        };
-        await addSavingsGoal(payload);
-        navigate('/saving-goal/list');
-        const updatedSavingsGoals = await getAllSavingsGoals(userId);
-        setSavingsGoals(updatedSavingsGoals || []);
-        setValue('name', '');
-        setValue('targetAmount', '');
-        setValue('currentAmount', '');
-        setValue('startDate', '');
-        setValue('endDate', '');
-        setValue('categoryId', '');
+      const payload = {
+        ...formData,
+        targetAmount: unformatCurrency(formData.targetAmount),
+        currentAmount: unformatCurrency(formData.currentAmount) || '0',
+      };
+      await addSavingsGoal(payload);
+      navigate('/saving-goal/list');
+      const updatedSavingsGoals = await getAllSavingsGoals(userId);
+      setSavingsGoals(updatedSavingsGoals || []);
+    
     } catch (error) {
-        setErrorMessage('Error adding savings goal. Please try again.');
-        console.error('Error adding savings goal:', error.response ? error.response.data : error.message);
+      setGlobalError('Lỗi thêm mục tiêu tiết kiệm');
+      console.error('Lỗi thêm mục tiêu tiết kiệm:', error);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
+  
 
 
   if (loading) {
@@ -192,7 +190,9 @@ const SavingGoalAdd = () => {
                       id="targetAmount"
                       name="targetAmount"
                       className="form-control"
-                      {...register('targetAmount', { required: 'Số tiền mục tiêu là bắt buộc' })}
+                      {...register('targetAmount', { 
+                        required: 'Số tiền mục tiêu là bắt buộc' 
+                      })}
                       onChange={handleAmountChange}
                     />
                     {errors.targetAmount && <p className="text-danger">{errors.targetAmount.message}</p>}
@@ -213,31 +213,33 @@ const SavingGoalAdd = () => {
                 <div className="form-group">
                   <label htmlFor="category">Danh mục</label>
                   <div className="category-buttons">
-                    {categories.length > 0 ? (
-                      categories.map((category) => (
-                        category && category.image ? (
-                          <button
-                            className={`btn btn-secondary ${category._id === categoryId ? 'active' : ''}`}
-                            type="button"
-                            key={category._id}
-                            onClick={() => setValue('categoryId', category._id)}
-                          >
-                            <img src={category.image} alt={category.name} />
-                            <p>{category.name}</p>
-                          </button>
-                        ) : (
-                          <p key={category._id}>Dữ liệu bị thiếu</p>
-                        )
-                      ))
-                    ) : (
-                      <i className="fa-solid fa-circle-exclamation fa-2x"></i>
-                    )}
+                  {categories.length > 0 ? (
+  categories.map((category) => (
+    category.image ? (
+      <button
+        className={`btn btn-secondary ${category._id === categoryId ? 'active' : ''}`}
+        type="button"
+        key={category._id}
+        onClick={() => setValue('categoryId', category._id)}
+      >
+        <img src={category.image} alt={category.name} />
+        <p>{category.name}</p>
+      </button>
+    ) : (
+      <p key={category._id}>Không thể tải danh mục</p>
+    )
+  ))
+) : (
+  <i className="fa-solid fa-circle-exclamation fa-2x"></i>
+)}
+
                   </div>
                 </div>
                 <div className="col-md-auto col-12 d-flex justify-content-center">
-                  <button className="btn btn-primary w-100 text-center" type="submit" disabled={loading}>
-                    Thêm mục tiêu
-                  </button>
+                <button className="btn btn-primary w-100 text-center" type="submit" disabled={loading}>
+  {loading ? <i className="fa fa-spinner fa-spin"></i> : 'Thêm mục tiêu'}
+</button>
+
                 </div>
               </form>
 
@@ -251,21 +253,10 @@ const SavingGoalAdd = () => {
               <Link to="/saving-goal/list" className="text-secondary">Xem tất cả mục tiêu</Link>
               {savingsGoals.length > 0 ? (
           savingsGoals
-          .filter(goal => new Date(goal.endDate) >= new Date()) // Lọc bỏ các mục tiêu đã hết hạn
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sắp xếp theo ngày kết thúc giảm dần
+          .filter(goal => new Date(goal.endDate) >= new Date()) 
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) 
           .slice(0, 2)
           .map((goal) => {
-            const percentage = (goal.currentAmount / goal.targetAmount) * 100;
-            let progressBarClass;
-
-            if (percentage < 25) {
-              progressBarClass = 'bg-danger';
-            } else if (percentage >= 25 && percentage <= 50) {
-              progressBarClass = 'bg-warning';
-            } else {
-              progressBarClass = 'bg-success';
-            }
-
                     return (
                       <div className="card mt-4" key={goal._id}>
                         <div className="card-body">
@@ -277,24 +268,9 @@ const SavingGoalAdd = () => {
                             />
                             <h5>{goal.name}</h5>
                           </div>
-                          <div className="date-saving text-secondary mb-3">
-                            <i className="fas fa-calendar-alt me-2"></i>
-                            {new Date(goal.startDate).toLocaleDateString()} - {new Date(goal.endDate).toLocaleDateString()}
-                          </div>
                           <div className="money text-secondary mb-3">
                             <i className="fa-solid fa-sack-dollar me-2"></i>
-                            {goal.currentAmount != null ? goal.currentAmount.toLocaleString() : '0'}đ -    {goal.targetAmount != null ? goal.targetAmount.toLocaleString() : '0'}đ
-                          </div>
-                          <div className="progress-container mb-3">
-                            <div
-                              className={`progress-bar ${progressBarClass}`}
-                              role="progressbar"
-                              style={{ width: `${Math.min(percentage, 100)}%` }}
-                            >
-                              <span className="progress-percentage">
-                                {Math.round(percentage)}%
-                              </span>
-                            </div>
+                           Số tiền mục tiêu:  <span className='custom-date-style'>{goal.targetAmount != null ? goal.targetAmount.toLocaleString() : '0'}đ</span> 
                           </div>
                         </div>
                       </div>

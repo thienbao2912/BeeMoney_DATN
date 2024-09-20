@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAllTransactions, deleteTransaction } from '../../../../../service/Transaction';
-import { getCategories } from '../../../../../service/Category'; // Import the function to fetch categories
+import { getCategories } from '../../../../../service/Category'; 
 import ConfirmationModal from '../../../SavingGoals/ConfirmationModal/ConfirmationModal';
 import CustomDropdown from '../../CustomDropdown';
 import './ExpenseList.css';
@@ -9,8 +9,8 @@ import { Link } from 'react-router-dom';
 const ExpenseList = () => {
     const [expenses, setExpenses] = useState([]);
     const [filteredExpenses, setFilteredExpenses] = useState([]);
-    const [categories, setCategories] = useState([]); // State to store categories
-    const [selectedCategory, setSelectedCategory] = useState(''); // State to store the selected category
+    const [categories, setCategories] = useState([]); 
+    const [selectedCategory, setSelectedCategory] = useState(''); 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -51,7 +51,7 @@ const ExpenseList = () => {
         };
 
         fetchExpenses();
-        fetchCategories(); // Fetch categories on component mount
+        fetchCategories();
     }, [userId]);
 
     useEffect(() => {

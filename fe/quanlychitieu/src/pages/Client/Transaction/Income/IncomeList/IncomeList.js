@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { getAllTransactions, deleteTransaction } from '../../../../../service/Transaction';
+import { getCategories } from '../../../../../service/Category';
 import ConfirmationModal from '../../../SavingGoals/ConfirmationModal/ConfirmationModal'; 
+import CustomDropdown from '../../CustomDropdown';
 import { Link } from 'react-router-dom'; 
 
 const IncomeList = () => {
     const [incomes, setIncomes] = useState([]);
+    const [filteredIncomes, setFilteredIncomes] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(''); 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [goalToDelete, setGoalToDelete] = useState(null);
     const [itemsPerPage] = useState(5);
+    const [filterOption, setFilterOption] = useState('all');
     const userId = localStorage.getItem('userId'); 
 
     useEffect(() => {
@@ -21,6 +27,8 @@ const IncomeList = () => {
                 if (Array.isArray(data)) {
                     const sortedIncomes = data.sort((a, b) => new Date(b.date) - new Date(a.date));
                     setIncomes(sortedIncomes);
+                    setFilteredIncomes(sortedIncomes)
+
                 } else {
                     throw new Error('Unexpected data format');
                 }
@@ -31,10 +39,22 @@ const IncomeList = () => {
                 setLoading(false);
             }
         };
+        const fetchCategories = async () => {
+            try {
+                const data = await getCategories();
+                const incomeCategories = data.filter(category => category.type === 'income');
+                setCategories(incomeCategories);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
 
         fetchIncomes();
+        fetchCategories()
     }, [userId]);
-
+    useEffect(() => {
+        applyFilter(filterOption);
+    }, [filterOption, selectedCategory, incomes]); 
     const handleDelete = async (incomeId) => {
         try {
             await deleteTransaction(incomeId);
@@ -48,6 +68,38 @@ const IncomeList = () => {
         }
     };
   
+    const applyFilter = (option) => {
+        let filtered = [...incomes];
+        switch (option) {
+            case 'top5':
+                filtered = filtered.sort((a, b) => b.amount - a.amount).slice(0, 5);
+                break;
+            case 'bottom5':
+                filtered = filtered.sort((a, b) => a.amount - b.amount).slice(0, 5);
+                break;
+            case 'category':
+                if (selectedCategory) {
+                    filtered = filtered.filter(income => income.categoryId?._id === selectedCategory);
+                }
+                break;
+            default:
+                filtered = incomes;
+                break;
+        }
+        setFilteredIncomes(filtered);
+        setCurrentPage(1);
+    };
+
+    const handleFilterChange = (e) => {
+        setFilterOption(e.target.value);
+        if (e.target.value !== 'category') {
+            setSelectedCategory(''); 
+        }
+    };
+
+    const handleCategoryChange = (e) => {
+        setSelectedCategory(e.target.value);
+    };
     const openConfirmationModal = (goalId) => {
         setGoalToDelete(goalId);
         setConfirmationModalOpen(true);
@@ -59,8 +111,8 @@ const IncomeList = () => {
     }
     const indexOfLastIncome = currentPage * itemsPerPage;
     const indexOfFirstIncome = indexOfLastIncome - itemsPerPage;
-    const currentIncomes = incomes.slice(indexOfFirstIncome, indexOfLastIncome);
-    const totalPages = Math.ceil(incomes.length / itemsPerPage);
+    const currentIncomes = filteredIncomes.slice(indexOfFirstIncome, indexOfLastIncome);
+    const totalPages = Math.ceil(filteredIncomes.length / itemsPerPage);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -87,11 +139,36 @@ const IncomeList = () => {
                     </li>
                 </ol>
             </nav>
-            <div className="text-center mt-4 mb-4">
-                <Link to="/income/add" className="primary">
-                    <i className="fa fa-plus"></i> Thêm thu nhập
-                </Link>
-            </div>
+            <div className="row align-items-center">
+            <div className="col-lg-6 col-md-8 col-sm-12 d-flex align-items-center mb-2">
+        <select
+            value={filterOption}
+            onChange={handleFilterChange}
+            className="form-select me-2"
+            style={{ width: '200px' }}  
+        >
+            <option value="all">Tất cả</option>
+            <option value="top5">5 thu nhập lớn nhất</option>
+            <option value="bottom5">5 thu nhập nhỏ nhất</option>
+            <option value="category">Lọc theo danh mục</option>
+        </select>
+
+        {filterOption === 'category' && (
+            <CustomDropdown
+                options={categories}
+                value={selectedCategory}
+                onChange={handleCategoryChange}
+                className="form-select me-2"
+            />
+        )}
+    </div>
+
+    <div className="col-md-6 mb-3 d-flex justify-content-end">
+        <Link to="/income/add" className="btn btn-primary">
+            Thêm thu nhập
+        </Link>
+    </div>
+</div>
 
             <div className="card">
                 <div className="card-body">
