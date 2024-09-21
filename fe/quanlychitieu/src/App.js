@@ -1,5 +1,3 @@
-// src/App.js
-
 import React from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -25,6 +23,7 @@ import ClientLayout from './layouts/ClientLayout';
 import AuthLayout from './layouts/AuthLayout';
 import Budget from './pages/Client/Budget/budget';
 import AddBudget from './pages/Client/Budget/add-budget/add-budget';
+import EditBudget from './pages/Client/Budget/edit-budget/edit-budget';
 import BudgetDetail from './pages/Client/Budget/budget-detail/budget-detail';
 import PastBudget from './pages/Client/Budget/past-budget/past-budget';
 import ProfileForm from './pages/Client/Profile/Profile';
@@ -33,10 +32,14 @@ import Categories from './pages/Client/Category/Categories';
 import AddCategory from './pages/Client/Category/Add-Category/add-category';
 import EditCategory from './pages/Client/Category/Update-Category/Update-Category';
 import Register from './pages/Auth/Register/Register';
+import Forgetpassword from './pages/Auth/ForgetPassword/ForgetPassword';
 import PrivateRoute from './components/PrivateRoute';
-
+import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
 // Import Admin Routes
 import AdminRoutes from './pages/Admin/Router/AdminRoutes';
+
+// Import NotificationProvider
+import { NotificationProvider } from './components/Client/Header/NotificationContext';
 
 function App() {
   const router = createBrowserRouter(
@@ -45,6 +48,9 @@ function App() {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forget-password" element={<Forgetpassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Route>
         <Route element={<PrivateRoute element={<ClientLayout />} />}>
           <Route path="/" element={<Home />} />
@@ -60,6 +66,7 @@ function App() {
           <Route path="/income/edit/:id" element={<IncomeEdit />} />
           <Route path="/add-budget" element={<AddBudget />} />
           <Route path="/budget" element={<Budget />} />
+          <Route path="/budget/edit/:budgetId" element={<EditBudget />} />
           <Route path="/past-budget" element={<PastBudget />} />
           <Route path="/budget-detail/:budgetId" element={<BudgetDetail />} />
           <Route path="/profile" element={<ProfileForm />} />
@@ -68,14 +75,17 @@ function App() {
           <Route path="/add-category" element={<AddCategory />} />
           <Route path="/edit-category/:id" element={<EditCategory />} />
         </Route>
-        {/* Route cho Admin */}
+        {/* Route for Admin */}
         <Route path="/admin/*" element={<PrivateRoute element={<AdminRoutes />} requiredRole="admin" />} />
       </>
-
     )
   );
 
-  return <RouterProvider router={router} />;
+  return (
+    <NotificationProvider>
+      <RouterProvider router={router} />
+    </NotificationProvider>
+  );
 }
 
 export default App;

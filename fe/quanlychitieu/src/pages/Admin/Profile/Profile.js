@@ -4,7 +4,7 @@ import Layout from '../../../layouts/AdminLayout';
 import { getUserProfile, updateUser } from '../../../service/Auth'; // Import your service methods
 import { storage } from '../../../config/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { RingLoader } from 'react-spinners'; // Import spinner
+import { RingLoader } from 'react-spinners';
 import './Profile.css';
 
 const Profile = () => {
@@ -50,7 +50,7 @@ const Profile = () => {
 
     const handleSave = async (data) => {
         try {
-            console.log('Data to be sent:', data); // Debug log
+            console.log('Data to be sent:', data);
 
             let avatarURL = userData.avatar;
             if (avatar) {
@@ -64,7 +64,7 @@ const Profile = () => {
                 email: data.email,
                 role: data.role,
                 avatar: avatarURL
-            };
+            };                    
             await updateUser(userId, updateData);
             localStorage.setItem('userRole', data.role);
             setIsEditing(false);
@@ -164,16 +164,18 @@ const Profile = () => {
                                     </div>
                                 </div>
                                 <div className="mb-3">
-                                <div className="info-box">
+                                
                                 {isEditing && (
+                                    <div className="info-box">
                                     <input
                                         type="file"
                                         className="form-control mt-2"
                                         id="avatar"
                                         onChange={handleAvatarChange}
                                     />
+                                    </div>
                                 )}
-                                </div>
+                                
                                 </div>
 
                                 <div className="mb-3">

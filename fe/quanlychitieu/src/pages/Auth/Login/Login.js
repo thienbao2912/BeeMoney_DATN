@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+
 import { loginUser } from "../../../service/Auth";
 import styles from "./Login.module.css";
 
@@ -36,7 +37,7 @@ function Login() {
       console.log("Logged in with", response);
 
       if (response?.accessToken) {
-        console.log("Access Token:", response.accessToken); // Log the access token here
+        console.log("Access Token:", response.accessToken);
         navigate("/");
       } else {
         setError("api", {
@@ -142,6 +143,7 @@ function Login() {
             {/* <label>
                             <input type="checkbox" /> Ghi nhớ tài khoản
                         </label> */}
+            <a href="/forget-password">Quên mật khẩu?</a>
             <a href="/register">Bạn chưa có tài khoản?</a>
           </div>
           <button type="submit" className={styles.loginButton}>

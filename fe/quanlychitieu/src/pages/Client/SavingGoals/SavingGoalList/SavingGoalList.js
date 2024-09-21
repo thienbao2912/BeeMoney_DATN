@@ -94,7 +94,7 @@ const SavingGoalList = () => {
       const currentDate = new Date();
       data = data
         .filter((goal) => new Date(goal.endDate) >= currentDate)
-        .map((goal) => ({
+.map((goal) => ({
           ...goal,
           currentAmount: goal.currentAmount || 0,
           targetAmount: goal.targetAmount || 0,
@@ -190,7 +190,7 @@ const SavingGoalList = () => {
             <option value="6">Tháng 6</option>
             <option value="7">Tháng 7</option>
             <option value="8">Tháng 8</option>
-            <option value="9">Tháng 9</option>
+<option value="9">Tháng 9</option>
             <option value="10">Tháng 10</option>
             <option value="11">Tháng 11</option>
             <option value="12">Tháng 12</option>
@@ -260,7 +260,7 @@ const SavingGoalList = () => {
                       Hoàn thành
                     </div>
                   ) : (
-                    <div className="remaining-percentage-message text-warning d-flex align-items-center mb-2">
+<div className="remaining-percentage-message text-warning d-flex align-items-center mb-2">
                       <i className="fa fa-exclamation-circle me-2"></i>
                       Còn lại: {Math.floor(100 - percentage)}%
                     </div>
@@ -279,15 +279,17 @@ const SavingGoalList = () => {
                     <div className="bg-action ms-auto">
                       <Link
                         to={`/saving-goal/edit/${goal._id}`}
-                        className="me-2"
+                        className="btn btn-sm btn-success me-2"
                         aria-label="Edit"
                       >
-                        <i className="fa fa-edit text-success" />
+                        <i className="fa fa-edit" />
                       </Link>
+                      <div className="btn btn-sm btn-danger">
                       <i
-                        className="fa fa-trash text-danger ms-auto"
+                        className="fa fa-trash ms-auto"
                         onClick={() => openConfirmationModal(goal)}
                       />
+                      </div>
                     </div>
                   </div>
                 </div>
