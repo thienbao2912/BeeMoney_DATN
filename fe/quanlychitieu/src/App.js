@@ -28,6 +28,7 @@ import AddBudget from './pages/Client/Budget/add-budget/add-budget';
 import BudgetDetail from './pages/Client/Budget/budget-detail/budget-detail';
 import PastBudget from './pages/Client/Budget/past-budget/past-budget';
 import ProfileForm from './pages/Client/Profile/Profile';
+import PrivacyPolicy from './pages/Client/PrivacyPolicy/PrivacyPolicy';
 import Categories from './pages/Client/Category/Categories';
 import AddCategory from './pages/Client/Category/Add-Category/add-category';
 import EditCategory from './pages/Client/Category/Update-Category/Update-Category';
@@ -62,6 +63,7 @@ function App() {
           <Route path="/past-budget" element={<PastBudget />} />
           <Route path="/budget-detail/:budgetId" element={<BudgetDetail />} />
           <Route path="/profile" element={<ProfileForm />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/add-category" element={<AddCategory />} />
           <Route path="/edit-category/:id" element={<EditCategory />} />
