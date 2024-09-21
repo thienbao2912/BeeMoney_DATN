@@ -26,7 +26,7 @@ const ExpenseList = () => {
             try {
                 const data = await getAllTransactions('expense', userId);
                 if (Array.isArray(data)) {
-                    const sortedExpenses = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    const sortedExpenses = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                     setExpenses(sortedExpenses);
                     setFilteredExpenses(sortedExpenses); // Initially set filteredExpenses to all expenses
                 } else {

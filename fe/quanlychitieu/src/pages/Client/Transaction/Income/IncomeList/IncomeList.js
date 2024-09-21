@@ -25,7 +25,7 @@ const IncomeList = () => {
             try {
                 const data = await getAllTransactions('income', userId);
                 if (Array.isArray(data)) {
-                    const sortedIncomes = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    const sortedIncomes = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                     setIncomes(sortedIncomes);
                     setFilteredIncomes(sortedIncomes)
 
