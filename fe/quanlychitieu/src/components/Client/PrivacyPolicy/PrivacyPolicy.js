@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import CookieConsent from 'react-cookie-consent';
 
-const PrivacyPolicy = () => {
+const PrivacyPolicy = ({ userId }) => { // Nhận userId từ props
   const [showOverlay, setShowOverlay] = useState(true);
 
   useEffect(() => {
-    
-    const isCookieAccepted = localStorage.getItem('cookieConsentAccepted');
+    // Lấy trạng thái cookie của người dùng hiện tại
+    const isCookieAccepted = localStorage.getItem(`cookieConsentAccepted_${userId}`);
     
     if (isCookieAccepted === 'true') {
       setShowOverlay(false);
@@ -14,11 +14,11 @@ const PrivacyPolicy = () => {
     } else {
       disableRightClickAndInspect(); 
     }
-  }, []);
+  }, [userId]); // Thêm userId vào dependency array
 
   const handleAcceptCookies = () => {
-    
-    localStorage.setItem('cookieConsentAccepted', 'true');
+    // Lưu trạng thái đã chấp nhận vào localStorage với key chứa userId
+    localStorage.setItem(`cookieConsentAccepted_${userId}`, 'true');
     setShowOverlay(false); 
     enableRightClickAndInspect(); 
   };
@@ -59,7 +59,7 @@ const PrivacyPolicy = () => {
           <CookieConsent
             location="bottom"
             buttonText="Accept"
-            cookieName="cookieConsentAccepted"
+            cookieName={`cookieConsentAccepted_${userId}`} // Sử dụng cookieName chứa userId
             style={{ background: "#2B373B" }}
             buttonStyle={{ color: "#4e503b", fontSize: "13px" }}
             onAccept={handleAcceptCookies}

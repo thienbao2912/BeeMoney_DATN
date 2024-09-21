@@ -130,7 +130,7 @@ const ExpenseAdd = () => {
   }
 
   // Sort expenses by date (most recent first) and limit to top 5
-  const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  const sortedExpenses = [...expenses].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
 
   return (
     <div className="categories-overview">
