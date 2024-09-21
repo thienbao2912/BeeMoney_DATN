@@ -55,18 +55,63 @@
 .sidebar .nav .collapse .nav-link:hover {
   background-color: #f1f3f5; 
 }
+/* Điều chỉnh hiệu ứng hover riêng cho button */
+.sidebar button.nav-link {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  width: 100%;
+  text-align: left;
+  color: #343a40;
+  font-weight: 500;
+  transition: background-color 0.3s, color 0.3s;
+  cursor: pointer;
+}
+
+.sidebar button.nav-link:hover {
+  background-color: #e9ecef;
+  
+}
+
+.sidebar button.nav-link:focus {
+  outline: none;
+}
+
+/* Áp dụng hiệu ứng hover cho cả thẻ <a> và <button> có class 'nav-link' */
 .nav-link {
   color: #343a40;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .nav-link:hover {
   background-color: #e9ecef;
   color: #007bff;
-  border-radius: 5px;
 }
 
 .nav-link.active {
   color: #007bff;
   font-weight: 600;
+}
+
+/* Đảm bảo các nút có class 'nav-link' cũng có cùng hiệu ứng */
+button.nav-link {
+  background: none; /* Xóa bỏ nền mặc định của button */
+  border: none; /* Xóa bỏ viền mặc định */
+  cursor: pointer; /* Thay đổi con trỏ chuột khi hover */
+}
+
+button.nav-link:hover {
+  background-color: #e9ecef;
+  color: #007bff;
+}
+
+button.nav-link:focus {
+  outline: none; /* Xóa bỏ viền khi focus */
 }
