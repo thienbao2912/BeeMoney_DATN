@@ -1,25 +1,40 @@
-// src/components/Client/Header/NotificationContext.js
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { getAllBudgets, deleteBudget } from '../../../service/Budget'; // Import service functions
-import { getAllSavingsGoals, deleteSavingsGoal } from '../../../service/SavingGoal'; // Import service functions
+import { getAllBudgets } from '../../../service/Budget'; 
+import { getAllSavingsGoals } from '../../../service/SavingGoal'; 
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
+    const [deletedNotifications, setDeletedNotifications] = useState([]);
 
+    // Load thông báo và thông báo đã xóa từ localStorage
     useEffect(() => {
         const storedNotifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        const storedDeletedNotifications = JSON.parse(localStorage.getItem('deletedNotifications')) || [];
+
         setNotifications(storedNotifications);
+        setDeletedNotifications(storedDeletedNotifications);
     }, []);
+
+    const saveNotifications = (updatedNotifications) => {
+        setNotifications(updatedNotifications);
+        localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+    };
+
+    // Lưu thông báo đã xóa vào localStorage
+    const saveDeletedNotifications = (notificationId) => {
+        const updatedDeletedNotifications = [...deletedNotifications, notificationId];
+        setDeletedNotifications(updatedDeletedNotifications);
+        localStorage.setItem('deletedNotifications', JSON.stringify(updatedDeletedNotifications));
+    };
 
     const addNotification = (notification) => {
         setNotifications((prevNotifications) => {
             const exists = prevNotifications.some(n => n._id === notification._id);
-            if (!exists) {
-                const updatedNotifications = [...prevNotifications, notification];
-                localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+            if (!exists && !deletedNotifications.includes(notification._id)) { // Kiểm tra xem thông báo đã bị xóa chưa
+                const updatedNotifications = [notification, ...prevNotifications]; // Đặt thông báo mới nhất lên đầu
+                saveNotifications(updatedNotifications);
                 return updatedNotifications;
             }
             return prevNotifications;
@@ -29,7 +44,8 @@ export const NotificationProvider = ({ children }) => {
     const removeNotification = (notificationId) => {
         setNotifications(prevNotifications => {
             const updatedNotifications = prevNotifications.filter(notification => notification._id !== notificationId);
-            localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+            saveNotifications(updatedNotifications);
+            saveDeletedNotifications(notificationId); // Lưu ID của thông báo đã xóa
             return updatedNotifications;
         });
     };
@@ -37,13 +53,27 @@ export const NotificationProvider = ({ children }) => {
     const checkBudgetExceed = async (userId) => {
         try {
             const budgets = await getAllBudgets(userId);
+            const today = new Date();
+
             budgets.forEach(budget => {
-                if (budget.remainingBudget < 0) {
-                    addNotification({
-                        _id: `budget-${budget._id}`,
-                        content: `Chi tiêu vượt ngân sách cho ngân sách ${budget.categoryId ? budget.categoryId.name : 'Unknown'}`,
-                        createdAt: new Date(),
-                    });
+                const endDate = new Date(budget.endDate);
+
+                if (budget.remainingBudget < 0 && endDate > today) {
+                    const notificationId = `budget-${budget._id}`;
+                    const notificationExists = notifications.some(n => n._id === notificationId);
+                    
+                    // Kiểm tra xem thông báo đã bị xóa chưa
+                    if (!notificationExists && !deletedNotifications.includes(notificationId)) {
+                        addNotification({
+                            _id: notificationId,
+                            content: `Chi tiêu vượt ngân sách cho ngân sách ${budget.categoryId ? budget.categoryId.name : 'Unknown'}`,
+                            createdAt: new Date(),
+                        });
+                    }
+                }
+
+                if (endDate <= today) {
+                    removeNotification(`budget-${budget._id}`);
                 }
             });
         } catch (err) {
@@ -54,16 +84,40 @@ export const NotificationProvider = ({ children }) => {
     const checkSavingGoals = async (userId) => {
         try {
             const savingsGoals = await getAllSavingsGoals(userId);
+            const today = new Date();
+            const oneDay = 24 * 60 * 60 * 1000;
+
             savingsGoals.forEach(goal => {
+                const startDate = new Date(goal.startDate);
                 const endDate = new Date(goal.endDate);
-                const today = new Date();
-                const oneDay = 24 * 60 * 60 * 1000; // One day in milliseconds
-                if (endDate - today <= oneDay && endDate > today) {
-                    addNotification({
-                        _id: `goal-${goal._id}`,
-                        content: `Mục tiêu ${goal.name} chỉ còn 1 ngày!`,
-                        createdAt: new Date(),
-                    });
+                const timeRemainingFromStart = endDate - startDate;
+                const timeRemainingFromToday = endDate - today;
+
+                const notificationId = `goal-${goal._id}`;
+                const notificationExists = notifications.some(n => n._id === notificationId);
+
+                if (timeRemainingFromStart <= oneDay && timeRemainingFromStart > 0 && !deletedNotifications.includes(notificationId)) {
+                    if (!notificationExists) {
+                        addNotification({
+                            _id: notificationId,
+                            content: `Mục tiêu ${goal.name} chỉ còn 1 ngày từ ngày bắt đầu!`,
+                            createdAt: new Date(),
+                        });
+                    }
+                }
+
+                if (timeRemainingFromToday <= oneDay && timeRemainingFromToday > 0 && !deletedNotifications.includes(notificationId)) {
+                    if (!notificationExists) {
+                        addNotification({
+                            _id: notificationId,
+                            content: `Mục tiêu ${goal.name} chỉ còn 1 ngày!`,
+                            createdAt: new Date(),
+                        });
+                    }
+                }
+
+                if (endDate <= today) {
+                    removeNotification(notificationId);
                 }
             });
         } catch (err) {
@@ -71,16 +125,8 @@ export const NotificationProvider = ({ children }) => {
         }
     };
 
-    const handleBudgetDeletion = (budgetId) => {
-        removeNotification(`budget-${budgetId}`);
-    };
-
-    const handleGoalDeletion = (goalId) => {
-        removeNotification(`goal-${goalId}`);
-    };
-
     return (
-        <NotificationContext.Provider value={{ notifications, addNotification, removeNotification, checkBudgetExceed, checkSavingGoals, handleBudgetDeletion, handleGoalDeletion }}>
+        <NotificationContext.Provider value={{ notifications, addNotification, removeNotification, checkBudgetExceed, checkSavingGoals }}>
             {children}
         </NotificationContext.Provider>
     );

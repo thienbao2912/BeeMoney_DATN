@@ -77,7 +77,11 @@ function Login() {
         </p>
       </div>
       <div className={styles.loginSection}>
-        <form className="form-login" onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyDown}>
+        <form
+          className="form-login"
+          onSubmit={handleSubmit(onSubmit)}
+          onKeyDown={handleKeyDown}
+        >
           <div className="text-center mb-4">
             <img
               src="/images/piggy-bank.png"
@@ -99,7 +103,7 @@ function Login() {
                 },
               })}
               value={email}
-              onChange={(e) => handleInputChange(e, 'email')}
+              onChange={(e) => handleInputChange(e, "email")}
               onKeyDown={handleKeyDown}
               style={{ width: "20rem" }}
             />
@@ -107,7 +111,7 @@ function Login() {
               <p className={styles.error}>{errors.email.message}</p>
             )}
           </div>
-          <div className={styles.inputGroup} style={{ position: "relative" }}>
+          <div style={{ position: "relative" }}>
             <div style={{ position: "relative" }}>
               <input
                 id="password"
@@ -117,7 +121,7 @@ function Login() {
                   required: "Mật khẩu không được để trống.",
                 })}
                 value={password}
-                onChange={(e) => handleInputChange(e, 'password')}
+                onChange={(e) => handleInputChange(e, "password")}
                 onKeyDown={handleKeyDown}
               />
               <span
@@ -139,12 +143,21 @@ function Login() {
             )}
           </div>
           {errors.api && <p className={styles.error}>{errors.api.message}</p>}
-          <div className={styles.actions}>
-            {/* <label>
-                            <input type="checkbox" /> Ghi nhớ tài khoản
-                        </label> */}
-            <a href="/forget-password">Quên mật khẩu?</a>
-            <a href="/register">Bạn chưa có tài khoản?</a>
+          <div className="d-flex justify-content-between align-items-center mt-2 mb-3">
+            <a
+              href="/forget-password"
+              style={{ color: "#8e2de2" }}
+              className="text-decoration-none"
+            >
+              Quên mật khẩu?
+            </a>
+            <a
+              href="/register"
+              style={{ color: "#8e2de2" }}
+              className="text-decoration-none"
+            >
+              Bạn chưa có tài khoản?
+            </a>
           </div>
           <button type="submit" className={styles.loginButton}>
             Đăng nhập

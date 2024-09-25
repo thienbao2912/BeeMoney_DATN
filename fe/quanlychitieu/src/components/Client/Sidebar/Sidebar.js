@@ -33,7 +33,9 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     try {
-      localStorage.clear();
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('userRole');
       sessionStorage.clear();
       clearCookies();
       navigate("/login");
