@@ -38,19 +38,16 @@ const Sidebar = () => {
           <span>&times;</span>
         </button>
 
-        <div className="p-3 text-center w-100">
+        <div className="pt-3 text-center w-100">
           <Link className="sidebar-title d-flex align-items-center justify-content-center" to="/admin/dashboard" >
             <img
               src="../../../images/piggy-bank.png"
               alt="Admin Logo"
               style={{ width: '40px', height: '40px', marginRight: '10px' }}
             />
-            <span className="fs-5 fw-bold text-dark">Admin</span>
+            <span className=" fw-bold text-dark">Admin</span>
           </Link>
         </div>
-
-        <hr className="w-100" />
-
         <div className="collapse d-xl-block w-100" id="sidebarCollapse">
           <ul className="nav flex-column">
             <li className="nav-item">

@@ -90,25 +90,35 @@ const User = () => {
             </Link>
           </div>
           <div className="card-body">
-           
-            <div className="d-flex mb-4">
-              <input
-                type="text"
-                className="form-control me-3"
-                placeholder="Tìm kiếm theo tên người dùng..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <select
-                className="form-select"
-                value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value)}
-              >
-                <option value="all">Tất cả</option>
-                <option value="admin">Admin</option>
-                <option value="user">Người dùng</option>
-              </select>
-            </div>
+          <div className="row mb-4 mt-2">
+  {/* Tìm kiếm người dùng */}
+  <div className="col-md-6 mb-3">
+    <label htmlFor="search" className="form-label">Tìm kiếm người dùng</label>
+    <input
+      type="text"
+      id="search"
+      className="form-control mt-2"
+      placeholder="Tìm kiếm theo tên người dùng..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+  </div>
+
+  {/* Lọc người dùng */}
+  <div className="col-md-6 mb-3">
+    <label htmlFor="filter" className="form-label">Lọc người dùng</label>
+    <select
+      id="filter"
+      className="form-select mt-2"
+      value={roleFilter}
+      onChange={(e) => setRoleFilter(e.target.value)}
+    >
+      <option value="all">Tất cả</option>
+      <option value="admin">Admin</option>
+      <option value="user">Người dùng</option>
+    </select>
+  </div>
+</div>
 
             {loading ? (
               <div
@@ -120,93 +130,102 @@ const User = () => {
             ) : (
               <>
                 {error && <p>{error}</p>}
-                <table className="table table-striped">
-                  <thead>
-                    <tr>
-                      <th style={{ width: "15%" }}>#</th>
-                      <th style={{ width: "30%" }}>Tên</th>
-                      <th style={{ width: "30%" }}>Email</th>
-                      <th style={{ width: "15%" }}>Phân quyền</th>
-                      <th style={{ width: "20%" }}>Hành động</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentUsers.map((user, index) => (
-                      <tr key={user._id}>
-                        <td>{indexOfFirstUser + index + 1}</td>
-                        <td>{user.name}</td>
-                        <td>{user.email}</td>
-                        <td>{user.role}</td>
-                        <td>
-                          <div className="dropdown ms-3">
-                            <button
-                              className="btn-drop btn btn-sm dropdown-toggle"
-                              type="button"
-                              id={`dropdownMenuButton-${user._id}`}
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            >
-                              <svg
-                                width="20px"
-                                height="20px"
-                                viewBox="0 0 24 24"
-                                version="1.1"
-                              >
-                                <g
-                                  stroke="none"
-                                  stroke-width="1"
-                                  fill="none"
-                                  fill-rule="evenodd"
-                                >
-                                  <rect x="0" y="0" width="24" height="24" />
-                                  <circle
-                                    fill="#000000"
-                                    cx="5"
-                                    cy="12"
-                                    r="2"
-                                  />
-                                  <circle
-                                    fill="#000000"
-                                    cx="12"
-                                    cy="12"
-                                    r="2"
-                                  />
-                                  <circle
-                                    fill="#000000"
-                                    cx="19"
-                                    cy="12"
-                                    r="2"
-                                  />
-                                </g>
-                              </svg>
-                            </button>
-                            <ul
-                              className="dropdown-menu"
-                              aria-labelledby={`dropdownMenuButton-${user._id}`}
-                            >
-                              <li>
-                                <Link
-                                  to={`/admin/users/edit/${user._id}`}
-                                  className="dropdown-item"
-                                >
-                                  Sửa
-                                </Link>
-                              </li>
-                              <li>
+                <div className="card">
+                  <div className="card-body">
+                    <table className="table table-striped">
+                      <thead>
+                        <tr>
+                          <th style={{ width: "15%" }}>#</th>
+                          <th style={{ width: "30%" }}>Tên</th>
+                          <th style={{ width: "30%" }}>Email</th>
+                          <th style={{ width: "15%" }}>Phân quyền</th>
+                          <th style={{ width: "20%" }}>Hành động</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentUsers.map((user, index) => (
+                          <tr key={user._id}>
+                            <td>{indexOfFirstUser + index + 1}</td>
+                            <td>{user.name}</td>
+                            <td>{user.email}</td>
+                            <td>{user.role}</td>
+                            <td>
+                              <div className="dropdown ms-3">
                                 <button
-                                  onClick={() => openDeleteModal(user)}
-                                  className="dropdown-item text-danger"
+                                  className="btn-drop btn btn-sm dropdown-toggle"
+                                  type="button"
+                                  id={`dropdownMenuButton-${user._id}`}
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false"
                                 >
-                                  Xóa
+                                  <svg
+                                    width="20px"
+                                    height="20px"
+                                    viewBox="0 0 24 24"
+                                    version="1.1"
+                                  >
+                                    <g
+                                      stroke="none"
+                                      stroke-width="1"
+                                      fill="none"
+                                      fill-rule="evenodd"
+                                    >
+                                      <rect
+                                        x="0"
+                                        y="0"
+                                        width="24"
+                                        height="24"
+                                      />
+                                      <circle
+                                        fill="#000000"
+                                        cx="5"
+                                        cy="12"
+                                        r="2"
+                                      />
+                                      <circle
+                                        fill="#000000"
+                                        cx="12"
+                                        cy="12"
+                                        r="2"
+                                      />
+                                      <circle
+                                        fill="#000000"
+                                        cx="19"
+                                        cy="12"
+                                        r="2"
+                                      />
+                                    </g>
+                                  </svg>
                                 </button>
-                              </li>
-                            </ul>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                                <ul
+                                  className="dropdown-menu"
+                                  aria-labelledby={`dropdownMenuButton-${user._id}`}
+                                >
+                                  <li>
+                                    <Link
+                                      to={`/admin/users/edit/${user._id}`}
+                                      className="dropdown-item"
+                                    >
+                                      Sửa
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <button
+                                      onClick={() => openDeleteModal(user)}
+                                      className="dropdown-item text-danger"
+                                    >
+                                      Xóa
+                                    </button>
+                                  </li>
+                                </ul>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
                 <nav>
                   <ul className="pagination justify-content-center">
                     {Array.from({
