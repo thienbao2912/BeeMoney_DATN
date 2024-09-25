@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import EditGoalModal from "../EditGoalModal/EditGoalModal";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 8;
 
 const SavingGoalList = () => {
   const [savingsGoals, setSavingsGoals] = useState([]);
@@ -19,7 +19,7 @@ const SavingGoalList = () => {
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(4);
+  const [itemsPerPage] = useState(8);
   const [selectedMonth, setSelectedMonth] = useState("all");
 
   useEffect(() => {
@@ -31,7 +31,6 @@ const SavingGoalList = () => {
         }
         let data = await getAllSavingsGoals(userId);
 
-        // Xử lý giá trị null và lọc ra các mục tiêu chưa hết hạn
         const currentDate = new Date();
         data = data
           .map((goal) => ({
@@ -90,7 +89,6 @@ const SavingGoalList = () => {
       const userId = localStorage.getItem("userId");
       let data = await getAllSavingsGoals(userId);
 
-      // Lọc ra các mục tiêu chưa hết hạn
       const currentDate = new Date();
       data = data
         .filter((goal) => new Date(goal.endDate) >= currentDate)
@@ -109,7 +107,7 @@ const SavingGoalList = () => {
 
   const handleMonthChange = (event) => {
     setSelectedMonth(event.target.value);
-    setCurrentPage(1); // Reset về trang đầu tiên khi thay đổi tháng
+    setCurrentPage(1);
   };
 
   const filterGoalsByMonth = (goals) => {
@@ -136,7 +134,17 @@ const SavingGoalList = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
+  const getPercentageClass = (percentage) => {
+    if (percentage >= 100) {
+      return 'text-success';
+    } else if (percentage > 50) {
+      return 'text-success';
+    } else if (percentage > 20) {
+      return 'text-warning';
+    } else {
+      return 'text-danger';
+    }
+  };
   if (loading) {
     return (
       <div className="text-center mt-5">
@@ -215,86 +223,107 @@ const SavingGoalList = () => {
 
           return (
             <div className="col-md-6 mb-3" key={goal._id}>
-              <div className="income-overview card">
-                <div className="card-body">
-                  <div className="category-target d-flex align-items-center mb-3">
-                    <img
-                      src={goal.categoryId?.image || "/images/no.png"}
-                      alt={goal.categoryId?.name || "Không tồn tại"}
-                      width="50px"
-                    />
-                    <h5>{goal.name}</h5>
-                  </div>
+  <div className="income-overview card">
+    <div className="card-body">
+      <div className="category-target d-flex align-items-center mb-3">
+        <img
+          src={goal.categoryId?.image || "/images/no.png"}
+          alt={goal.categoryId?.name || "Không tồn tại"}
+          width="50px"
+        />
+        <h5 className="ms-3">{goal.name}</h5>
+        <div className="ms-auto text-secondary d-flex flex-column align-items-end">
+          <div className="date-saving mb-1">
+            <i className="fas fa-calendar-alt me-2"></i>
+            {new Date(goal.startDate).toLocaleDateString()} -{" "}
+            {new Date(goal.endDate).toLocaleDateString()}
+          </div>
+          <div className="money">
+            <i className="fa-solid fa-sack-dollar me-2"></i>
+            {goal.currentAmount != null
+              ? goal.currentAmount.toLocaleString()
+              : "0"}
+            đ -{" "}
+            {goal.targetAmount != null
+              ? goal.targetAmount.toLocaleString()
+              : "0"}
+            đ
+          </div>
+        </div>
+      </div>
 
-                  <div className="date-saving text-secondary mb-3">
-                    <i className="fas fa-calendar-alt me-2"></i>
-                    {new Date(goal.startDate).toLocaleDateString()} -{" "}
-                    {new Date(goal.endDate).toLocaleDateString()}
-                  </div>
-                  <div className="money text-secondary mb-3">
-                    <i className="fa-solid fa-sack-dollar me-2"></i>
-                    {goal.currentAmount != null
-                      ? goal.currentAmount.toLocaleString()
-                      : "0"}
-                    đ -{" "}
-                    {goal.targetAmount != null
-                      ? goal.targetAmount.toLocaleString()
-                      : "0"}
-                    đ
-                  </div>
-                  <div className="progress-container mb-3">
-                    <div
-                      className={`progress-bar ${progressBarClass}`}
-                      role="progressbar"
-                      style={{ width: `${Math.min(percentage, 100)}%` }}
-                    >
-                      <span className="progress-percentage">
-                        {Math.round(percentage)}%
-                      </span>
-                    </div>
-                  </div>
+      <div className="progress-container mb-3">
+        <div
+          className={`progress-bar ${progressBarClass}`}
+          role="progressbar"
+          style={{ width: `${Math.min(percentage, 100)}%` }}
+        >
+          <span className="progress-percentage">
+            {Math.round(percentage)}%
+          </span>
+        </div>
+      </div>
 
-                  {percentage >= 100 ? (
-                    <div className="completion-message text-success d-flex align-items-center mb-2">
-                      <i className="fa fa-check-circle me-2"></i>
-                      Hoàn thành
-                    </div>
-                  ) : (
-<div className="remaining-percentage-message text-warning d-flex align-items-center mb-2">
-                      <i className="fa fa-exclamation-circle me-2"></i>
-                      Còn lại: {Math.floor(100 - percentage)}%
-                    </div>
-                  )}
+      {percentage >= 100 ? (
+  <div className={`remaining-percentage-message ${getPercentageClass(percentage)} d-flex justify-content-between align-items-center mb-2`}>
+    <div className="d-flex align-items-center">
+      <i className="fa fa-check-circle me-2"></i>
+      Hoàn thành
+    </div>
+    <div className="d-flex align-items-center ms-auto">
+      <Link
+        to={`/saving-goal/edit/${goal._id}`}
+        className="text-success me-2"
+        aria-label="Edit"
+      >
+        <i className="fa fa-edit" />
+      </Link>
+      <div className="text-danger">
+        <i style={{cursor:"pointer"}}
+          className="fa fa-trash"
+          onClick={() => openConfirmationModal(goal)}
+        />
+      </div>
+    </div>
+  </div>
+) : (
+  <div className={`remaining-percentage-message ${getPercentageClass(percentage)} d-flex justify-content-between align-items-center mb-2`}>
+    <div className="d-flex align-items-center">
+      <i className="fa fa-exclamation-circle me-2"></i>
+      Còn lại: {Math.floor(100 - percentage)}%
+    </div>
+    <div className="d-flex align-items-center ms-auto">
+      <Link
+        to={`/saving-goal/edit/${goal._id}`}
+        className="text-success me-2"
+        aria-label="Edit"
+      >
+        <i className="fa fa-edit" />
+      </Link>
+      <div className="text-danger">
+        <i
+          className="fa fa-trash"
+          onClick={() => openConfirmationModal(goal)}
+        />
+      </div>
+    </div>
+  </div>
+)}
 
-                  <div className="d-flex justify-content-between align-items-center">
-                    {percentage < 100 && (
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => openModal(goal)}
-                      >
-                        Nạp tiền
-                      </button>
-                    )}
+<div className="d-flex justify-content-between align-items-center">
+  {percentage < 100 && (
+    <button
+      className="btn btn-primary"
+      onClick={() => openModal(goal)}
+    >
+      Nạp tiền
+    </button>
+  )}
+</div>
+    </div>
+  </div>
+</div>
 
-                    <div className="bg-action ms-auto">
-                      <Link
-                        to={`/saving-goal/edit/${goal._id}`}
-                        className="btn btn-sm btn-success me-2"
-                        aria-label="Edit"
-                      >
-                        <i className="fa fa-edit" />
-                      </Link>
-                      <div className="btn btn-sm btn-danger">
-                      <i
-                        className="fa fa-trash ms-auto"
-                        onClick={() => openConfirmationModal(goal)}
-                      />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           );
         })}
       </div>

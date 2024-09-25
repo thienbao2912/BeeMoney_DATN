@@ -38,55 +38,52 @@ const Sidebar = () => {
           <span>&times;</span>
         </button>
 
-        <div className="p-3 text-center w-100">
+        <div className="pt-3 text-center w-100">
           <Link className="sidebar-title d-flex align-items-center justify-content-center" to="/admin/dashboard" >
             <img
               src="../../../images/piggy-bank.png"
               alt="Admin Logo"
               style={{ width: '40px', height: '40px', marginRight: '10px' }}
             />
-            <span className="fs-5 fw-bold text-dark">Admin</span>
+            <span className=" fw-bold text-dark">Admin</span>
           </Link>
         </div>
-
-        <hr className="w-100" />
-
         <div className="collapse d-xl-block w-100" id="sidebarCollapse">
           <ul className="nav flex-column">
             <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center p-2" to="/admin/dashboard">
-                <House className="me-3" size={20} />
-                <span>Trang chủ</span>
+              <Link className="nav-link d-flex align-items-center" to="/admin/dashboard">
+                <House className="me-3 text-dark" size={20} />
+                <span className='text-dark'>Trang chủ</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center p-2" to="/admin/users">
-                <Person className="me-3" size={20} />
-                <span>Quản lý tài khoản</span>
+              <Link className="nav-link d-flex align-items-center" to="/admin/users">
+                <Person className="me-3 text-dark" size={20} />
+                <span className='text-dark'>Quản lý tài khoản</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center p-2" to="/admin/categories">
-                <Box className="me-3" size={20} />
-                <span>Danh mục chi thu</span>
+              <Link className="nav-link d-flex align-items-center" to="/admin/categories">
+                <Box className="me-3 text-dark" size={20} />
+                <span className='text-dark'>Danh mục chi thu</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center p-2" to="/admin/profile">
-                <PersonCircle className="me-3" size={20} />
-                <span>Quản lý hồ sơ</span>
+              <Link className="nav-link d-flex align-items-center" to="/admin/profile">
+                <PersonCircle className="me-3 text-dark" size={20} />
+                <span className='text-dark'>Quản lý hồ sơ</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center p-2" to="/">
-                <Globe className="me-3" size={20} />
-                <span>Website</span>
+              <Link className="nav-link d-flex align-items-center" to="/">
+                <Globe className="me-3 text-dark" size={20} />
+                <span className='text-dark'>Website</span>
               </Link>
             </li>
             <li className="nav-item">
-              <button className="nav-link btn btn-link d-flex align-items-center p-2 text-start" onClick={handleLogout}>
-                <BoxArrowRight className="me-3" size={20} />
-                <span>Đăng xuất</span>
+              <button className="nav-link btn btn-link d-flex align-items-center text-start" onClick={handleLogout}>
+                <BoxArrowRight className="me-3 text-dark" size={20} />
+                <span className='text-dark'>Đăng xuất</span>
               </button>
             </li>
           </ul>

@@ -59,8 +59,8 @@ const Sidebar = () => {
       </Button>
       <div className="sidebar-client">
         <div className="sidebar-head d-flex align-items-center justify-content-between">
-          <img src={user.avatar} alt="Avatar" width="40" className="rounded-circle" />
-          <div>
+        <img src={user.avatar} alt="Avatar" className="rounded-circle" style={{ width: '40px', height: '40px', objectFit: 'cover' }} />
+        <div>
             <div className="greeting">Xin chào, {user.name}</div>
           </div>
         </div>

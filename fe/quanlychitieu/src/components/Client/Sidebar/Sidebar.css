@@ -63,4 +63,9 @@ a {
 
 .btn-hamburger .bi {
   color: #fff; /* Màu sắc của biểu tượng */
+}.sidebar-head img {
+  border-radius: 50%; /* Đảm bảo hình ảnh luôn hình tròn */
+  width: 40px; /* Chiều rộng của hình ảnh */
+  height: 40px; /* Chiều cao của hình ảnh */
+  object-fit: cover; /* Giữ tỷ lệ hình ảnh khi cắt */
 }
