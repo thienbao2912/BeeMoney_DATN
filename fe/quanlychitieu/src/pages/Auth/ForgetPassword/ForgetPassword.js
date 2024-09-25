@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { forgotPassword } from "../../../service/Auth";
 import styles from "./ForgetPassword.module.css";
@@ -11,17 +11,52 @@ function ForgetPassword() {
     setError,
     clearErrors,
   } = useForm();
+  
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isCooldown, setIsCooldown] = useState(false);
+  const [timer, setTimer] = useState(60);
+
+  useEffect(() => {
+    const storedCooldown = localStorage.getItem("cooldownTime");
+    if (storedCooldown) {
+      const remainingTime = Math.floor(
+        (new Date().getTime() - storedCooldown) / 1000
+      );
+      if (remainingTime < 60) {
+        setIsCooldown(true);
+        setTimer(60 - remainingTime);
+      } else {
+        localStorage.removeItem("cooldownTime");
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    let countdown;
+    if (isCooldown && timer > 0) {
+      countdown = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      setIsCooldown(false);
+      setTimer(60);
+      localStorage.removeItem("cooldownTime");
+    }
+
+    return () => clearInterval(countdown);
+  }, [isCooldown, timer]);
 
   const onSubmit = async (data, e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     try {
       await forgotPassword(data.email);
       setSuccessMessage(
         "Email khôi phục mật khẩu đã được gửi, vui lòng kiểm tra hộp thư của bạn."
       );
       setErrorMessage("");
+      setIsCooldown(true);
+      localStorage.setItem("cooldownTime", new Date().getTime()); 
     } catch (err) {
       console.error("Forgot Password Error:", err);
       setErrorMessage(
@@ -29,7 +64,6 @@ function ForgetPassword() {
       );
     }
   };
-  
 
   return (
     <div className={styles.forgetContainer}>
@@ -63,6 +97,7 @@ function ForgetPassword() {
                 },
               })}
               style={{ width: "20rem" }}
+              disabled={isCooldown}
             />
             {errors.email && (
               <p className={styles.error}>{errors.email.message}</p>
@@ -70,13 +105,18 @@ function ForgetPassword() {
           </div>
 
           {errorMessage && <p className={styles.error}>{errorMessage}</p>}
-          <div>
           {successMessage && <p className={styles.success}>{successMessage}</p>}
-          </div>
-         
-
-          <button type="submit" className={styles.forgetButton}>
-            Gửi Email Khôi Phục
+          {isCooldown && (
+            <p className={styles.cooldownMessage}>
+              Bạn chưa nhận được mã?
+            </p>
+          )}
+          <button
+            type="submit"
+            className={styles.forgetButton}
+            disabled={isCooldown}
+          >
+            {isCooldown ? `Chờ ${timer}s để gửi lại` : "Gửi Email Khôi Phục"}
           </button>
         </form>
       </div>
