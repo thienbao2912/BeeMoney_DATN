@@ -1,5 +1,4 @@
 .sidebar {
-  /* height: 100vh; */
   width: 190px;
  
   top: 0;
@@ -100,11 +99,10 @@
   font-weight: 600;
 }
 
-/* Đảm bảo các nút có class 'nav-link' cũng có cùng hiệu ứng */
 button.nav-linkadmin {
-  background: none; /* Xóa bỏ nền mặc định của button */
-  border: none; /* Xóa bỏ viền mặc định */
-  cursor: pointer; /* Thay đổi con trỏ chuột khi hover */
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 button.nav-linkadmin:hover {
@@ -113,5 +111,5 @@ button.nav-linkadmin:hover {
 }
 
 button.nav-linkadmin:focus {
-  outline: none; /* Xóa bỏ viền khi focus */
+  outline: none;
 }

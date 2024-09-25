@@ -21,23 +21,17 @@ const BudgetDetail = () => {
             try {
                 const userId = localStorage.getItem('userId');
                 if (userId && budgetId) {
-                    // Fetch budget details
                     const responseBudget = await getBudgetById(budgetId, userId);
                     const fetchedBudget = responseBudget.data;
 
                     if (!fetchedBudget || fetchedBudget._id !== budgetId) {
                         throw new Error('Ngân sách không tồn tại');
                     }
-
-                    // Fetch expenses
                     const responseExpenses = await getExpensesForBudget(budgetId, userId);
                     if (!responseExpenses || !Array.isArray(responseExpenses.expenses)) {
                         throw new Error('Dữ liệu chi tiêu không có sẵn');
                     }
-
                     const fetchedExpenses = responseExpenses.expenses;
-
-                    // Set data into state
                     setBudget(fetchedBudget);
                     setExpenses(fetchedExpenses);
                 } else {
@@ -74,16 +68,12 @@ const BudgetDetail = () => {
     const formatDate = (date) => new Intl.DateTimeFormat('vi-VN').format(new Date(date));
 
     const totalExpenses = expenses.reduce((acc, expense) => acc + parseFloat(expense.amount), 0) || 0;
-
-    // Tính ngân sách hàng ngày
     const totalDays = Math.ceil((new Date(budget.endDate) - new Date(budget.startDate)) / (1000 * 60 * 60 * 24));
     const dailyBudget = budget.amount / totalDays;
 
-    // Tính tổng chi tiêu hàng ngày
     const daysPassed = Math.ceil((new Date() - new Date(budget.startDate)) / (1000 * 60 * 60 * 24));
     const actualDailyExpense = daysPassed > 0 ? totalExpenses / daysPassed : 0;
 
-    // Tính số ngày còn lại
     const today = new Date();
     const endDate = new Date(budget.endDate);
     const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
@@ -97,7 +87,6 @@ const BudgetDetail = () => {
                 </ol>
             </nav>
             <div className="row mt-3">
-                {/* Card 1 */}
                 <div className="col-md-6 mb-3">
                     <div className="income-overview card" style={{ boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
                         <div className="card-body">
@@ -148,7 +137,6 @@ const BudgetDetail = () => {
                     </div>
                 </div>
 
-                {/* Card 2 */}
                 <div className="col-md-6 mb-3">
                     <div className="income-overview card" style={{ boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
                         <div className="card-body">

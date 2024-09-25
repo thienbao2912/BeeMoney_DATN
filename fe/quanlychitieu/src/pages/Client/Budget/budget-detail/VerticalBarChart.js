@@ -3,7 +3,6 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-// Đăng ký các thành phần và plugin cần thiết cho Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 
 const VerticalBarChart = ({ totalBudget, totalExpenses, startDate, endDate, categoryName }) => {
@@ -16,7 +15,7 @@ const VerticalBarChart = ({ totalBudget, totalExpenses, startDate, endDate, cate
                 backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
                 borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
                 borderWidth: 1,
-                barThickness: 60, // Đặt kích thước cụ thể cho các cột (tính bằng pixel)
+                barThickness: 60,
             },
         ],
     };
@@ -27,34 +26,34 @@ const VerticalBarChart = ({ totalBudget, totalExpenses, startDate, endDate, cate
             legend: {
                 position: 'top',
                 labels: {
-                    padding: 20, // Khoảng cách giữa legend và biểu đồ
+                    padding: 20, 
                 },
             },
             title: {
                 display: true,
                 text: `Biểu đồ Ngân sách ${categoryName} (${startDate} - ${endDate})`,
                 padding: {
-                    top: 0, // Khoảng cách giữa tiêu đề và biểu đồ
-                    bottom: 0, // Khoảng cách dưới tiêu đề nếu cần
+                    top: 0, 
+                    bottom: 0, 
                 },
             },
             datalabels: {
                 display: true,
                 color: 'black',
-                align: 'end', // Đặt nhãn lên đầu cột
+                align: 'end', 
                 anchor: 'end',
                 formatter: (value) => {
-                    return (typeof value === 'number' ? value.toLocaleString() : ''); // Đảm bảo giá trị là số trước khi định dạng
+                    return (typeof value === 'number' ? value.toLocaleString() : '');
                 },
                 padding: {
-                    top: 10, // Khoảng cách giữa tiêu đề và biểu đồ
-                    bottom: 0, // Khoảng cách dưới tiêu đề nếu cần
+                    top: 10,
+                    bottom: 0,
                 },
             },
             label: {
                 padding: {
-                    top: 10, // Khoảng cách giữa tiêu đề và biểu đồ
-                    bottom: 10, // Khoảng cách dưới tiêu đề nếu cần
+                    top: 10,
+                    bottom: 10,
                 },
             }
         },
@@ -68,18 +67,18 @@ const VerticalBarChart = ({ totalBudget, totalExpenses, startDate, endDate, cate
                     display: true,
                     text: 'Số tiền (VND)',
                     padding: {
-                        bottom: 10, // Khoảng cách giữa tiêu đề trục y và trục y
+                        bottom: 10, 
                     },
                 },
             },
             x: {
-                barPercentage: 0.7, // Điều chỉnh giá trị này nếu cần
-                categoryPercentage: 0.8, // Điều chỉnh khoảng cách giữa các nhóm cột nếu cần
+                barPercentage: 0.7, 
+                categoryPercentage: 0.8,
                 title: {
                     display: true,
                     text: 'Danh mục',
                     padding: {
-                        top: 10, // Khoảng cách giữa tiêu đề trục x và trục x
+                        top: 10, 
                     },
                 },
             },

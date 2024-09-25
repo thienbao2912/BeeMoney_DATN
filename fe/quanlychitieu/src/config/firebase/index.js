@@ -1,4 +1,3 @@
-// src/config/firebase.js
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
@@ -11,7 +10,6 @@ const firebaseConfig = {
     appId: "1:185120760492:web:c1f9b31f331d2a891cb509"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 

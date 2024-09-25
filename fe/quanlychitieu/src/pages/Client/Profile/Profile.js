@@ -145,7 +145,7 @@ const ProfileForm = () => {
                         className="edit" 
                         onClick={() => setEditMode(!editMode)} 
                       >
-                        <i className="text-dark fa fa-edit"></i>
+                        <i className="text-piramary fa fa-edit"></i>
                       </Button>
                     </div>
                     <a 

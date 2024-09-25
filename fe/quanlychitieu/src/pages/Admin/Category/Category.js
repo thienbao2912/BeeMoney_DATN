@@ -20,7 +20,7 @@ const CategoryList = () => {
     const [modalShow, setModalShow] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [filterType, setFilterType] = useState('all');  // New state for filter type
+    const [filterType, setFilterType] = useState('all');  
     const categoriesPerPage = 5;
     const navigate = useNavigate();
     const location = useLocation();
@@ -37,10 +37,8 @@ const CategoryList = () => {
                 const response = await getAllCategories(navigate);
                 const data = response.data || [];
 
-                // Sort categories by createdAt from newest to oldest
                 const sortedCategories = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-                // Filter categories based on search query and selected filter type
                 const filteredCategories = sortedCategories.filter(category =>
                     category.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
                     (filterType === 'all' || category.type === filterType)
@@ -105,7 +103,7 @@ const CategoryList = () => {
     const closeDeleteModal = () => {
         setModalShow(false);
         setCategoryToDelete(null);
-        setError(null);  // Clear the error when the modal is closed
+        setError(null);  
     };
 
     const handlePageChange = (pageNumber) => {

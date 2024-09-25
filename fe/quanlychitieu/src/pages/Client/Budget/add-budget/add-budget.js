@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getCategories, getAllBudgets, createBudget } from '../../../../service/Budget'; // Import service functions
-import { Spinner } from 'react-bootstrap'; // Import Spinner component from react-bootstrap
+import { getCategories, getAllBudgets, createBudget } from '../../../../service/Budget'; 
+import { Spinner } from 'react-bootstrap'; 
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import "./add-budget.css";
@@ -8,8 +8,8 @@ import "./add-budget.css";
 const AddBudget = () => {
     const [categories, setCategories] = useState([]);
     const [budgets, setBudgets] = useState([]);
-    const [loadingCategories, setLoadingCategories] = useState(true); // Loading state for categories
-    const [loadingBudgets, setLoadingBudgets] = useState(true); // Loading state for budgets
+    const [loadingCategories, setLoadingCategories] = useState(true);
+    const [loadingBudgets, setLoadingBudgets] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -25,7 +25,6 @@ const AddBudget = () => {
     const categoryId = watch('categoryId');
 
     useEffect(() => {
-        // Fetch categories and budgets when component mounts
         const fetchData = async () => {
             try {
                 const categoryResponse = await getCategories();
@@ -44,7 +43,6 @@ const AddBudget = () => {
     
                     console.log('Budgets with createdAt:', updatedBudgets);
     
-                    // Lọc ra các ngân sách chưa hết hạn và sắp xếp giảm dần theo ngày kết thúc
                     const currentDate = new Date();
                     const validBudgets = updatedBudgets
                     .filter(budget => new Date(budget.endDate) >= currentDate)
@@ -74,7 +72,7 @@ const AddBudget = () => {
     };
 
     const formatCurrency = (value) => {
-        const cleanedValue = value.replace(/,/g, ''); // Remove existing commas
+        const cleanedValue = value.replace(/,/g, ''); 
         if (isNaN(cleanedValue)) return '';
         const parts = cleanedValue.toString().split('.');
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -85,7 +83,6 @@ const AddBudget = () => {
         setLoading(true);
         setError('');
 
-        // Validate dates
         const dateValidationError = validateDates(data.startDate, data.endDate);
         if (dateValidationError !== true) {
             setError(dateValidationError);
@@ -99,13 +96,13 @@ const AddBudget = () => {
             categoryId: data.categoryId,
             startDate: data.startDate,
             endDate: data.endDate,
-            amount: parseFloat(data.amount.replace(/,/g, '')), // Convert formatted string to number
+            amount: parseFloat(data.amount.replace(/,/g, '')), 
             userId
         };
 
         try {
             await createBudget(budgetData);
-            window.location.reload(); // Reload the page after successful update
+            window.location.reload(); 
         } catch (err) {
             setError('Có lỗi xảy ra khi thêm ngân sách');
             console.error('Error creating budget:', err);
@@ -116,14 +113,11 @@ const AddBudget = () => {
 
     const handleAmountChange = (e) => {
         let value = e.target.value;
-        // Remove all non-digit characters except decimal points
         value = value.replace(/[^0-9.]/g, '');
-        // Remove multiple decimal points
         if ((value.match(/\./g) || []).length > 1) {
             value = value.replace(/\.(?=.*\.)/, '');
         }
         if (value) {
-            // Ensure the value is not negative
             setValue('amount', formatCurrency(value));
         } else {
             setValue('amount', '');
@@ -183,7 +177,7 @@ const AddBudget = () => {
                                             min: { value: 1, message: 'Số tiền phải lớn hơn 0' },
                                             pattern: { value: /^\d{1,3}(,\d{3})*(\.\d+)?$/, message: 'Định dạng số tiền không hợp lệ' }
                                         })}
-                                        onChange={handleAmountChange} // Update change handler
+                                        onChange={handleAmountChange} 
                                     />
                                     {errors.amount && <p className="text-danger">{errors.amount.message}</p>}
                                 </div>

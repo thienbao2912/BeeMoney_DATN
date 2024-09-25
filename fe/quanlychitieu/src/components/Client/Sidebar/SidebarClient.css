@@ -45,30 +45,30 @@
   margin-right: 10px;
   font-size: 1.2rem;
   vertical-align: middle;
-  color: #fff; /* Màu icon trắng */
+  color: #fff;
 }
 
 .nav-link:hover {
   background-color: rgba(255, 255, 255, 0.2);
   opacity: 0.9;
   border-radius: 0px;
-  color: #fff; /* Giữ màu trắng khi hover */
+  color: #fff;
 }
 
 button.nav-link {
   cursor: pointer;
-  color: #fff; /* Màu trắng cho nút */
+  color: #fff;
 }
 
 button.nav-link i {
-  color: #fff; /* Màu trắng cho icon trong nút */
+  color: #fff; 
 }
 
 button.nav-link:hover {
   background-color: rgba(255, 255, 255, 0.2);
   opacity: 0.9;
   border-radius: 0px;
-  color: #fff; /* Giữ màu trắng khi hover */
+  color: #fff;
 }
 
 
@@ -121,8 +121,8 @@ button.nav-link:hover {
     display: block;
   }
 }.sidebar-head img {
-  border-radius: 50%; /* Đảm bảo hình ảnh luôn hình tròn */
-  width: 40px; /* Chiều rộng của hình ảnh */
-  height: 40px; /* Chiều cao của hình ảnh */
-  object-fit: cover; /* Giữ tỷ lệ hình ảnh khi cắt */
+  border-radius: 50%; 
+  width: 40px;
+  height: 40px;
+  object-fit: cover; 
 }

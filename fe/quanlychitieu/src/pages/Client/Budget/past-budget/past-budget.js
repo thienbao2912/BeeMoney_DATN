@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {  getAllBudgets, deleteBudget } from '../../../../service/Budget'; // Import service functions
 import ConfirmationModal from '../../SavingGoals/ConfirmationModal/ConfirmationModal'; 
-import './past-budget.css'; // Import the CSS file
+import './past-budget.css'; 
 
 const PastBudget = () => {
     const [budgets, setBudgets] = useState([]);
@@ -58,11 +58,10 @@ const PastBudget = () => {
         try {
             await deleteBudget(budgetId);
             setConfirmationModalOpen(false);
-            // Reload the page to reflect changes
             window.location.reload();
         } catch (err) {
             setError('Error deleting budget');
-            console.error('Error deleting budget:', err); // Log error
+            console.error('Error deleting budget:', err); 
         }
     };
     const openConfirmationModal = (goalId) => {
@@ -75,17 +74,16 @@ const PastBudget = () => {
         setConfirmationModalOpen(false);
     }
     const calculatePercentageRemaining = (budget) => {
-        const totalAmount = budget.amount || 1; // Ensure not to divide by 0
+        const totalAmount = budget.amount || 1; 
         const remaining = budget.remainingBudget >= 0 ? budget.remainingBudget : 0;
         return ((remaining / totalAmount) * 100).toFixed(0);
     };
 
     const handleMonthChange = (event) => {
         setSelectedMonth(event.target.value);
-        setCurrentPage(1); // Reset về trang đầu tiên khi thay đổi tháng
+        setCurrentPage(1);
       };
 
-    // Pagination logic
     const indexOfLastBudget = currentPage * itemsPerPage;
     const indexOfFirstBudget = indexOfLastBudget - itemsPerPage;
     const currentBudgets = budgets.slice(indexOfFirstBudget, indexOfLastBudget);

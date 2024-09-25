@@ -10,28 +10,26 @@
     width: 50px;
     height: 50px;
   }
-  /* Thay đổi giao diện thanh lăn chuột */
-/* Đảm bảo các quy tắc CSS được áp dụng đúng cách */
+
 .widget-media {
-  scrollbar-width: thin; /* Kích thước thanh lăn chuột cho Firefox */
-  scrollbar-color: #888 #f1f1f1; /* Màu của thanh lăn chuột và nền cho Firefox */
+  scrollbar-width: thin; 
+  scrollbar-color: #888 #f1f1f1; 
 }
 
-/* Giao diện cho các thanh lăn chuột trong các trình duyệt dựa trên WebKit */
 .widget-media::-webkit-scrollbar {
-  width: 10px; /* Độ rộng của thanh lăn chuột */
+  width: 10px;
 }
 
 .widget-media::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Màu nền của thanh lăn chuột */
+  background: #f1f1f1; 
 }
 
 .widget-media::-webkit-scrollbar-thumb {
-  background: #888; /* Màu của thanh lăn chuột */
-  border-radius: 10px; /* Bo góc của thanh lăn chuột */
-  transition: background-color 0.3s; /* Hiệu ứng chuyển màu khi hover */
+  background: #888; 
+  border-radius: 10px;
+  transition: background-color 0.3s; 
 }
 
 .widget-media::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Màu khi di chuột qua thanh lăn chuột */
+  background: #555;
 }

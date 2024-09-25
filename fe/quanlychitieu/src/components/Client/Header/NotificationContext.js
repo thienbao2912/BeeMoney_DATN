@@ -8,7 +8,6 @@ export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
     const [deletedNotifications, setDeletedNotifications] = useState([]);
 
-    // Load thông báo và thông báo đã xóa từ localStorage
     useEffect(() => {
         const storedNotifications = JSON.parse(localStorage.getItem('notifications')) || [];
         const storedDeletedNotifications = JSON.parse(localStorage.getItem('deletedNotifications')) || [];
@@ -22,7 +21,6 @@ export const NotificationProvider = ({ children }) => {
         localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
     };
 
-    // Lưu thông báo đã xóa vào localStorage
     const saveDeletedNotifications = (notificationId) => {
         const updatedDeletedNotifications = [...deletedNotifications, notificationId];
         setDeletedNotifications(updatedDeletedNotifications);
@@ -32,8 +30,8 @@ export const NotificationProvider = ({ children }) => {
     const addNotification = (notification) => {
         setNotifications((prevNotifications) => {
             const exists = prevNotifications.some(n => n._id === notification._id);
-            if (!exists && !deletedNotifications.includes(notification._id)) { // Kiểm tra xem thông báo đã bị xóa chưa
-                const updatedNotifications = [notification, ...prevNotifications]; // Đặt thông báo mới nhất lên đầu
+            if (!exists && !deletedNotifications.includes(notification._id)) { 
+                const updatedNotifications = [notification, ...prevNotifications]; 
                 saveNotifications(updatedNotifications);
                 return updatedNotifications;
             }
@@ -45,7 +43,7 @@ export const NotificationProvider = ({ children }) => {
         setNotifications(prevNotifications => {
             const updatedNotifications = prevNotifications.filter(notification => notification._id !== notificationId);
             saveNotifications(updatedNotifications);
-            saveDeletedNotifications(notificationId); // Lưu ID của thông báo đã xóa
+            saveDeletedNotifications(notificationId); 
             return updatedNotifications;
         });
     };
@@ -62,7 +60,6 @@ export const NotificationProvider = ({ children }) => {
                     const notificationId = `budget-${budget._id}`;
                     const notificationExists = notifications.some(n => n._id === notificationId);
                     
-                    // Kiểm tra xem thông báo đã bị xóa chưa
                     if (!notificationExists && !deletedNotifications.includes(notificationId)) {
                         addNotification({
                             _id: notificationId,

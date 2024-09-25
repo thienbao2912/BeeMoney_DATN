@@ -1,10 +1,9 @@
-/* Register.module.css */
 
 .registerContainer {
     display: flex;
     flex-direction: row;
     height: 100vh;
-    overflow: hidden; /* Prevent overflow */
+    overflow: hidden;
 }
 
 .welcomeSection {
@@ -29,12 +28,12 @@
     color: #333;
     padding: 2rem 1rem;
     box-sizing: border-box;
-    overflow-y: auto; /* Allow vertical scrolling */
+    overflow-y: auto;
 }
 
 .form-register {
-    max-width: 90%; /* Ensure form stays within screen */
-    max-height: 90vh; /* Prevent form from growing too tall */
+    max-width: 90%;
+    max-height: 90vh;
     margin: 0 auto;
     text-align: center;
     overflow-y: auto;
@@ -52,7 +51,7 @@ p {
 }
 
 .inputGroup {
-    margin-bottom: 1rem; /* Adjust spacing between fields */
+    margin-bottom: 1rem; 
 }
 
 .appTitle {
@@ -71,8 +70,8 @@ input[type="password"] {
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
-    font-size: 0.9rem; /* Slightly smaller font size */
-    height: 2.5rem; /* Reduce input height */
+    font-size: 0.9rem; 
+    height: 2.5rem;
     max-height: 2.5rem;
 }
 
@@ -84,10 +83,10 @@ input[type="password"] {
     text-align: center;
     background: linear-gradient(to right, #8e2de2, #4a00e0);
     color: white;
-    font-size: 0.9rem; /* Adjusted font size */
+    font-size: 0.9rem; 
     cursor: pointer;
     box-sizing: border-box;
-    max-height: 3rem; /* Reduce button height */
+    max-height: 3rem;
 }
 
 .registerButton:hover {
@@ -99,27 +98,26 @@ input[type="password"] {
     flex-direction: column;
     margin-top: 0.2rem;
     margin-bottom: 0.2rem;
-    text-align: left; /* Align text to the left */
+    text-align: left; 
 }
 
 .actions a {
     color: #8e2de2;
     text-decoration: none;
     margin-top: 0.2rem;
-    margin-bottom: 0.2rem; /* Add some space above the link */
+    margin-bottom: 0.2rem; 
 }
 
 .error {
     color: red;
-    margin: 0; /* Remove margin */
-    font-size: 0.85rem; /* Smaller font for error messages */
+    margin: 0; 
+    font-size: 0.85rem; 
     max-width: 100%;
     word-wrap: break-word;
     overflow-wrap: break-word;
     text-align: left;
 }
 
-/* Success Message */
 .alert-success {
     font-size: 1rem;
     color: #155724;
@@ -136,7 +134,6 @@ input[type="password"] {
     font-size: 0.875rem;
 }
 
-/* Responsive styles */
 @media (max-width: 768px) {
     .registerContainer {
         flex-direction: column;
@@ -156,3 +153,23 @@ input[type="password"] {
         width: 100%;
     }
 }
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 2; 
+    font-size: 1.5rem; 
+  }
+  
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
+    display: none;
+  }
+  
+  input[type="password"]::-webkit-clear-button,
+  input[type="password"]::-webkit-reveal-button {
+    display: none;
+  }
+  

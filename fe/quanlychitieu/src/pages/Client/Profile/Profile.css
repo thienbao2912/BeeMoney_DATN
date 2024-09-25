@@ -1,11 +1,8 @@
-/* ProfileForm.css */
 .rounded-avatar {
     border-radius: 50%;
-    /* Để làm cho ảnh thành hình tròn */
     object-fit: cover;
-    /* Đảm bảo ảnh không bị méo khi thay đổi kích thước */
 }.edit{
     padding: 0;
-    margin-left: 5px;
-    margin-top: -5px;
+    margin-left: 8px;
+    margin-top: -7px;
 }

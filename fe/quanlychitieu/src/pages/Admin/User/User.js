@@ -91,7 +91,6 @@ const User = () => {
           </div>
           <div className="card-body">
           <div className="row mb-4 mt-2">
-  {/* Tìm kiếm người dùng */}
   <div className="col-md-6 mb-3">
     <label htmlFor="search" className="form-label">Tìm kiếm người dùng</label>
     <input
@@ -104,7 +103,6 @@ const User = () => {
     />
   </div>
 
-  {/* Lọc người dùng */}
   <div className="col-md-6 mb-3">
     <label htmlFor="filter" className="form-label">Lọc người dùng</label>
     <select

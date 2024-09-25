@@ -80,7 +80,6 @@ const loginUser = async ({ email, password }) => {
 };
 
 const sendResetPasswordEmail = async (email) => {
-    // Assuming you have an API endpoint for sending reset emails
     const res = await request({
         method: "POST",
         path: "/api/auth/forgot-password", 
@@ -104,7 +103,7 @@ const forgotPassword = async (email) => {
 
 const resetPassword = async ({ password, token }) => {
     try {
-        console.log("Sending password reset request:", { password, token }); // Debugging
+        console.log("Sending password reset request:", { password, token }); 
         const res = await request({
             method: "POST",
             path: "/api/auth/reset-password",
@@ -112,7 +111,7 @@ const resetPassword = async ({ password, token }) => {
         });
         return res.data;
     } catch (error) {
-        console.error("Reset Password Error:", error.response?.data || error.message); // Debugging
+        console.error("Reset Password Error:", error.response?.data || error.message);
         throw error.response?.data?.message || "Đã có lỗi xảy ra.";
     }
 };
