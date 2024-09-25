@@ -23,22 +23,23 @@
   color: #0056b3; 
 }
 
-.sidebar .nav-link {
+.sidebar .nav-linkadmin {
   display: flex;
   align-items: center;
   color: #495057; 
   padding: 10px 15px;
   border-radius: 5px; 
   transition: background-color 0.3s, color 0.3s; 
+  text-decoration: none;
 }
 
-.sidebar .nav-link:hover,
-.sidebar .nav-link.active {
+.sidebar .nav-linkadmin:hover,
+.sidebar .nav-linkadmin.active {
   background-color: #e9ecef; 
   color: #212529; 
 }
 
-.sidebar .nav-link i {
+.sidebar .nav-linkadmin i {
   margin-right: 10px;
 }
 
@@ -47,16 +48,16 @@
   border-top: 1px solid #dee2e6;
 }
 
-.sidebar .nav .collapse .nav-link {
+.sidebar .nav .collapse .nav-linkadmin {
   padding: 8px 15px;
   color: #495057; 
 }
 
-.sidebar .nav .collapse .nav-link:hover {
+.sidebar .nav .collapse .nav-linkadmin:hover {
   background-color: #f1f3f5; 
 }
-/* Điều chỉnh hiệu ứng hover riêng cho button */
-.sidebar button.nav-link {
+
+.sidebar button.nav-linkadmin {
   background: none;
   border: none;
   display: flex;
@@ -70,18 +71,17 @@
   cursor: pointer;
 }
 
-.sidebar button.nav-link:hover {
+.sidebar button.nav-linkadmin:hover {
   background-color: #e9ecef;
   
 }
 
-.sidebar button.nav-link:focus {
+.sidebar button.nav-linkadmin:focus {
   outline: none;
 }
 
-/* Áp dụng hiệu ứng hover cho cả thẻ <a> và <button> có class 'nav-link' */
-.nav-link {
-  color: #343a40;
+.nav-linkadmin {
+  color: #343a40 !important;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -90,28 +90,28 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
-.nav-link:hover {
+.nav-linkadmin:hover {
   background-color: #e9ecef;
   color: #007bff;
 }
 
-.nav-link.active {
+.nav-linkadmin.active {
   color: #007bff;
   font-weight: 600;
 }
 
 /* Đảm bảo các nút có class 'nav-link' cũng có cùng hiệu ứng */
-button.nav-link {
+button.nav-linkadmin {
   background: none; /* Xóa bỏ nền mặc định của button */
   border: none; /* Xóa bỏ viền mặc định */
   cursor: pointer; /* Thay đổi con trỏ chuột khi hover */
 }
 
-button.nav-link:hover {
+button.nav-linkadmin:hover {
   background-color: #e9ecef;
   color: #007bff;
 }
 
-button.nav-link:focus {
+button.nav-linkadmin:focus {
   outline: none; /* Xóa bỏ viền khi focus */
 }

@@ -1,0 +1,123 @@
+.sidebar-client {
+  width: 250px;
+  color: #fff;
+  background: linear-gradient(to right, #8e2de2, #4a00e0);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: 0; 
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); 
+}
+
+.sidebar-head {
+  background: linear-gradient(to right, #8e2de2, #4a00e0);
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+}
+
+.greeting {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.sidebar-nav {
+  padding: 0; 
+  margin-top: 1rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  color: #fff !important; 
+  border-radius: 5px;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  text-align: left;
+  background: none;
+  border: none;
+  width: 100%;
+}
+
+.nav-link i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+  vertical-align: middle;
+  color: #fff; /* Màu icon trắng */
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  opacity: 0.9;
+  border-radius: 0px;
+  color: #fff; /* Giữ màu trắng khi hover */
+}
+
+button.nav-link {
+  cursor: pointer;
+  color: #fff; /* Màu trắng cho nút */
+}
+
+button.nav-link i {
+  color: #fff; /* Màu trắng cho icon trong nút */
+}
+
+button.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  opacity: 0.9;
+  border-radius: 0px;
+  color: #fff; /* Giữ màu trắng khi hover */
+}
+
+
+button.nav-link {
+  cursor: pointer;
+}
+
+button.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  opacity: 0.9;
+  border-radius: 0px; 
+}
+.nav-link i {
+  margin-right: 10px; 
+  font-size: 1.2rem;  
+  vertical-align: middle;
+}
+
+.nav-link {
+  display: flex; 
+  align-items: center; 
+}
+
+
+.nav-item + .nav-item {
+  margin-top: 0.5rem; 
+}
+
+.btn-hamburger {
+  font-size: 24px;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+}
+
+.btn-hamburger .bi {
+  color: #fff;
+}
+
+@media (max-width: 767px) {
+  .sidebar-client {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .sidebar-client {
+    display: block;
+  }
+}

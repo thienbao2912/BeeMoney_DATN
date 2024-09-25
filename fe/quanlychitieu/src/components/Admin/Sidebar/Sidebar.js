@@ -54,37 +54,37 @@ const Sidebar = () => {
         <div className="collapse d-xl-block w-100" id="sidebarCollapse">
           <ul className="nav flex-column">
             <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center p-2" to="/admin/dashboard">
+              <Link className="nav-linkadmin d-flex align-items-center p-2" to="/admin/dashboard">
                 <House className="me-3" size={20} />
                 <span>Trang chủ</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center p-2" to="/admin/users">
+              <Link className="nav-linkadmin d-flex align-items-center p-2" to="/admin/users">
                 <Person className="me-3" size={20} />
                 <span>Quản lý tài khoản</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center p-2" to="/admin/categories">
+              <Link className="nav-linkadmin d-flex align-items-center p-2" to="/admin/categories">
                 <Box className="me-3" size={20} />
                 <span>Danh mục chi thu</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center p-2" to="/admin/profile">
+              <Link className="nav-linkadmin d-flex align-items-center p-2" to="/admin/profile">
                 <PersonCircle className="me-3" size={20} />
                 <span>Quản lý hồ sơ</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center p-2" to="/">
+              <Link className="nav-linkadmin d-flex align-items-center p-2" to="/">
                 <Globe className="me-3" size={20} />
                 <span>Website</span>
               </Link>
             </li>
             <li className="nav-item">
-              <button className="nav-link btn btn-link d-flex align-items-center p-2 text-start" onClick={handleLogout}>
+              <button className="nav-linkadmin btn btn-link d-flex align-items-center p-2 text-start" onClick={handleLogout}>
                 <BoxArrowRight className="me-3" size={20} />
                 <span>Đăng xuất</span>
               </button>
