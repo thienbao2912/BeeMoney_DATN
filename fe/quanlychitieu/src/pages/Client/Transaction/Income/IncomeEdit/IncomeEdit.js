@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './IncomeEdit.css';
 import { getCategories, updateTransaction, getTransactionById } from '../../../../../service/Transaction';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form'; // Import useForm
+import { useForm } from 'react-hook-form'; 
 
 const IncomeEdit = () => {
   const { id } = useParams(); 
@@ -15,7 +15,7 @@ const IncomeEdit = () => {
     formState: { errors },
     setValue,
     getValues,
-  } = useForm(); // Destructure form hooks
+  } = useForm(); 
   
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);

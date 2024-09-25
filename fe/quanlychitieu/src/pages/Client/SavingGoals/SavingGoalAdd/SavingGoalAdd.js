@@ -3,14 +3,14 @@ import { useForm } from 'react-hook-form';
 import './SavingGoalAdd.css';
 import { getCategories, addSavingsGoal, getAllSavingsGoals } from '../../../../service/SavingGoal';
 import { Link, useNavigate } from 'react-router-dom';
-const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu']; // Add forbidden words here
+const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu'];
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 };
 
 const normalizeText = (text) => {
-  return removeAccents(text).toLowerCase().replace(/\s+/g, ''); // Remove spaces
+  return removeAccents(text).toLowerCase().replace(/\s+/g, '');
 };
 
 const containsForbiddenWords = (value) => {
@@ -22,8 +22,8 @@ const SavingGoalAdd = () => {
   const { register, handleSubmit, setValue, watch, setError, formState: { errors } } = useForm({
     defaultValues: {
       name: '',
-      targetAmount: '', // Default as empty string
-      currentAmount: 0, // Default as 0
+      targetAmount: '', 
+      currentAmount: 0, 
       startDate: '',
       endDate: '',
       categoryId: ''
@@ -77,16 +77,15 @@ const SavingGoalAdd = () => {
     if (typeof value === 'string') {
       return value.replace(/[^\d]/g, '');
     }
-    return ''; // Return empty string if value is not a string
+    return ''; 
   };
 
   const handleAmountChange = (e) => {
     let value = e.target.value;
-    // Ensure value is a string before processing
     if (typeof value === 'string') {
       value = unformatCurrency(value);
       if (Number(value) < 0) {
-        e.target.value = formatCurrency(0); // Set to 0 if negative
+        e.target.value = formatCurrency(0); 
       } else {
         e.target.value = formatCurrency(value);
       }
@@ -96,11 +95,10 @@ const SavingGoalAdd = () => {
   const onSubmit = async (formData) => {
     setLoading(true);
     try {
-        // Ensure currentAmount is set to 0 if not provided
         const payload = {
             ...formData,
             targetAmount: unformatCurrency(formData.targetAmount),
-            currentAmount: unformatCurrency(formData.currentAmount) || '0' // Set to '0' if empty
+            currentAmount: unformatCurrency(formData.currentAmount) || '0' 
         };
         await addSavingsGoal(payload);
         navigate('/saving-goal/list');
@@ -251,8 +249,8 @@ const SavingGoalAdd = () => {
               <Link to="/saving-goal/list" className="text-secondary">Xem tất cả mục tiêu</Link>
               {savingsGoals.length > 0 ? (
           savingsGoals
-          .filter(goal => new Date(goal.endDate) >= new Date()) // Lọc bỏ các mục tiêu đã hết hạn
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sắp xếp theo ngày kết thúc giảm dần
+          .filter(goal => new Date(goal.endDate) >= new Date()) 
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) 
           .slice(0, 2)
           .map((goal) => {
             const percentage = (goal.currentAmount / goal.targetAmount) * 100;

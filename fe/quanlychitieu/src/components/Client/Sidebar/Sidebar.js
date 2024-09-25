@@ -59,7 +59,7 @@ const Sidebar = () => {
         variant="primary"
         onClick={() => setShow(true)}
       >
-        <i className="bi bi-list"></i> {/* Bootstrap icon for hamburger menu */}
+        <i className="bi bi-list"></i> 
       </Button>
       <div className="sidebar-client">
   <div className="sidebar-head d-flex align-items-center justify-content-between">

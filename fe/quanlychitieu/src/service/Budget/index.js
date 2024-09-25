@@ -1,6 +1,5 @@
 import request from "../../config/API/api";
 
-// Tạo ngân sách mới
 const createBudget = async (budgetData) => {
     try {
         const response = await request({
@@ -15,21 +14,19 @@ const createBudget = async (budgetData) => {
     }
 };
 
-// Lấy tất cả ngân sách của một người dùng
 const getAllBudgets = async (userId) => {
     try {
         const response = await request({
             method: 'GET',
-            path: `/api/budgets/budgets?userId=${userId}`, // Thêm userId vào query string
+            path: `/api/budgets/budgets?userId=${userId}`, 
         });
-        return response; // Giả sử response đã bao gồm dữ liệu cần thiết
+        return response; 
     } catch (error) {
         console.error('Error fetching all budgets:', error);
         throw error;
     }
 };
 
-// Lấy ngân sách theo ID
 const getBudgetById = async (budgetId, userId) => {
     try {
         const response = await request({
@@ -46,7 +43,6 @@ const getBudgetById = async (budgetId, userId) => {
     }
 };
 
-// Xóa ngân sách theo ID
 const deleteBudget = async (budgetId) => {
     try {
         const response = await request({
@@ -60,7 +56,6 @@ const deleteBudget = async (budgetId) => {
     }
 };
 
-// Lấy các khoản chi tiêu cho ngân sách cụ thể
 const getExpensesForBudget = async (budgetId) => {
     try {
         const response = await request({
@@ -74,8 +69,6 @@ const getExpensesForBudget = async (budgetId) => {
     }
 };
 
-// Cập nhật số tiền của ngân sách
-// Cập nhật số tiền của ngân sách
 const updateBudget = async (budgetId, updateData) => {
     try {
         const response = await request({
@@ -84,7 +77,6 @@ const updateBudget = async (budgetId, updateData) => {
             data: updateData
         });
 
-        // Trả về toàn bộ phản hồi hoặc chỉ dữ liệu nếu có
         return response.data || response;
     } catch (error) {
         console.error('Error updating budget:', error.response ? error.response.data : error.message);
@@ -92,11 +84,6 @@ const updateBudget = async (budgetId, updateData) => {
     }
 };
 
-
-
-
-
-// Lấy danh sách các danh mục
 const getCategories = async () => {
     try {
         const response = await request({

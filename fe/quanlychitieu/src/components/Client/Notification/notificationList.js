@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNotifications } from '../Header/NotificationContext';
-import 'bootstrap-icons/font/bootstrap-icons.css'; // Import Bootstrap Icons
-
+import 'bootstrap-icons/font/bootstrap-icons.css';
 const NotificationList = () => {
     const { notifications, removeNotification } = useNotifications();
 
@@ -31,7 +30,6 @@ const NotificationList = () => {
         }
     };
 
-    // Sắp xếp thông báo theo thứ tự thời gian, mới nhất lên đầu
     const sortedNotifications = notifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     return (

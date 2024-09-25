@@ -3,26 +3,26 @@
 }
 
 .link-orange {
-    color: #ff8c00; /* Màu cam sáng cho văn bản */
-    text-decoration: none; /* Xóa gạch chân */
-    font-size: 16px; /* Kích thước chữ */
-    font-weight: bold; /* Chữ đậm */
-    transition: color 0.3s ease; /* Hiệu ứng chuyển màu */
+    color: #ff8c00; 
+    text-decoration: none; 
+    font-size: 16px; 
+    font-weight: bold;
+    transition: color 0.3s ease; 
 }
 
 .link-orange:hover {
-    color: #ff6b00; /* Màu cam đậm hơn khi di chuột qua */
+    color: #ff6b00;
 }
 
 .action-buttons {
-    display: flex; /* Sử dụng flexbox cho bố trí */
-    justify-content: center; /* Căn giữa các phần tử */
-    gap: 10px; /* Khoảng cách giữa các phần tử */
+    display: flex; 
+    justify-content: center; 
+    gap: 10px; 
 }
 
 .action-buttons span {
-    cursor: pointer; /* Con trỏ chuột dạng tay khi di chuột qua */
-    font-size: 16px; /* Kích thước chữ */
+    cursor: pointer; 
+    font-size: 16px; 
 }
 
 .category-image {

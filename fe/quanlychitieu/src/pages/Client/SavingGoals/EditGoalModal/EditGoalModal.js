@@ -17,7 +17,7 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
         let value = e.target.value;
         value = unformatCurrency(value);
         if (Number(value) < 0) {
-            e.target.value = formatCurrency(0); // Đặt giá trị về 0 nếu nhập số âm
+            e.target.value = formatCurrency(0); 
         } else {
             setAdditionalAmount(value);
             e.target.value = formatCurrency(value);

@@ -35,10 +35,8 @@ import Register from './pages/Auth/Register/Register';
 import Forgetpassword from './pages/Auth/ForgetPassword/ForgetPassword';
 import PrivateRoute from './components/PrivateRoute';
 import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
-// Import Admin Routes
 import AdminRoutes from './pages/Admin/Router/AdminRoutes';
 
-// Import NotificationProvider
 import { NotificationProvider } from './components/Client/Header/NotificationContext';
 
 function App() {
@@ -75,7 +73,6 @@ function App() {
           <Route path="/add-category" element={<AddCategory />} />
           <Route path="/edit-category/:id" element={<EditCategory />} />
         </Route>
-        {/* Route for Admin */}
         <Route path="/admin/*" element={<PrivateRoute element={<AdminRoutes />} requiredRole="admin" />} />
       </>
     )
