@@ -226,7 +226,7 @@ const DashboardStatistics = () => {
             <div className="card-header">
               <h5>Người Dùng Tạo Trong Tháng</h5>
             </div>
-            <div className="card-body">
+            <div style={{ height: "228px" }} className="card-body">
               {currentUsers.length === 0 ? (
                 <p>Không có người dùng mới trong tháng này.</p>
               ) : (
@@ -255,20 +255,20 @@ const DashboardStatistics = () => {
                       ))}
                     </tbody>
                   </table>
-                  <nav>
-                    <ul className="pagination">
-                      {pageNumbers.map((number) => (
-                        <li key={number} className="page-item">
-                          <button onClick={() => paginate(number)} className="page-link">
-                            {number}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </nav>
                 </>
               )}
             </div>
+            <nav>
+              <ul className="pagination">
+                {pageNumbers.map((number) => (
+                  <li key={number} className="page-item">
+                    <button onClick={() => paginate(number)} className="page-link">
+                      {number}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
         </div>
 

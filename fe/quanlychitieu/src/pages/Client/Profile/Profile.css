@@ -4,4 +4,8 @@
     /* Để làm cho ảnh thành hình tròn */
     object-fit: cover;
     /* Đảm bảo ảnh không bị méo khi thay đổi kích thước */
+}.edit{
+    padding: 0;
+    margin-left: 5px;
+    margin-top: -5px;
 }
