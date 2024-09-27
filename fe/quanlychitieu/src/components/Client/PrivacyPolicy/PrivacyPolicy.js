@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import CookieConsent from 'react-cookie-consent';
 
-const PrivacyPolicy = ({ userId }) => { // Nhận userId từ props
+const PrivacyPolicy = ({ userId }) => { 
   const [showOverlay, setShowOverlay] = useState(true);
 
   useEffect(() => {
-    // Lấy trạng thái cookie của người dùng hiện tại
     const isCookieAccepted = localStorage.getItem(`cookieConsentAccepted_${userId}`);
     
     if (isCookieAccepted === 'true') {
@@ -14,10 +13,10 @@ const PrivacyPolicy = ({ userId }) => { // Nhận userId từ props
     } else {
       disableRightClickAndInspect(); 
     }
-  }, [userId]); // Thêm userId vào dependency array
+  }, [userId]); 
 
   const handleAcceptCookies = () => {
-    // Lưu trạng thái đã chấp nhận vào localStorage với key chứa userId
+    
     localStorage.setItem(`cookieConsentAccepted_${userId}`, 'true');
     setShowOverlay(false); 
     enableRightClickAndInspect(); 
@@ -59,7 +58,7 @@ const PrivacyPolicy = ({ userId }) => { // Nhận userId từ props
           <CookieConsent
             location="bottom"
             buttonText="Accept"
-            cookieName={`cookieConsentAccepted_${userId}`} // Sử dụng cookieName chứa userId
+            cookieName={`cookieConsentAccepted_${userId}`} 
             style={{ background: "#2B373B" }}
             buttonStyle={{ color: "#4e503b", fontSize: "13px" }}
             onAccept={handleAcceptCookies}
@@ -72,14 +71,13 @@ const PrivacyPolicy = ({ userId }) => { // Nhận userId từ props
   );
 };
 
-// CSS cho lớp phủ
 const overlayStyle = {
   position: 'fixed',
   top: 0,
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  backgroundColor: 'rgba(0, 0, 0, 0.1)',
   zIndex: 9999,
   display: 'flex',
   justifyContent: 'center',
@@ -87,9 +85,9 @@ const overlayStyle = {
   color: 'white',
 };
 const linkStyle = {
-  textDecoration: 'none',  // Xóa gạch chân
-  fontWeight: 'bold',      // Làm in đậm
-  color: 'white',          // Đổi màu chữ (tuỳ chọn)
+  textDecoration: 'none', 
+  fontWeight: 'bold',     
+  color: 'white',         
 };
 
 export default PrivacyPolicy;
