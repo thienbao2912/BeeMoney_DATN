@@ -25,10 +25,17 @@ class BudgetController {
             }
     
             // Kiểm tra ngân sách đã tồn tại
-            const existingBudget = await Budget.findOne({ categoryId, userId, startDate: { $lte: endDate }, endDate: { $gte: startDate } });
-            if (existingBudget) {
-                return res.status(400).json({ message: 'Ngân sách của danh mục này đã tồn tại' });
-            }
+            const currentDate = new Date();
+const existingBudget = await Budget.findOne({
+    categoryId,
+    userId,
+    startDate: { $lte: endDate },
+    endDate: { $gte: startDate, $gte: currentDate }  // Thêm điều kiện để bỏ qua ngân sách hết hạn
+});
+
+if (existingBudget) {
+    return res.status(400).json({ message: 'Ngân sách của danh mục này đã tồn tại và còn hiệu lực' });
+}
     
             // Tạo ngân sách mới
             const budget = new Budget({

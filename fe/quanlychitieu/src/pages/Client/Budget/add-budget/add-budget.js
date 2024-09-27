@@ -65,8 +65,8 @@ const AddBudget = () => {
 
 
     const validateDates = (startDate, endDate) => {
-        if (new Date(startDate) > new Date(endDate)) {
-            return 'Ngày bắt đầu không thể lớn hơn ngày kết thúc';
+        if (new Date(startDate) >= new Date(endDate)) {
+            return 'Ngày bắt đầu không thể lớn hơn hoặc bằng ngày kết thúc';
         }
         return true;
     };

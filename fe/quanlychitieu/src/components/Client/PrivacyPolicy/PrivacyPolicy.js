@@ -13,9 +13,10 @@ const PrivacyPolicy = ({ userId }) => {
     } else {
       disableRightClickAndInspect(); 
     }
-  }, [userId]);
+  }, [userId]); 
 
   const handleAcceptCookies = () => {
+    
     localStorage.setItem(`cookieConsentAccepted_${userId}`, 'true');
     setShowOverlay(false); 
     enableRightClickAndInspect(); 
@@ -76,7 +77,7 @@ const overlayStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  backgroundColor: 'rgba(0, 0, 0, 0.1)',
   zIndex: 9999,
   display: 'flex',
   justifyContent: 'center',
@@ -84,7 +85,7 @@ const overlayStyle = {
   color: 'white',
 };
 const linkStyle = {
-  textDecoration: 'none',  
+  textDecoration: 'none', 
   fontWeight: 'bold',     
   color: 'white',         
 };
