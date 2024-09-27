@@ -145,7 +145,7 @@ const ExpenseList = () => {
                 </ol>
             </nav>
             <div className="row align-items-center">
-            <div className="col-lg-6 col-md-8 col-sm-12 d-flex align-items-center mb-2">
+            <div className="col-lg-6 col-md-8 col-sm-12 d-flex align-items-center">
         <select
             value={filterOption}
             onChange={handleFilterChange}
@@ -168,11 +168,11 @@ const ExpenseList = () => {
         )}
     </div>
 
-    <div className="col-md-6 mb-3 d-flex justify-content-end">
-        <Link to="/expense/add" className="btn btn-primary">
-            Thêm chi tiêu
-        </Link>
-    </div>
+    <div className="text-center mb-4">
+                <Link to="/income/add" className="primary">
+                    <i className="fa fa-plus"></i> Thêm chi tiêu
+                </Link>
+            </div>
 </div>
 
             <div className="card">
