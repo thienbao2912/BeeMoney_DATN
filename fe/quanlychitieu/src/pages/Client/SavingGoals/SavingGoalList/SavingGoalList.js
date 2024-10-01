@@ -95,7 +95,7 @@ const SavingGoalList = () => {
 .map((goal) => ({
           ...goal,
           currentAmount: goal.currentAmount || 0,
-          targetAmount: goal.targetAmount || 0,
+targetAmount: goal.targetAmount || 0,
         }));
 
       data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -172,17 +172,7 @@ const SavingGoalList = () => {
           </li>
         </ol>
       </nav>
-      <div className="row">
-        <div className="text-center mt-4">
-          <a href="/saving-goal/add" className="btn btn-primary">
-            Thêm mục tiêu
-          </a>
-        </div>
-        <div className="text-center mt-4">
-          <a href="/saving-goal/past" className="btn btn-primary">
-            Mục tiêu đã qua
-          </a>
-        </div>
+      <div className="row align-items-center">
         <div className="col-md-3">
           <select
             className="form-select"
@@ -198,12 +188,23 @@ const SavingGoalList = () => {
             <option value="6">Tháng 6</option>
             <option value="7">Tháng 7</option>
             <option value="8">Tháng 8</option>
-<option value="9">Tháng 9</option>
+            <option value="9">Tháng 9</option>
             <option value="10">Tháng 10</option>
             <option value="11">Tháng 11</option>
-            <option value="12">Tháng 12</option>
+<option value="12">Tháng 12</option>
           </select>
         </div>
+
+        <div className="col-md-9 text-md-end mt-3 mt-md-0">
+          <a href="/saving-goal/past" className="btn btn-secondary">
+            Mục tiêu đã qua
+          </a>
+        </div>
+      </div>
+      <div className="text-center mb-4 mt-2">
+        <a href="/saving-goal/add" className="primary">
+          <i className="fa fa-plus"></i> Thêm mục tiêu
+        </a>
       </div>
       <div className="row mt-3">
         {paginatedGoals.map((goal) => {
@@ -274,7 +275,7 @@ const SavingGoalList = () => {
       <Link
         to={`/saving-goal/edit/${goal._id}`}
         className="text-success me-2"
-        aria-label="Edit"
+aria-label="Edit"
       >
         <i className="fa fa-edit" />
       </Link>
