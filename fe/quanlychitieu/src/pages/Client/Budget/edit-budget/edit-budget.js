@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { updateBudget } from "../../../../service/Budget"; // Import hàm cập nhật ngân sách từ service
+import { updateBudget } from "../../../../service/Budget"; 
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 
@@ -12,7 +12,6 @@ const EditBudgetModal = ({ budget, isOpen, onClose, setBudgets }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Tính toán lại số tiền còn lại khi số tiền ngân sách thay đổi
     setRemainingBudget(budget.remainingBudget + (amount - budget.amount));
   }, [amount, budget.remainingBudget, budget.amount]);
 
@@ -29,10 +28,8 @@ const EditBudgetModal = ({ budget, isOpen, onClose, setBudgets }) => {
           endDate,
         };
     
-        // Gọi API cập nhật ngân sách
         await updateBudget(budget._id, updatedBudget);
     
-        // Cập nhật danh sách ngân sách hiện có
         setBudgets((prevBudgets) => {
           const existingBudgetIndex = prevBudgets.findIndex(
             (b) => b._id === updatedBudget._id
@@ -49,7 +46,6 @@ const EditBudgetModal = ({ budget, isOpen, onClose, setBudgets }) => {
           return [...prevBudgets, updatedBudget];
         });
     
-        // Đóng modal sau khi chỉnh sửa thành công
         onClose();
       } catch (err) {
         setError("Error updating budget");

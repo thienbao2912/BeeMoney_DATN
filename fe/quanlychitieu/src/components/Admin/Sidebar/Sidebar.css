@@ -1,5 +1,4 @@
 .sidebar {
-  height: 100vh;
   width: 190px;
  
   top: 0;
@@ -23,22 +22,23 @@
   color: #0056b3; 
 }
 
-.sidebar .nav-link {
+.sidebar .nav-linkadmin {
   display: flex;
   align-items: center;
   color: #495057; 
   padding: 10px 15px;
   border-radius: 5px; 
   transition: background-color 0.3s, color 0.3s; 
+  text-decoration: none;
 }
 
-.sidebar .nav-link:hover,
-.sidebar .nav-link.active {
+.sidebar .nav-linkadmin:hover,
+.sidebar .nav-linkadmin.active {
   background-color: #e9ecef; 
   color: #212529; 
 }
 
-.sidebar .nav-link i {
+.sidebar .nav-linkadmin i {
   margin-right: 10px;
 }
 
@@ -47,26 +47,69 @@
   border-top: 1px solid #dee2e6;
 }
 
-.sidebar .nav .collapse .nav-link {
+.sidebar .nav .collapse .nav-linkadmin {
   padding: 8px 15px;
   color: #495057; 
 }
 
-.sidebar .nav .collapse .nav-link:hover {
+.sidebar .nav .collapse .nav-linkadmin:hover {
   background-color: #f1f3f5; 
 }
-.nav-link {
+
+.sidebar button.nav-linkadmin {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  width: 100%;
+  text-align: left;
   color: #343a40;
   font-weight: 500;
+  transition: background-color 0.3s, color 0.3s;
+  cursor: pointer;
 }
 
-.nav-link:hover {
+.sidebar button.nav-linkadmin:hover {
+  background-color: #e9ecef;
+  
+}
+
+.sidebar button.nav-linkadmin:focus {
+  outline: none;
+}
+
+.nav-linkadmin {
+  color: #343a40 !important;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-linkadmin:hover {
   background-color: #e9ecef;
   color: #007bff;
-  border-radius: 5px;
 }
 
-.nav-link.active {
+.nav-linkadmin.active {
   color: #007bff;
   font-weight: 600;
+}
+
+button.nav-linkadmin {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+button.nav-linkadmin:hover {
+  background-color: #e9ecef;
+  color: #007bff;
+}
+
+button.nav-linkadmin:focus {
+  outline: none;
 }

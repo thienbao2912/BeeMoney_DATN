@@ -4,7 +4,6 @@ const useNotifications = () => {
     const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
-        // Load notifications from localStorage
         const storedNotifications = JSON.parse(localStorage.getItem('notifications')) || [];
         setNotifications(storedNotifications);
     }, []);

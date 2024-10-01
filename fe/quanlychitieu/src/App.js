@@ -40,10 +40,8 @@ import AcceptInvite from './pages/Client/SavingsFund/AcceptInvite';
 import Forgetpassword from './pages/Auth/ForgetPassword/ForgetPassword';
 import PrivateRoute from './components/PrivateRoute';
 import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
-// Import Admin Routes
 import AdminRoutes from './pages/Admin/Router/AdminRoutes';
 
-// Import NotificationProvider
 import { NotificationProvider } from './components/Client/Header/NotificationContext';
 
 function App() {
@@ -85,7 +83,6 @@ function App() {
           <Route path="/invite" element={<SendInvite />} />
           <Route path="/accept" element={<AcceptInvite />} />
         </Route>
-        {/* Route for Admin */}
         <Route path="/admin/*" element={<PrivateRoute element={<AdminRoutes />} requiredRole="admin" />} />
       </>
     )

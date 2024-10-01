@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { getAllBudgets, deleteBudget } from "../../../service/Budget"; // Import service functions
+import { getAllBudgets, deleteBudget } from "../../../service/Budget"; 
 import ConfirmationModal from "../SavingGoals/ConfirmationModal/ConfirmationModal";
-import EditBudgetModal from "../Budget/edit-budget/edit-budget"; // Import modal chỉnh sửa ngân sách
-import "./budget.css"; // Import the CSS file
+import EditBudgetModal from "../Budget/edit-budget/edit-budget"; 
+import "./budget.css"; 
 
 const Budget = () => {
   const [budgets, setBudgets] = useState([]);
@@ -11,11 +11,10 @@ const Budget = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState(null);
-  const [itemsPerPage] = useState(4);
+  const [itemsPerPage] = useState(8);
   const [selectedMonth, setSelectedMonth] = useState("all");
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Modal chỉnh sửa
-  const [budgetToEdit, setBudgetToEdit] = useState(null); // Ngân sách được chọn để chỉnh sửa
-
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
+  const [budgetToEdit, setBudgetToEdit] = useState(null); 
   useEffect(() => {
     const fetchBudgets = async () => {
       try {
@@ -66,10 +65,10 @@ const Budget = () => {
     try {
       await deleteBudget(budgetId);
       setConfirmationModalOpen(false);
-      setBudgets((prev) => prev.filter((budget) => budget._id !== budgetId)); // Cập nhật danh sách sau khi xóa
+      setBudgets((prev) => prev.filter((budget) => budget._id !== budgetId)); 
     } catch (err) {
       setError("Error deleting budget");
-      console.error("Error deleting budget:", err); // Log error
+      console.error("Error deleting budget:", err); 
     }
   };
 
@@ -87,21 +86,20 @@ const Budget = () => {
     setGoalToDelete(goalId);
     setConfirmationModalOpen(true);
   };
-
-  const closeConfirmationModal = () => {
+const closeConfirmationModal = () => {
     setGoalToDelete(null);
     setConfirmationModalOpen(false);
   };
 
   const calculatePercentageRemaining = (budget) => {
-    const totalAmount = budget.amount || 1; // Ensure not to divide by 0
+    const totalAmount = budget.amount || 1; 
     const remaining = budget.remainingBudget >= 0 ? budget.remainingBudget : 0;
     return ((remaining / totalAmount) * 100).toFixed(0);
   };
 
   const handleMonthChange = (event) => {
     setSelectedMonth(event.target.value);
-    setCurrentPage(1); // Reset về trang đầu tiên khi thay đổi tháng
+    setCurrentPage(1); 
   };
   const indexOfLastBudget = currentPage * itemsPerPage;
   const indexOfFirstBudget = indexOfLastBudget - itemsPerPage;
@@ -127,17 +125,7 @@ const Budget = () => {
           </li>
         </ol>
       </nav>
-      <div className="row">
-        <div className="text-center mt-4">
-          <a href="/add-budget" className="btn btn-primary">
-            Thêm ngân sách
-          </a>
-        </div>
-        <div className="text-center mt-4">
-          <a href="/past-budget" className="btn btn-primary">
-            Ngân sách đã qua
-          </a>
-        </div>
+      <div className="row align-items-center">
         <div className="col-md-3">
           <select
             className="form-select"
@@ -159,6 +147,17 @@ const Budget = () => {
             <option value="12">Tháng 12</option>
           </select>
         </div>
+
+        <div className="col-md-9 text-md-end mt-3 mt-md-0">
+          <a href="/past-budget" className="btn btn-secondary">
+            Ngân sách đã qua
+          </a>
+        </div>
+      </div>
+      <div className="text-center mb-4 mt-2">
+        <a href="/add-budget" className="primary">
+          <i className="fa fa-plus"></i> Thêm ngân sách
+        </a>
       </div>
       {isLoading && (
         <div className="text-center mt-5">
@@ -172,108 +171,118 @@ const Budget = () => {
           {currentBudgets.map((budget) => (
             <div key={budget._id} className="col-md-6 mb-3">
               <div className="income-overview card">
-                <div className="card-body">
-                  <div className="category-info">
-                    {budget.categoryId ? (
-                      <>
-                        <img
-                          src={budget.categoryId.image}
-                          alt={budget.categoryId.name || "Category"}
-                          className="category-image me-2"
-                        />
-                        <h5 className="mb-0">{budget.categoryId.name}</h5>
-                      </>
-                    ) : (
-                      <div className="category-info-placeholder me-2">
-                        <span>Danh mục đã biến mất!</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="date">
-                    <div className="text-secondary mb-0">
-                      <i className="fas fa-calendar-alt"></i>
-                      {`${new Intl.DateTimeFormat("vi-VN").format(
-                        new Date(budget.startDate)
-                      )} - ${new Intl.DateTimeFormat("vi-VN").format(
-                        new Date(budget.endDate)
-                      )}`}
-                    </div>
-                  </div>
-                  <div className="amount">
-                    <span className="text-secondary d-block text-end font-weight-bold">
-                      Ngân sách:{" "}
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(budget.amount)}
-                    </span>
-                    <span
-                      className={`d-block text-end ${
-                        budget.remainingBudget >= 0
-                          ? "text-success"
-                          : "text-danger"
-                      }`}
-                    >
-                      {budget.remainingBudget >= 0 ? (
+<div className="card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <div className="category-info d-flex align-items-center">
+                      {budget.categoryId ? (
                         <>
-                          Còn lại:{" "}
-                          {new Intl.NumberFormat("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                          }).format(budget.remainingBudget)}
+                          <img
+                            src={budget.categoryId.image}
+                            alt={budget.categoryId.name || "Category"}
+                            className="category-image me-2"
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              objectFit: "cover",
+                            }}
+                          />
+                          <h5 className="mb-0">{budget.categoryId.name}</h5>
                         </>
                       ) : (
-                        <>
-                          Đã vượt quá ngân sách:{" "}
-                          {new Intl.NumberFormat("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                          }).format(Math.abs(budget.remainingBudget))}
-                        </>
+                        <div className="category-info-placeholder me-2">
+                          <span>Danh mục đã biến mất!</span>
+                        </div>
                       )}
-                    </span>
+                    </div>
+
+                    <div className="amount text-end">
+                      <span className="text-secondary d-block font-weight-bold">
+                        Ngân sách:{" "}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(budget.amount)}
+                      </span>
+                      <span
+                        className={`d-block ${
+                          budget.remainingBudget >= 0
+                            ? "text-success"
+                            : "text-danger"
+                        }`}
+                      >
+                        {budget.remainingBudget >= 0 ? (
+                          <>
+                            Còn lại:{" "}
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(budget.remainingBudget)}
+                          </>
+                        ) : (
+                          <>
+                            Đã vượt quá ngân sách:{" "}
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(Math.abs(budget.remainingBudget))}
+                          </>
+                        )}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="progress-wrapper">
+                  <div className="date text-secondary mb-3">
+                    <i className="fas fa-calendar-alt"></i>{" "}
+                    {`${new Intl.DateTimeFormat("vi-VN").format(
+                      new Date(budget.startDate)
+                    )} - ${new Intl.DateTimeFormat("vi-VN").format(
+                      new Date(budget.endDate)
+)}`}
+                  </div>
+
+                  <div className="progress-wrapper mb-3">
                     <div className="progress">
                       <div
                         className={`progress-bar ${
                           budget.remainingBudget <= 0
-                            ? "bg-danger" // Full red if remaining budget is 0 or less
+                            ? "bg-danger"
                             : calculatePercentageRemaining(budget) < 50
-                            ? "bg-warning" // Yellow if below 50%
-                            : "bg-success" // Green if above 50%
+                            ? "bg-warning"
+                            : "bg-success"
                         }`}
                         style={{
                           width:
                             budget.remainingBudget <= 0
                               ? "100%"
-                              : `${calculatePercentageRemaining(budget)}%`, // Full width if 0%
+                              : `${calculatePercentageRemaining(budget)}%`,
                         }}
                         role="progressbar"
                         aria-valuenow={calculatePercentageRemaining(budget)}
                         aria-valuemin="0"
                         aria-valuemax="100"
-                      ></div>
+                      >
+                        {calculatePercentageRemaining(budget)}%
+                      </div>
                     </div>
-                    <span className="progress-percentage">
-                      {calculatePercentageRemaining(budget)}%
-                    </span>
                   </div>
 
-                  <div style={{float:"right"}} className="bg-action ms-auto">
-                    <button
-                      className="btn btn-sm btn-success me-2"
-                      onClick={() => openEditModal(budget)}
+                  <div className="d-flex justify-content-between align-items-center mt-3">
+                    <a
+                      href={`/budget-detail/${budget._id}`}
+                      className="chitiet text-primary font-weight-bold"
                     >
-                      <i className="fas fa-edit"></i>
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => openConfirmationModal(budget._id)}
-                    >
-                      <i className="fas fa-trash ms-auto"></i>
-                    </button>
+                      Xem chi tiết
+                    </a>
+                    <div style={{ cursor: "pointer" }} className="d-flex">
+                      <i
+                        onClick={() => openEditModal(budget)}
+                        className="text-success fas fa-edit me-2"
+                      ></i>
+                      <i
+                        onClick={() => openConfirmationModal(budget._id)}
+                        className="fas text-danger fa-trash ms-auto"
+                      ></i>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -306,7 +315,7 @@ const Budget = () => {
                     className="page-link"
                     onClick={() => handlePageChange(page)}
                   >
-                    {page}
+{page}
                   </button>
                 </li>
               )

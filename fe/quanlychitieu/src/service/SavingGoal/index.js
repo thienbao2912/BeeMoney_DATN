@@ -108,16 +108,14 @@ const deleteSavingsGoal = async (id) => {
 
         console.log('Delete response:', response);
 
-        // Adjust the response check based on the actual response format
         if (response && response.data === 'Xóa mục tiêu tiết kiệm thành công') {
             return response; 
         } else {
             throw new Error('Unexpected response format');
         }
     } catch (error) {
-        // Improved error handling
         console.error('Error deleting savings goal:', error.response ? error.response.data : error.message);
-        throw error; // Re-throw the error for the calling function to handle
+        throw error; 
     }
 };
 

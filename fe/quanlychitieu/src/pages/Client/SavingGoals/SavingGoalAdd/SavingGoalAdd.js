@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import './SavingGoalAdd.css';
 import { getCategories, addSavingsGoal, getAllSavingsGoals } from '../../../../service/SavingGoal';
 import { Link, useNavigate } from 'react-router-dom';
-const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu']; 
+const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu'];
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');

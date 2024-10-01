@@ -1,22 +1,19 @@
-// src/components/Client/Header/Header.js
-
 import React, { useEffect } from 'react';
-import NotificationList from '../Notification/notificationList'; // Đảm bảo đường dẫn đúng
-import { useNotifications } from './NotificationContext'; // Đảm bảo đường dẫn đúng
+import NotificationList from '../Notification/notificationList'; 
+import { useNotifications } from './NotificationContext'; 
 import './Header.css';
 
 const Header = () => {
-    const { notifications, checkBudgetExceed, checkSavingGoals } = useNotifications(); // Sử dụng các hàm kiểm tra
+    const { notifications, checkBudgetExceed, checkSavingGoals } = useNotifications();
     const notificationCount = (notifications && notifications.length) ? notifications.length : 0;
 
-    // Kiểm tra ngân sách và mục tiêu khi header được render
     useEffect(() => {
         const userId = localStorage.getItem('userId');
         if (userId) {
-            checkBudgetExceed(userId); // Kiểm tra ngân sách để thêm thông báo nếu vượt
-            checkSavingGoals(userId); // Kiểm tra mục tiêu để thêm thông báo nếu còn 1 ngày
+            checkBudgetExceed(userId); 
+            checkSavingGoals(userId);
         }
-    }, []); // Không theo dõi bất kỳ trạng thái nào, chỉ gọi một lần khi component mount
+    }, []);
     
 
     return (
