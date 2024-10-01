@@ -14,27 +14,26 @@ const createBudget = async (budgetData) => {
     }
 };
 
-// Get all budgets for a user
 const getAllBudgets = async (userId) => {
     try {
         const response = await request({
             method: 'GET',
-            path: `/api/budgets/budgets?userId=${userId}`, // Thay đổi để thêm userId vào query string
+            path: `/api/budgets/budgets?userId=${userId}`, 
         });
-        return response; // Giả sử response đã bao gồm dữ liệu cần thiết
+        return response; 
     } catch (error) {
         console.error('Error fetching all budgets:', error);
         throw error;
     }
 };
-// Get a budget by ID
+
 const getBudgetById = async (budgetId, userId) => {
     try {
         const response = await request({
             method: 'GET',
             path: `/api/budgets/${budgetId}`,
             headers: {
-                'Authorization': `Bearer ${userId}` // Nếu cần thiết
+                'Authorization': `Bearer ${userId}` 
             }
         });
         return response;
@@ -44,7 +43,6 @@ const getBudgetById = async (budgetId, userId) => {
     }
 };
 
-// Delete a budget by ID
 const deleteBudget = async (budgetId) => {
     try {
         const response = await request({
@@ -58,17 +56,12 @@ const deleteBudget = async (budgetId) => {
     }
 };
 
-// Get expenses for a specific budget
 const getExpensesForBudget = async (budgetId) => {
     try {
         const response = await request({
             method: 'GET',
             path: `/api/budgets/${budgetId}/expenses`
         });
-        
-        // Kiểm tra phản hồi
-        console.log('Expenses response:', response);
-
         return response;
     } catch (error) {
         console.error('Error fetching expenses for budget:', error.message);
@@ -76,6 +69,20 @@ const getExpensesForBudget = async (budgetId) => {
     }
 };
 
+const updateBudget = async (budgetId, updateData) => {
+    try {
+        const response = await request({
+            method: 'PATCH',
+            path: `/api/budgets/${budgetId}`,
+            data: updateData
+        });
+
+        return response.data || response;
+    } catch (error) {
+        console.error('Error updating budget:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
 
 const getCategories = async () => {
     try {
@@ -96,5 +103,6 @@ export {
     getBudgetById,
     deleteBudget,
     getExpensesForBudget,
-    getCategories
+    getCategories,
+    updateBudget
 };

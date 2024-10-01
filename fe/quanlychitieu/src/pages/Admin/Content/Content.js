@@ -152,7 +152,7 @@ const DashboardStatistics = () => {
               label: "Số Người Dùng Theo Tháng",
               data: monthlyCounts,
               backgroundColor: barColors,
-              borderColor: barColors.map((color) => color.replace("0.6", "1")), // Use the same color for the border but fully opaque
+              borderColor: barColors.map((color) => color.replace("0.6", "1")), 
               borderWidth: 1,
             },
           ],
@@ -183,7 +183,6 @@ const DashboardStatistics = () => {
     ],
   };
 
-  // Tùy chọn cấu hình cho biểu đồ Bar
   const barOptions = {
     scales: {
       y: {
@@ -192,7 +191,6 @@ const DashboardStatistics = () => {
     },
   };
 
-  // Dữ liệu cho biểu đồ Pie (Người dùng)
   const barDataUsers = {
     labels: ["Admin", "User"],
     datasets: [
@@ -209,7 +207,6 @@ const DashboardStatistics = () => {
     ],
   };
 
-  // Tùy chọn cấu hình cho biểu đồ bar (Người dùng)
   const barOptionsUsers = {
     scales: {
       y: {
@@ -226,7 +223,7 @@ const DashboardStatistics = () => {
             <div className="card-header">
               <h5>Người Dùng Tạo Trong Tháng</h5>
             </div>
-            <div className="card-body">
+            <div style={{ height: "228px" }} className="card-body">
               {currentUsers.length === 0 ? (
                 <p>Không có người dùng mới trong tháng này.</p>
               ) : (
@@ -255,20 +252,20 @@ const DashboardStatistics = () => {
                       ))}
                     </tbody>
                   </table>
-                  <nav>
-                    <ul className="pagination">
-                      {pageNumbers.map((number) => (
-                        <li key={number} className="page-item">
-                          <button onClick={() => paginate(number)} className="page-link">
-                            {number}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </nav>
                 </>
               )}
             </div>
+            <nav>
+              <ul className="pagination">
+                {pageNumbers.map((number) => (
+                  <li key={number} className="page-item">
+                    <button onClick={() => paginate(number)} className="page-link">
+                      {number}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
         </div>
 

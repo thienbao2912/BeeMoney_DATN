@@ -25,64 +25,64 @@
 }
 
 .btn-custom-size {
-    min-width: 6rem; /* Kích thước tối thiểu */
+    min-width: 6rem; 
     min-height: 2.5rem;
-    background-color: #b199fd; /* Màu nền mặc định */
-    color: white; /* Màu chữ mặc định */
-    border-radius: 0.375rem; /* Bo góc */
-    border: 0.2rem solid transparent; /* Viền mặc định là trong suốt */
-    display: inline-block; /* Đảm bảo nút không bị kéo dài */
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; /* Hiệu ứng chuyển màu nền, chữ và viền */
+    background-color: #b199fd; 
+    color: white;
+    border-radius: 0.375rem;
+    border: 0.2rem solid transparent;
+    display: inline-block; 
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; 
 }
 
 .btn-custom-size:hover {
-    background-color: white; /* Màu nền khi hover */
-    color: #b199fd; /* Màu chữ khi hover */
-    border-color: #b199fd; /* Màu viền khi hover */
-    cursor: pointer; /* Con trỏ khi hover */
+    background-color: white;
+    color: #b199fd;
+    border-color: #b199fd; 
+    cursor: pointer;
 }
 
 .btn-custom-size img {
-    width: 1rem; /* Điều chỉnh kích thước hình ảnh */
-    height: auto; /* Đảm bảo tỷ lệ hình ảnh được giữ nguyên */
-    margin-right: 0.5rem; /* Khoảng cách giữa hình ảnh và chữ */
+    width: 1rem;
+    height: auto; 
+    margin-right: 0.5rem; 
     margin-bottom: 0.2rem;
 }
 
 .btn-custom {
-    min-width: 1rem; /* Điều chỉnh kích thước tối thiểu của nút */
-    display: flex; /* Sử dụng Flexbox để căn giữa nội dung */
-    align-items: center; /* Căn giữa theo chiều dọc */
-    justify-content: center; /* Căn giữa theo chiều ngang */
-    padding: 0.8rem 0.8rem 0.8rem 0.8rem; /* Padding để đảm bảo nút không quá nhỏ */
-    font-size: 1rem; /* Kích thước chữ */
-    border-radius: 0.375rem; /* Bo góc */
+    min-width: 1rem; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    padding: 0.8rem 0.8rem 0.8rem 0.8rem; 
+    font-size: 1rem;
+    border-radius: 0.375rem;
 }
 
 .btn-edit-success {
-    background-color: #28a745; /* Màu nền của nút thành công */
-    color: white; /* Màu chữ của nút thành công */
-    border: none; /* Không có viền */
+    background-color: #28a745;
+    color: white;
+    border: none; 
 }
 
 .btn-custom-danger {
-    background-color: #dc3545; /* Màu nền của nút xóa */
-    color: white; /* Màu chữ của nút xóa */
-    border: none; /* Không có viền */
+    background-color: #dc3545; 
+    color: white;
+    border: none; 
 }
 
 .btn-edit{
-    min-width: 1rem; /* Điều chỉnh kích thước tối thiểu của nút */
-    display: flex; /* Sử dụng Flexbox để căn giữa nội dung */
-    align-items: center; /* Căn giữa theo chiều dọc */
-    justify-content: center; /* Căn giữa theo chiều ngang */
-    padding: 0.7rem 0.7rem 0.7rem 0rem; /* Padding để đảm bảo nút không quá nhỏ */
-    font-size: 1rem; /* Kích thước chữ */
-    border-radius: 0.375rem; /* Bo góc */
+    min-width: 1rem; 
+    display: flex;
+    align-items: center; 
+    justify-content: center;
+    padding: 0.7rem 0.7rem 0.7rem 0rem;
+    font-size: 1rem; 
+    border-radius: 0.375rem;
 }
 
 .btn-container {
-    display: flex; /* Sử dụng Flexbox để căn chỉnh các nút theo hàng */
-    justify-content: center; /* Căn giữa các nút theo chiều ngang */
-    gap: 0.5rem; /* Khoảng cách giữa các nút */
+    display: flex; 
+    justify-content: center;
+    gap: 0.5rem; 
 }

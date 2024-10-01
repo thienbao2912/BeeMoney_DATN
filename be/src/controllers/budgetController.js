@@ -25,10 +25,17 @@ class BudgetController {
             }
     
             // Kiểm tra ngân sách đã tồn tại
-            const existingBudget = await Budget.findOne({ categoryId, userId, startDate: { $lte: endDate }, endDate: { $gte: startDate } });
-            if (existingBudget) {
-                return res.status(400).json({ message: 'Ngân sách của danh mục này đã tồn tại' });
-            }
+            const currentDate = new Date();
+const existingBudget = await Budget.findOne({
+    categoryId,
+    userId,
+    startDate: { $lte: endDate },
+    endDate: { $gte: startDate, $gte: currentDate }  // Thêm điều kiện để bỏ qua ngân sách hết hạn
+});
+
+if (existingBudget) {
+    return res.status(400).json({ message: 'Ngân sách của danh mục này đã tồn tại và còn hiệu lực' });
+}
     
             // Tạo ngân sách mới
             const budget = new Budget({
@@ -170,6 +177,63 @@ class BudgetController {
             res.status(200).json({ expenses });
         } catch (error) {
             console.error(error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+    static async updateBudget(req, res) {
+        try {
+            const { budgetId } = req.params;
+            const { categoryId, startDate, endDate, amount, userId } = req.body;
+    
+            if (!Types.ObjectId.isValid(userId)) {
+                return res.status(400).json({ message: 'UserId không hợp lệ' });
+            }
+    
+            if (new Date(startDate) > new Date(endDate)) {
+                return res.status(400).json({ message: 'Ngày bắt đầu không được sau ngày kết thúc' });
+            }
+    
+            const existingCategory = await Category.findById(categoryId);
+            if (!existingCategory) {
+                return res.status(404).json({ message: 'Category not found' });
+            }
+    
+            const budget = await Budget.findById(budgetId);
+            if (!budget) {
+                return res.status(404).json({ message: 'Budget not found' });
+            }
+    
+            budget.categoryId = categoryId;
+            budget.startDate = startDate;
+            budget.endDate = endDate;
+            budget.amount = amount;
+    
+            const expenses = await Transaction.find({
+                categoryId,
+                type: 'expense',
+                userId,
+                date: {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate)
+                }
+            }).exec();
+    
+            const totalExpenses = expenses.reduce((total, transaction) => total + parseFloat(transaction.amount), 0);
+    
+            budget.totalExpenses = totalExpenses;
+            budget.remainingBudget = budget.amount - totalExpenses;
+            await budget.save();
+    
+            let message = 'Budget updated successfully';
+            if (budget.remainingBudget === 0) {
+                message = 'Ngân sách đã hết';
+            } else if (budget.remainingBudget < 0) {
+                message = 'Chi tiêu vượt ngân sách';
+            }
+    
+            res.status(200).json({ budget, message });
+        } catch (error) {
+            console.error('Error updating budget:', error);
             res.status(500).json({ error: error.message });
         }
     }
