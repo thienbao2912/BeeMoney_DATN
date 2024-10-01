@@ -8,10 +8,9 @@ const categorieRoutes = require("./routes/admin/categorieRoutes");
 const transactionRoutes = require("./routes/transaction");
 const userRoutes = require("./routes/admin/userRoutes");
 const authRoutes = require("./routes/auth");
+const savingsFund = require("./routes/savingsFund");
 const authGoogle = require("./routes/authGoogle");
-const fundRoutes = require('./routes/fund');
-const savingsFundRoutes = require("./routes/savingsFund")
-require('../passport');  // Make sure this is correctly required
+require('../passport');
 
 // const expenseRoutes= require("./routes/expenseRoutes");
 const income = require("./routes/income");
@@ -35,8 +34,7 @@ app.use("/api/transactions", transactionRoutes);
 app.use('/api/savings-goals', require('./routes/savingsGoal'));
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/savings-funds", savingsFundRoutes);
-app.use('/api', fundRoutes);
+app.use("/api/savings-fund", savingsFund)
 connectDB();
 
 // app.use('/api/expenses', expenseRoutes);
