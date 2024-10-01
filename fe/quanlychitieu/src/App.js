@@ -32,6 +32,11 @@ import Categories from './pages/Client/Category/Categories';
 import AddCategory from './pages/Client/Category/Add-Category/add-category';
 import EditCategory from './pages/Client/Category/Update-Category/Update-Category';
 import Register from './pages/Auth/Register/Register';
+import FundDetail from './pages/Client/SavingsFund/DetailPage/DetailPage';
+import SavingsFundList from './pages/Client/SavingsFund/SavingsFundList/SavingsFundList';
+import CreateSavingsFund from './pages/Client/SavingsFund/CreateSavingsFund/CreateSavingsFund';
+import SendInvite from './pages/Client/SavingsFund/SendInvite';
+import AcceptInvite from './pages/Client/SavingsFund/AcceptInvite';
 import Forgetpassword from './pages/Auth/ForgetPassword/ForgetPassword';
 import PrivateRoute from './components/PrivateRoute';
 import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
@@ -74,6 +79,11 @@ function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/add-category" element={<AddCategory />} />
           <Route path="/edit-category/:id" element={<EditCategory />} />
+          <Route path="/savings-fund/add" element={<CreateSavingsFund />} />
+          <Route path="/savings-fund/detail/:id" element={<FundDetail />} />
+          <Route path="/savings-fund/list" element={<SavingsFundList />} />
+          <Route path="/invite" element={<SendInvite />} />
+          <Route path="/accept" element={<AcceptInvite />} />
         </Route>
         {/* Route for Admin */}
         <Route path="/admin/*" element={<PrivateRoute element={<AdminRoutes />} requiredRole="admin" />} />

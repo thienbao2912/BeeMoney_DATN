@@ -56,7 +56,7 @@ const ExpenseList = () => {
 
     useEffect(() => {
         applyFilter(filterOption);
-    }, [filterOption, selectedCategory, expenses]); // Apply filter whenever filterOption, selectedCategory, or expenses change
+    }, [filterOption, selectedCategory, expenses]); 
 
     const handleDelete = async (expenseId) => {
         try {
@@ -90,7 +90,7 @@ const ExpenseList = () => {
                 break;
         }
         setFilteredExpenses(filtered);
-        setCurrentPage(1); // Reset to the first page after filtering
+        setCurrentPage(1); 
     };
 
     const handleFilterChange = (e) => {
@@ -174,7 +174,6 @@ const ExpenseList = () => {
         </Link>
     </div>
 </div>
-
             <div className="card">
                 <div className="card-body">
                     <div className="table-responsive">

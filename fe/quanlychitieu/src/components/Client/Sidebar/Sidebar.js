@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Offcanvas, Button } from 'react-bootstrap';
 import { getUserProfile } from '../../../service/Auth';
-import 'bootstrap-icons/font/bootstrap-icons.min.css'; // Kiểm tra đường dẫn đúng
+import 'bootstrap-icons/font/bootstrap-icons.min.css'; // Import Bootstrap icons
 import './Sidebar.css';
 
 const Sidebar = () => {
   const [user, setUser] = useState({
     name: 'Nguyen Van A',
     role: 'user',
-    avatar: '/images/default-avatar.jpg'
+    avatar: '/images/default-avatar.jpg',
   });
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const Sidebar = () => {
         setUser({
           name: profile.name,
           role: profile.role,
-          avatar: profile.avatar || '/images/default-avatar.jpg'
+          avatar: profile.avatar || '/images/default-avatar.jpg',
         });
       } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -45,8 +45,8 @@ const Sidebar = () => {
   };
 
   const clearCookies = () => {
-    document.cookie.split(";").forEach((c) => {
-      document.cookie = c.replace(/^ +/, "").replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+    document.cookie.split(';').forEach((c) => {
+      document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
     });
   };
 
@@ -57,7 +57,7 @@ const Sidebar = () => {
         variant="primary"
         onClick={() => setShow(true)}
       >
-        <i className="bi bi-list"></i> {/* Bootstrap icon for hamburger menu */}
+        <i className="bi bi-list"></i>
       </Button>
       <div className="sidebar-client">
         <div className="sidebar-head d-flex align-items-center justify-content-between">
@@ -69,34 +69,51 @@ const Sidebar = () => {
         <nav className="sidebar-nav">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <a className="nav-link" href="/">Trang chủ</a>
+              <NavLink className="nav-link" to="/">
+                <i className="bi bi-house-door"></i> Trang chủ
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/expense/add">Giao dịch</a>
+              <NavLink className="nav-link" to="/expense/add">
+                <i className="bi bi-wallet2"></i> Giao dịch
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/categories">Danh mục</a>
+              <NavLink className="nav-link" to="/categories">
+                <i className="bi bi-tags"></i> Danh mục
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/budget">Ngân sách</a>
+              <NavLink className="nav-link" to="/budget">
+                <i className="bi bi-coin"></i> Ngân sách
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/saving-goal/list">Mục tiêu tiết kiệm</a>
+              <NavLink className="nav-link" to="/saving-goal/list">
+                <i className="bi bi-piggy-bank"></i> Mục tiêu tiết kiệm
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/profile">Hồ Sơ Người Dùng</a>
+              <NavLink className="nav-link" to="/profile">
+                <i className="bi bi-person-circle"></i> Hồ sơ
+              </NavLink>
             </li>
             {user.role === 'admin' && (
               <li className="nav-item">
-                <a className="nav-link" href="/admin">Trang chủ quản trị</a>
+                <NavLink className="nav-link" to="/admin">
+                  <i className="bi bi-speedometer2"></i> Quản trị
+                </NavLink>
               </li>
             )}
             <li className="nav-item">
-              <button className="nav-link" onClick={handleLogout}>Đăng xuất</button>
+              <button className="nav-link" onClick={handleLogout}>
+                <i className="bi bi-box-arrow-right"></i> Đăng xuất
+              </button>
             </li>
           </ul>
         </nav>
       </div>
+
       <Offcanvas show={show} onHide={() => setShow(false)} placement="start">
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Menu</Offcanvas.Title>
@@ -111,30 +128,46 @@ const Sidebar = () => {
           <nav className="sidebar-nav">
             <ul className="navbar-nav">
               <li className="nav-item">
-                <a className="nav-link" href="/">Trang chủ</a>
+                <NavLink className="nav-link" to="/">
+                  <i className="bi bi-house-door"></i> Trang chủ
+                </NavLink>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/expense/add">Giao dịch</a>
+                <NavLink className="nav-link" to="/expense/add">
+                  <i className="bi bi-wallet2"></i> Giao dịch
+                </NavLink>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/categories">Danh mục</a>
+                <NavLink className="nav-link" to="/categories">
+                  <i className="bi bi-tags"></i> Danh mục
+                </NavLink>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/budget">Ngân sách</a>
+                <NavLink className="nav-link" to="/budget">
+                  <i className="bi bi-coin"></i> Ngân sách
+                </NavLink>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/saving-goal/list">Mục tiêu tiết kiệm</a>
+                <NavLink className="nav-link" to="/saving-goal/list">
+                  <i className="bi bi-piggy-bank"></i> Mục tiêu tiết kiệm
+                </NavLink>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/profile">Hồ Sơ Người Dùng</a>
+                <NavLink className="nav-link" to="/profile">
+                  <i className="bi bi-person-circle"></i> Hồ sơ
+                </NavLink>
               </li>
               {user.role === 'admin' && (
                 <li className="nav-item">
-                  <a className="nav-link" href="/admin">Trang chủ quản trị</a>
+                  <NavLink className="nav-link" to="/admin">
+                    <i className="bi bi-speedometer2"></i> Quản trị
+                  </NavLink>
                 </li>
               )}
               <li className="nav-item">
-                <button className="nav-link" onClick={handleLogout}>Đăng xuất</button>
+                <button className="nav-link" onClick={handleLogout}>
+                  <i className="bi bi-box-arrow-right"></i> Đăng xuất
+                </button>
               </li>
             </ul>
           </nav>

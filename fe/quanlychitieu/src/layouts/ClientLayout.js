@@ -17,7 +17,7 @@ const ClientLayout = () => {
         </div>
       </div>
       <PrivacyPolicy />
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 };

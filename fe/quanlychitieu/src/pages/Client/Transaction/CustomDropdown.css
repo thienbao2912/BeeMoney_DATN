@@ -40,10 +40,6 @@
 
 .dropdown-item:hover {
     color: #333;
-    border-radius: 8px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.me-2 {
-    margin-right: 10px;
-}
