@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-
+import ReCAPTCHA from "react-google-recaptcha";
 import { loginUser } from "../../../service/Auth";
 import styles from "./Login.module.css";
 
@@ -12,32 +12,27 @@ function Login() {
     formState: { errors },
     setError,
     clearErrors,
-    setValue,
   } = useForm();
   const navigate = useNavigate();
-  const [successMessage, setSuccessMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [capVal, setCapVal] = useState(null);
+  const [recaptchaError, setRecaptchaError] = useState(""); 
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      handleSubmit(onSubmit)();
+  const onSubmit = async (data) => {   
+    if (!capVal) {
+      setRecaptchaError("Vui lòng xác nhận ReCAPTCHA."); 
+      return;
     }
-  };
 
-  const onSubmit = async (data) => {
     try {
       const response = await loginUser(data);
-      console.log("Logged in with", response);
-
       if (response?.accessToken) {
-        console.log("Access Token:", response.accessToken);
         navigate("/");
       } else {
         setError("api", {
@@ -50,21 +45,20 @@ function Login() {
         type: "manual",
         message: err?.response?.data?.message || "Thông tin đăng nhập sai!!!",
       });
-      console.error("Login error:", err);
     }
   };
 
   const handleInputChange = (e, field) => {
-    if (field === 'email') {
+    if (field === "email") {
       setEmail(e.target.value);
-      setValue('email', e.target.value);
-    } else if (field === 'password') {
+    } else if (field === "password") {
       setPassword(e.target.value);
-      setValue('password', e.target.value);
     }
     clearErrors("email");
     clearErrors("password");
     clearErrors("api");
+    clearErrors("recaptcha");
+    setRecaptchaError(""); 
   };
 
   return (
@@ -77,11 +71,7 @@ function Login() {
         </p>
       </div>
       <div className={styles.loginSection}>
-        <form
-          className="form-login"
-          onSubmit={handleSubmit(onSubmit)}
-          onKeyDown={handleKeyDown}
-        >
+        <form className="form-login" onSubmit={handleSubmit(onSubmit)}>
           <div className="text-center mb-4">
             <img
               src="/images/piggy-bank.png"
@@ -104,40 +94,35 @@ function Login() {
               })}
               value={email}
               onChange={(e) => handleInputChange(e, "email")}
-              onKeyDown={handleKeyDown}
-              style={{ width: "20rem" }}
             />
             {errors.email && (
               <p className={styles.error}>{errors.email.message}</p>
             )}
           </div>
           <div style={{ position: "relative" }}>
-            <div style={{ position: "relative" }}>
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Mật khẩu..."
-                {...register("password", {
-                  required: "Mật khẩu không được để trống.",
-                })}
-                value={password}
-                onChange={(e) => handleInputChange(e, "password")}
-                onKeyDown={handleKeyDown}
-              />
-              <span
-                className="toggle-password"
-                onClick={togglePasswordVisibility}
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                }}
-              >
-                {showPassword ? "🙉" : "🙈"}
-              </span>
-            </div>
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Mật khẩu..."
+              {...register("password", {
+                required: "Mật khẩu không được để trống.",
+              })}
+              value={password}
+              onChange={(e) => handleInputChange(e, "password")}
+            />
+            <span
+              className="toggle-password"
+              onClick={togglePasswordVisibility}
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+              }}
+            >
+              {showPassword ? "🙉" : "🙈"}
+            </span>
             {errors.password && (
               <p className={styles.error}>{errors.password.message}</p>
             )}
@@ -159,6 +144,16 @@ function Login() {
               Bạn chưa có tài khoản?
             </a>
           </div>
+          <ReCAPTCHA
+            sitekey="6LcZwlAqAAAAAMWeZ1Bkzt-Kjnux1WLDYAJ776Jl"
+            onChange={(val) => {
+              setCapVal(val);
+              setRecaptchaError(""); 
+            }}
+          />
+          {recaptchaError && (
+            <p className={styles.error}>{recaptchaError}</p>
+          )}
           <button type="submit" className={styles.loginButton}>
             Đăng nhập
           </button>
