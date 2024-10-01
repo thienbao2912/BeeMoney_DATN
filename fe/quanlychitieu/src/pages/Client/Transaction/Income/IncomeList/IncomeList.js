@@ -90,7 +90,7 @@ const IncomeList = () => {
     };
     
     const applyFilter = (option) => {
-        let filtered = [...incomes]; // Tạo bản sao của incomes
+        let filtered = [...incomes];
         switch (option) {
             case "top5":
                 filtered = filtered.sort((a, b) => b.amount - a.amount).slice(0, 5);
@@ -119,8 +119,8 @@ const IncomeList = () => {
                 filtered = incomes;
                 break;
         }
-        setFilteredIncomes(filtered); // Cập nhật danh sách đã lọc
-        setCurrentPage(1); // Reset về trang đầu tiên sau khi lọc
+        setFilteredIncomes(filtered);
+        setCurrentPage(1); 
     };
     
       const handleFilterChange = (e) => {
