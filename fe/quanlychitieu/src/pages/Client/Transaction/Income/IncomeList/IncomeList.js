@@ -1,17 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { getAllTransactions, deleteTransaction } from '../../../../../service/Transaction';
-import ConfirmationModal from '../../../SavingGoals/ConfirmationModal/ConfirmationModal'; 
+import ConfirmationModal from '../../../SavingGoals/ConfirmationModal/ConfirmationModal';
+import { getCategories } from "../../../../../service/Category"; 
+import CustomDropdown from "../../CustomDropdown";
 import { Link } from 'react-router-dom'; 
 
 const IncomeList = () => {
     const [incomes, setIncomes] = useState([]);
+    const [filteredIncomes, setFilteredIncomes] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedMonth, setSelectedMonth] = useState("");
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [goalToDelete, setGoalToDelete] = useState(null);
     const [itemsPerPage] = useState(5);
+    const [filterOption, setFilterOption] = useState("all");
     const userId = localStorage.getItem('userId'); 
+
+    const generateMonthOptions = () => {
+        const months = [];
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+    
+        for (let i = 1; i <= 12; i++) {
+          const month = i.toString().padStart(2, "0");
+          months.push({
+            display: `${i}`,
+            value: `${year}-${month}`,
+          });
+        }
+        return months;
+      };
 
     useEffect(() => {
         const fetchIncomes = async () => {
@@ -32,8 +54,27 @@ const IncomeList = () => {
             }
         };
 
+        const fetchCategories = async () => {
+            try {
+                const data = await getCategories();
+                const incomeCategories = data.filter(
+                    (category) => category.type === "income"
+                );
+                setCategories(incomeCategories);
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        };
+    
         fetchIncomes();
+        fetchCategories();
     }, [userId]);
+    
+    useEffect(() => {
+        if (incomes.length > 0) {
+            applyFilter(filterOption);
+        }
+    }, [incomes, filterOption, selectedCategory, selectedMonth]);
 
     const handleDelete = async (incomeId) => {
         try {
@@ -47,7 +88,59 @@ const IncomeList = () => {
             setError('Failed to delete income. Please try again later.');
         }
     };
-  
+    
+    const applyFilter = (option) => {
+        let filtered = [...incomes]; // Tạo bản sao của incomes
+        switch (option) {
+            case "top5":
+                filtered = filtered.sort((a, b) => b.amount - a.amount).slice(0, 5);
+                break;
+            case "bottom5":
+                filtered = filtered.sort((a, b) => a.amount - b.amount).slice(0, 5);
+                break;
+                case "category":
+                    if (selectedCategory) {
+                        filtered = filtered.filter(
+                            (income) => income.categoryId?._id === selectedCategory
+                        );
+                    }
+                    break;
+            case "month":
+                if (selectedMonth) {
+                    filtered = filtered.filter((income) => {
+                        const incomeMonth = new Date(income.date)
+                            .toISOString()
+                            .slice(0, 7); 
+                        return incomeMonth === selectedMonth;
+                    });
+                }
+                break;
+            default:
+                filtered = incomes;
+                break;
+        }
+        setFilteredIncomes(filtered); // Cập nhật danh sách đã lọc
+        setCurrentPage(1); // Reset về trang đầu tiên sau khi lọc
+    };
+    
+      const handleFilterChange = (e) => {
+        setFilterOption(e.target.value);
+        if (e.target.value !== "category") {
+          setSelectedCategory("");
+        }
+        if (e.target.value !== "month") {
+          setSelectedMonth("");
+        }
+      };
+    
+      const handleCategoryChange = (e) => {
+        setSelectedCategory(e.target.value);
+    };
+    
+      const handleMonthChange = (e) => {
+        setSelectedMonth(e.target.value);
+      };
+
     const openConfirmationModal = (goalId) => {
         setGoalToDelete(goalId);
         setConfirmationModalOpen(true);
@@ -59,8 +152,8 @@ const IncomeList = () => {
     }
     const indexOfLastIncome = currentPage * itemsPerPage;
     const indexOfFirstIncome = indexOfLastIncome - itemsPerPage;
-    const currentIncomes = incomes.slice(indexOfFirstIncome, indexOfLastIncome);
-    const totalPages = Math.ceil(incomes.length / itemsPerPage);
+    const currentIncomes = filteredIncomes.slice(indexOfFirstIncome, indexOfLastIncome);
+    const totalPages = Math.ceil(filteredIncomes.length / itemsPerPage);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -87,6 +180,44 @@ const IncomeList = () => {
                     </li>
                 </ol>
             </nav>
+            <div className="col-lg-6 col-md-8 col-sm-12 d-flex align-items-center mb-2">
+          <select
+            value={filterOption}
+            onChange={handleFilterChange}
+            className="form-select me-2"
+            style={{ width: "200px" }}
+          >
+            <option value="all">Tất cả</option>
+            <option value="top5">5 chi tiêu lớn nhất</option>
+            <option value="bottom5">5 chi tiêu nhỏ nhất</option>
+            <option value="category">Lọc theo danh mục</option>
+            <option value="month">Lọc theo tháng</option>
+          </select>
+
+          {filterOption === "category" && (
+            <CustomDropdown
+              options={categories}
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+              className="form-select me-2"
+            />
+          )}
+          {filterOption === "month" && (
+            <select
+              value={selectedMonth}
+              onChange={handleMonthChange}
+              className="form-select me-2"
+              style={{ width: "200px" }}
+            >
+              <option value="">Chọn tháng</option>
+              {generateMonthOptions().map(({ display, value }) => (
+                <option key={value} value={value}>
+                  Tháng {display}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
             <div className="text-center mt-4 mb-4">
                 <Link to="/income/add" className="primary">
                     <i className="fa fa-plus"></i> Thêm thu nhập
