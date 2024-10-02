@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getFundTransactions } from '../../../service/SavingFund';
+import { getFundTransactions } from '../../../service/SavingsFund';
 
 
 const TransactionList = ({ fundId }) => {

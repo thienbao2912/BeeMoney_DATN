@@ -1,9 +1,20 @@
 const mongoose = require('mongoose');
 
-const confirmationSchema = new mongoose.Schema({
-    fundId: { type: mongoose.Schema.Types.ObjectId, ref: 'SavingsFund', required: true },
-    code: { type: String, required: true, unique: true },
-    expiresAt: { type: Date, required: true }
+const ConfirmationSchema = new mongoose.Schema({
+    fundId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'SavingsFund',
+        required: true
+    },
+    code: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    expiresAt: {
+        type: Date,
+        required: true
+    }
 });
 
-module.exports = mongoose.model('Confirmation', confirmationSchema);
+module.exports = mongoose.model('Confirmation', ConfirmationSchema);

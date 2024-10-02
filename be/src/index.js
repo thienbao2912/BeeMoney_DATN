@@ -9,6 +9,7 @@ const transactionRoutes = require("./routes/transaction");
 const userRoutes = require("./routes/admin/userRoutes");
 const authRoutes = require("./routes/auth");
 const savingsFund = require("./routes/savingsFund");
+const fundRoutes = require('./routes/fund');
 const authGoogle = require("./routes/authGoogle");
 require('../passport');
 
@@ -35,6 +36,7 @@ app.use('/api/savings-goals', require('./routes/savingsGoal'));
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/savings-fund", savingsFund)
+app.use('/api', fundRoutes);
 connectDB();
 
 // app.use('/api/expenses', expenseRoutes);

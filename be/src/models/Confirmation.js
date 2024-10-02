@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ConfirmationSchema = new mongoose.Schema({
-    goalId: {
+    fundId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'SavingsFund',
         required: true

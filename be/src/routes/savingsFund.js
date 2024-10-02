@@ -16,36 +16,12 @@ router.post(
     SavingsFundController.createSavingsFund
 );
 
-router.post(
-    '/add-friend-by-email',
-    [
-        authMiddleware.verifyToken,
-        check('email', 'Email không hợp lệ').isEmail(),
-        check('goalId', 'Mục tiêu tiết kiệm là bắt buộc').not().isEmpty(),
-    ],
-    SavingsFundController.addFriendByEmail
-);
 
-router.post(
-    '/send-invite-code',
-    [
-        authMiddleware.verifyToken,
-        check('email', 'Email không hợp lệ').isEmail(),
-        check('goalId', 'Mục tiêu tiết kiệm là bắt buộc').not().isEmpty()
-    ],
-    SavingsFundController.sendInviteCode
-);
-
-router.post(
-    '/accept-invite',
-    [
-        authMiddleware.verifyToken,
-        check('code', 'Mã xác nhận là bắt buộc').not().isEmpty(),
-        check('contributionAmount', 'Số tiền góp là bắt buộc').not().isEmpty()
-    ],
-    SavingsFundController.acceptInviteByCode
-);
 
 router.get('/user-goals', authMiddleware.verifyToken, SavingsFundController.getUserSavingsGoals);
+router.get('/:id', authMiddleware.verifyToken, SavingsFundController.getById);
+router.patch('/contribute/:id', authMiddleware.verifyToken, SavingsFundController.addTransaction);
+router.get('/:id/members', authMiddleware.verifyToken, SavingsFundController.getFundMembers);
+router.get('/:id/transactions', authMiddleware.verifyToken, SavingsFundController.getFundTransactions);
 
 module.exports = router;

@@ -1,50 +1,8 @@
 const { validationResult } = require('express-validator');
-const jwt = require('jsonwebtoken');
-const Confirmation = require('../models/Confirmation');
 const SavingsFund = require('../models/SavingsFund');
-const User = require('../models/User');
 const Category = require('../models/Category');
-const nodemailer = require('nodemailer');
-const { saveConfirmationCode } = require('../utils/confirmationUtils');
 
-const generateConfirmationCode = () => {
-    return Math.random().toString(36).substr(2, 8);
-};
 
-const sendConfirmationEmail = async (email, code) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        }
-    });
-
-    const mailOptions = {
-        from: `"BeeMoney" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: 'Mã xác nhận tham gia quỹ tiết kiệm',
-        html: `
-            <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto;">
-                <h2 style="text-align: center; color: #4CAF50;">Mã xác nhận của bạn</h2>
-                <p>Chào bạn,</p>
-                <p>Bạn đã được mời tham gia vào quỹ tiết kiệm. Sử dụng mã xác nhận bên dưới để hoàn tất quá trình:</p>
-                <div style="background-color: #f9f9f9; padding: 20px; text-align: center; font-size: 20px; border-radius: 5px; border: 1px solid #ddd;">
-                    <strong style="color: #4CAF50;">${code}</strong>
-                </div>
-                <p style="margin-top: 20px;">Cảm ơn,</p>
-                <p>Đội ngũ Quản lý BeeMoney</p>
-            </div>
-        `
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully');
-    } catch (error) {
-        console.error('Error sending email:', error);
-    }
-};
 
 class SavingsFundController {
     static async createSavingsFund(req, res) {
@@ -52,7 +10,7 @@ class SavingsFundController {
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-
+        const userId = req.user.id;
         const { name, targetAmount, categoryId, startDate, endDate } = req.body;
 
         if (new Date(startDate) >= new Date(endDate)) {
@@ -71,127 +29,17 @@ class SavingsFundController {
                 categoryId: categoryId,
                 startDate: new Date(startDate),
                 endDate: new Date(endDate),
+                userId,
                 members: [
                     {
                         userId: req.user.id,
                         contributionAmount: 0,
-                        contributedAt: null
                     }
                 ]
             });
 
             await newFund.save();
             res.status(201).json({ message: 'Tạo quỹ chung thành công', newFund });
-        } catch (err) {
-            console.error(err.message);
-            res.status(500).send('Lỗi máy chủ');
-        }
-    }
-
-    static async addFriendByEmail(req, res) {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
-        const { email, goalId, contributionAmount } = req.body;
-
-        try {
-            const friend = await User.findOne({ email });
-            if (!friend) {
-                return res.status(404).json({ message: 'Người dùng không tồn tại' });
-            }
-
-            const savingsFund = await SavingsFund.findById(goalId);
-            if (!savingsFund) {
-                return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
-            }
-
-            if (savingsFund.members.some(member => member.userId.equals(friend._id))) {
-                return res.status(400).json({ message: 'Người này đã là thành viên' });
-            }
-
-            savingsFund.members.push({
-                userId: friend._id,
-                contributionAmount,
-                contributedAt: new Date()
-            });
-            await savingsFund.save();
-
-            res.json({ message: 'Thêm bạn bè thành công', savingsFund });
-        } catch (err) {
-            console.error(err.message);
-            res.status(500).send('Lỗi máy chủ');
-        }
-    }
-
-    static async sendInviteCode(req, res) {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
-        const { email, goalId } = req.body;
-
-        try {
-            const user = await User.findOne({ email });
-            if (!user) {
-                return res.status(404).json({ message: 'Người dùng không tồn tại' });
-            }
-
-            const savingsFund = await SavingsFund.findById(goalId);
-            if (!savingsFund) {
-                return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
-            }
-
-            const code = generateConfirmationCode();
-            await saveConfirmationCode(goalId, code);
-            await sendConfirmationEmail(email, code);
-
-            res.json({ message: 'Mã xác nhận đã được gửi đến email của bạn' });
-        } catch (err) {
-            console.error(err.message);
-            res.status(500).send('Lỗi máy chủ');
-        }
-    }
-
-    static async acceptInviteByCode(req, res) {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
-        const { code, contributionAmount } = req.body;
-
-        try {
-            const confirmation = await Confirmation.findOne({ code });
-            if (!confirmation) {
-                return res.status(404).json({ message: 'Mã xác nhận không hợp lệ' });
-            }
-
-            if (confirmation.expiresAt < new Date()) {
-                return res.status(400).json({ message: 'Mã xác nhận đã hết hạn' });
-            }
-
-            const savingsFund = await SavingsFund.findById(confirmation.goalId);
-            if (!savingsFund) {
-                return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
-            }
-
-            if (savingsFund.members.some(member => member.userId.equals(req.user.id))) {
-                return res.status(400).json({ message: 'Tài khoản đã tồn tại trong quỹ tiết kiệm' });
-            }
-
-            savingsFund.members.push({
-                userId: req.user.id,
-                contributionAmount,
-                contributedAt: new Date()
-            });
-            await savingsFund.save();
-
-            await Confirmation.deleteOne({ code });
-
-            res.json({ message: 'Tham gia quỹ tiết kiệm thành công', savingsFund });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Lỗi máy chủ');
@@ -216,7 +64,120 @@ class SavingsFundController {
             res.status(500).send('Lỗi máy chủ');
         }
     }
+    static async getById(req, res) {
+        try {
+            const id = req.params.id;
+            const data = await SavingsFund.findById(id)
+            .populate('userId')  // Lấy thông tin người tạo quỹ
+      .populate('members.userId')  // Lấy thông tin của các thành viên
+      .populate('transactions.participantId');  // Lấy thông tin người thực hiện giao dịch
+
+            if (!data) return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
+            res.status(200).json({ data });
+        } catch (error) {
+            res.status(500).json({ message: 'Server error' });
+        }
+    }
+      // Thêm giao dịch nạp tiền riêng lẻ (bổ sung hàm này để thêm tính năng giao dịch)
+      static async addTransaction(req, res) {
+        try {
+            const { amount, note } = req.body;
+            const fundId = req.params.id;
     
+            // Kiểm tra giá trị amount
+            if (amount < 1000) {
+                return res.status(400).json({ message: 'Số tiền ít nhất là 1.000đ' });
+            }
+    
+            // Kiểm tra xem quỹ có tồn tại không
+            const fund = await SavingsFund.findById(fundId);
+            if (!fund) {
+                return res.status(404).json({ message: 'Fund not found' });
+            }
+    
+            // Đảm bảo members là một mảng, khởi tạo nếu cần
+            if (!Array.isArray(fund.members)) {
+                fund.members = [];
+            }
+    
+            // Lấy participantId từ request (người dùng đăng nhập)
+            const userId = req.user.id;
+    
+            // Thêm giao dịch mới vào transactions
+            fund.transactions.push({
+                userId,
+                amount,
+                note
+            });
+    
+            // Chuyển đổi currentAmount thành số nếu cần
+            fund.currentAmount = parseFloat(fund.currentAmount) || 0;
+    
+            // Cập nhật số tiền hiện tại của quỹ
+            fund.currentAmount += parseFloat(amount);
+    
+            // Tìm người dùng trong danh sách thành viên và cộng dồn số tiền đóng góp
+            const memberIndex = fund.members.findIndex(member => member.userId.toString() === userId);
+    
+            if (memberIndex !== -1) {
+                // Cập nhật số tiền đóng góp
+                fund.members[memberIndex].contribution += parseFloat(amount);
+            } else {
+                // Nếu người dùng chưa có trong danh sách thành viên, thêm mới họ vào
+                fund.members.push({
+                    userId: userId,
+                    contribution: parseFloat(amount)
+                });
+            }
+    
+            // Lưu quỹ sau khi thêm giao dịch và cập nhật đóng góp
+            await fund.save();
+    
+            // Phản hồi sau khi lưu thành công
+            res.status(200).json({ message: 'Transaction and contribution updated successfully', fund });
+        } catch (error) {
+            console.error("Error adding transaction:", error); // Log lỗi chi tiết
+            res.status(500).json({ message: 'Server error', error: error.message });
+        }
+    }
+    
+    
+static async getFundMembers (req, res)  {
+    try{
+        const  fundId  = req.params.id;
+        const fund = await SavingsFund.findById(fundId).populate('members.userId'); // Populate để lấy thông tin chi tiết về user
+    
+        if (!fund) {
+          return res.status(404).json({ message: 'Fund not found' });
+        }
+    
+        // Trả về danh sách thành viên
+        res.status(200).json(fund.members);
+      } catch (error) {
+        res.status(500).json({ message: 'Server error', error });  
+    }
+}
+
+
+static async getFundTransactions(req, res) {
+    try {
+        const fundId = req.params.id;
+        const fund = await SavingsFund.findById(fundId).populate({
+            path: 'transactions.userId',
+            select: 'name avatar' // Chọn các trường cần thiết
+        });
+
+        if (!fund) {
+            return res.status(404).json({ message: 'Fund not found' });
+        }
+
+        // Trả về danh sách giao dịch
+        res.status(200).json(fund.transactions);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+}
+
 }
 
 module.exports = SavingsFundController;

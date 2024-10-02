@@ -1,11 +1,11 @@
 const Confirmation = require('../models/Confirmation');
 
-const saveConfirmationCode = async (goalId, code) => {
+const saveConfirmationCode = async (fundId, code) => {
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 1);
 
     const confirmation = new Confirmation({
-        goalId,
+        fundId,
         code,
         expiresAt
     });

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getCategories, getSavingsFundById, contributeToFund } from '../../../../service/SavingFund';
+import { getCategories, getSavingsFundById, contributeToFund } from '../../../../service/SavingsFund';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import emailjs from 'emailjs-com';
 import { Modal, Button } from 'react-bootstrap'; // Import Bootstrap Modal

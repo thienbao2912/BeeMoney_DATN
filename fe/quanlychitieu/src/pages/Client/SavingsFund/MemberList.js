@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getFundMembers } from '../../../service/SavingFund';
-// import '../SavingsFund/DetailPage/DetailPage.css'
+import { getFundMembers } from '../../../service/SavingsFund';
+
 
 
 

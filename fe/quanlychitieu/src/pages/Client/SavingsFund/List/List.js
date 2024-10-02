@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getUserSavingsGoals, getCategories } from '../../../../service/SavingsFund';
-import { Card, Row, Col, Button, Alert } from 'react-bootstrap';
+import { Card, Row, Col, Button, Alert, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import AcceptInvite from '../AcceptInvite';
 
 const ITEMS_PER_PAGE = 4;
 
@@ -13,7 +14,7 @@ const SavingsGoalsList = ({ userId }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate(); 
-
+    const [showModal, setShowModal] = useState(false);
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
@@ -32,7 +33,11 @@ const SavingsGoalsList = ({ userId }) => {
 
         fetchData();
     }, [userId]);
-
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
+    const handleViewDetails = (id) => {
+        navigate(`/savings-fund/detail/${id}`);
+      };
     if (isLoading) {
         return (
             <div className="text-center mt-5">
@@ -85,6 +90,9 @@ const SavingsGoalsList = ({ userId }) => {
                 >
                     Thêm quỹ tiết kiệm
                 </Button>
+                <Button variant="primary" onClick={handleShowModal} className="mb-3">
+                    Tham gia quỹ
+              </Button>
             </div>
 
             {goals.length === 0 && <Alert variant="info">Không có mục tiêu tiết kiệm nào.</Alert>}
@@ -121,7 +129,8 @@ const SavingsGoalsList = ({ userId }) => {
                                         </Card.Text>
                                     </Col>
                                 </Row>
-                                <Button variant="primary" className="w-100 mt-3">
+                                <Button   onClick={() => handleViewDetails(goal._id)} 
+                      className="btn btn-info me-2" variant="primary" >
                                     Xem chi tiết
                                 </Button>
                             </Card.Body>
@@ -150,6 +159,14 @@ const SavingsGoalsList = ({ userId }) => {
                     </ul>
                 </div>
             )}
+              <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Tham gia quỹ tiết kiệm</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        <AcceptInvite  />
+        </Modal.Body>
+      </Modal>
         </div>
     );
 };

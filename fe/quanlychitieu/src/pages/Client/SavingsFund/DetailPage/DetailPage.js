@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getCategories, getSavingsFundById, updateSavingFundAmount, getUserProfile } from '../../../../service/SavingFund';
+import { getCategories, getSavingsFundById, updateSavingFundAmount, getUserProfile } from '../../../../service/SavingsFund';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
 import { Cookies } from 'react-cookie';

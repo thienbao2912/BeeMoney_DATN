@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const Confirmation = require('../models/confirmation');
+const Confirmation = require('../models/Confirmation');
 const SavingsFund = require('../models/SavingsFund');
 const User = require('../models/User');
 const nodemailer = require('nodemailer');

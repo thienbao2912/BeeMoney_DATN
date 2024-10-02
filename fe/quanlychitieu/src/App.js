@@ -33,8 +33,6 @@ import AddCategory from './pages/Client/Category/Add-Category/add-category';
 import EditCategory from './pages/Client/Category/Update-Category/Update-Category';
 import Register from './pages/Auth/Register/Register';
 import FundDetail from './pages/Client/SavingsFund/DetailPage/DetailPage';
-// import SavingsFundList from './pages/Client/SavingsFund/SavingsFundList/SavingsFundList';
-import CreateSavingsFund from './pages/Client/SavingsFund/CreateSavingsFund/CreateSavingsFund';
 import SendInvite from './pages/Client/SavingsFund/SendInvite';
 import AcceptInvite from './pages/Client/SavingsFund/AcceptInvite';
 import Forgetpassword from './pages/Auth/ForgetPassword/ForgetPassword';
@@ -80,9 +78,7 @@ function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/add-category" element={<AddCategory />} />
           <Route path="/edit-category/:id" element={<EditCategory />} />
-          <Route path="/savings-funds/add" element={<CreateSavingsFund />} />
           <Route path="/savings-fund/detail/:id" element={<FundDetail />} />
-          <Route path="/savings-fund/list" element={<SavingsFundList />} />
           <Route path="/invite" element={<SendInvite />} />
           <Route path="/accept" element={<AcceptInvite />} />
           <Route path="/savings-fund/list" element={<SavingsFundList/>} />
