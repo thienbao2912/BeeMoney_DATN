@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { getAllBudgets, deleteBudget } from "../../../service/Budget"; 
+import { getAllBudgets, deleteBudget } from "../../../service/Budget";
 import ConfirmationModal from "../SavingGoals/ConfirmationModal/ConfirmationModal";
-import EditBudgetModal from "../Budget/edit-budget/edit-budget"; 
-import "./budget.css"; 
+import EditBudgetModal from "../Budget/edit-budget/edit-budget";
+import "./budget.css";
 
 const Budget = () => {
   const [budgets, setBudgets] = useState([]);
@@ -13,8 +13,8 @@ const Budget = () => {
   const [goalToDelete, setGoalToDelete] = useState(null);
   const [itemsPerPage] = useState(8);
   const [selectedMonth, setSelectedMonth] = useState("all");
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
-  const [budgetToEdit, setBudgetToEdit] = useState(null); 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [budgetToEdit, setBudgetToEdit] = useState(null);
   useEffect(() => {
     const fetchBudgets = async () => {
       try {
@@ -65,10 +65,10 @@ const Budget = () => {
     try {
       await deleteBudget(budgetId);
       setConfirmationModalOpen(false);
-      setBudgets((prev) => prev.filter((budget) => budget._id !== budgetId)); 
+      setBudgets((prev) => prev.filter((budget) => budget._id !== budgetId));
     } catch (err) {
       setError("Error deleting budget");
-      console.error("Error deleting budget:", err); 
+      console.error("Error deleting budget:", err);
     }
   };
 
@@ -86,20 +86,20 @@ const Budget = () => {
     setGoalToDelete(goalId);
     setConfirmationModalOpen(true);
   };
-const closeConfirmationModal = () => {
+  const closeConfirmationModal = () => {
     setGoalToDelete(null);
     setConfirmationModalOpen(false);
   };
 
   const calculatePercentageRemaining = (budget) => {
-    const totalAmount = budget.amount || 1; 
+    const totalAmount = budget.amount || 1;
     const remaining = budget.remainingBudget >= 0 ? budget.remainingBudget : 0;
     return ((remaining / totalAmount) * 100).toFixed(0);
   };
 
   const handleMonthChange = (event) => {
     setSelectedMonth(event.target.value);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   };
   const indexOfLastBudget = currentPage * itemsPerPage;
   const indexOfFirstBudget = indexOfLastBudget - itemsPerPage;
@@ -171,7 +171,7 @@ const closeConfirmationModal = () => {
           {currentBudgets.map((budget) => (
             <div key={budget._id} className="col-md-6 mb-3">
               <div className="income-overview card">
-<div className="card-body">
+                <div className="card-body">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <div className="category-info d-flex align-items-center">
                       {budget.categoryId ? (
@@ -237,7 +237,7 @@ const closeConfirmationModal = () => {
                       new Date(budget.startDate)
                     )} - ${new Intl.DateTimeFormat("vi-VN").format(
                       new Date(budget.endDate)
-)}`}
+                    )}`}
                   </div>
 
                   <div className="progress-wrapper mb-3">
@@ -315,7 +315,7 @@ const closeConfirmationModal = () => {
                     className="page-link"
                     onClick={() => handlePageChange(page)}
                   >
-{page}
+                    {page}
                   </button>
                 </li>
               )

@@ -10,7 +10,7 @@ const PastBudget = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [goalToDelete, setGoalToDelete] = useState(null);
-    const [itemsPerPage] = useState(4); 
+    const [itemsPerPage] = useState(8); 
     const [selectedMonth, setSelectedMonth] = useState('all');
 
     useEffect(() => {
@@ -143,86 +143,119 @@ const PastBudget = () => {
                 <div className="row mt-3">
                     {currentBudgets.map(budget => (
                         <div key={budget._id} className="col-md-6 mb-3">
-                            <div className="income-overview card">
-                                <div className="card-body">
-                                    <div className="category-info">
-                                        {budget.categoryId ? (
-                                            <>
-                                                <img
-                                                    src={budget.categoryId.image}
-                                                    alt={budget.categoryId.name || 'Category'}
-                                                    className="category-image me-2"
-                                                />
-                                                <h5 className="mb-0">{budget.categoryId.name}</h5>
-                                            </>
-                                        ) : (
-                                            <div className="category-info-placeholder me-2">
-                                                <span>Danh mục đã biến mất!</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="date">
-                                        <div className="text-secondary mb-0">
-                                            <i className="fas fa-calendar-alt"></i>
-                                            {`${new Intl.DateTimeFormat('vi-VN').format(new Date(budget.startDate))} - ${new Intl.DateTimeFormat('vi-VN').format(new Date(budget.endDate))}`}
-                                        </div>
-                                    </div>
-                                    <div className="amount">
-                                        <span className="text-secondary d-block text-end font-weight-bold">
-                                            Ngân sách: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(budget.amount)}
-                                        </span>
-                                        <span className={`d-block text-end ${budget.remainingBudget >= 0 ? 'text-success' : 'text-danger'}`}>
-                                            Còn lại: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(budget.remainingBudget)}
-                                        </span>
-                                    </div>
-                                    {budget.remainingBudget >= 0 ? (
-                                        <div className="progress">
-                                            <div
-                                                className="progress-bar bg-success"
-                                                role="progressbar"
-                                                style={{ width: `${calculatePercentageRemaining(budget)}%` }}
-                                                aria-valuenow={calculatePercentageRemaining(budget)}
-                                                aria-valuemin="0"
-                                                aria-valuemax="100"
-                                            >
-                                                {calculatePercentageRemaining(budget)}%
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="progress">
-                                            <div
-                                                className="progress-bar bg-danger"
-                                                role="progressbar"
-                                                style={{ width: '100%' }}
-                                                aria-valuenow="100"
-                                                aria-valuemin="0"
-                                                aria-valuemax="100"
-                                            >
-                                            </div>
-                                        </div>
-                                    )}
-                                    <p className={`text-success font-weight-bold ${budget.remainingBudget <= 0 ? 'd-none' : ''}`}>
-                                        Ngân sách còn {calculatePercentageRemaining(budget)}%
-                                    </p>
-                                    <p className={`text-danger font-weight-bold ${budget.remainingBudget !== 0 ? 'd-none' : ''}`}>
-                                        Ngân sách đã hết
-                                    </p>
-                                    <p className={`text-danger font-weight-bold ${budget.remainingBudget < 0 ? '' : 'd-none'}`}>
-                                        Chi tiêu vượt ngân sách
-                                    </p>
-                                </div>
-                                <div className="card-footer d-flex justify-content-between align-items-center">
-                                    <a href={`/budget-detail/${budget._id}`} className="text-secondary font-weight-bold">
-                                        Xem chi tiết
-                                    </a>
-                                    <i
-                                        className="fa fa-trash text-danger ms-auto"
-                                        onClick={() => openConfirmationModal(budget._id)}
-                                        style={{ cursor: 'pointer' }}
+                        <div className="income-overview card">
+                          <div className="card-body">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                              <div className="category-info d-flex align-items-center">
+                                {budget.categoryId ? (
+                                  <>
+                                    <img
+                                      src={budget.categoryId.image}
+                                      alt={budget.categoryId.name || "Category"}
+                                      className="category-image me-2"
+                                      style={{
+                                        width: "50px",
+                                        height: "50px",
+                                        objectFit: "cover",
+                                      }}
                                     />
-                                </div>
+                                    <h5 className="mb-0">{budget.categoryId.name}</h5>
+                                  </>
+                                ) : (
+                                  <div className="category-info-placeholder me-2">
+                                    <span>Danh mục đã biến mất!</span>
+                                  </div>
+                                )}
+                              </div>
+                      
+                              <div className="amount text-end">
+                                <span className="text-secondary d-block font-weight-bold">
+                                  Ngân sách:{" "}
+                                  {new Intl.NumberFormat("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                  }).format(budget.amount)}
+                                </span>
+                                <span
+                                  className={`d-block ${
+                                    budget.remainingBudget >= 0 ? "text-success" : "text-danger"
+                                  }`}
+                                >
+                                  {budget.remainingBudget >= 0 ? (
+                                    <>
+                                      Còn lại:{" "}
+                                      {new Intl.NumberFormat("vi-VN", {
+                                        style: "currency",
+                                        currency: "VND",
+                                      }).format(budget.remainingBudget)}
+                                    </>
+                                  ) : (
+                                    <>
+                                      Đã vượt quá ngân sách:{" "}
+                                      {new Intl.NumberFormat("vi-VN", {
+                                        style: "currency",
+                                        currency: "VND",
+                                      }).format(Math.abs(budget.remainingBudget))}
+                                    </>
+                                  )}
+                                </span>
+                              </div>
                             </div>
+                      
+                            <div className="date text-secondary mb-3">
+                              <i className="fas fa-calendar-alt"></i>{" "}
+                              {`${new Intl.DateTimeFormat("vi-VN").format(
+                                new Date(budget.startDate)
+                              )} - ${new Intl.DateTimeFormat("vi-VN").format(
+                                new Date(budget.endDate)
+                              )}`}
+                            </div>
+                      
+                            <div className="progress-wrapper mb-3">
+                              <div className="progress">
+                                <div
+                                  className={`progress-bar ${
+                                    budget.remainingBudget <= 0
+                                      ? "bg-danger"
+                                      : calculatePercentageRemaining(budget) < 50
+                                      ? "bg-warning"
+                                      : "bg-success"
+                                  }`}
+                                  style={{
+                                    width:
+                                      budget.remainingBudget <= 0
+                                        ? "100%"
+                                        : `${calculatePercentageRemaining(budget)}%`,
+                                  }}
+                                  role="progressbar"
+                                  aria-valuenow={calculatePercentageRemaining(budget)}
+                                  aria-valuemin="0"
+                                  aria-valuemax="100"
+                                >
+                                  {calculatePercentageRemaining(budget)}%
+                                </div>
+                              </div>
+                            </div>
+                      
+                            <div className="d-flex justify-content-between align-items-center mt-3">
+                              <a
+                                href={`/budget-detail/${budget._id}`}
+                                className="chitiet text-primary font-weight-bold"
+                              >
+                                Xem chi tiết
+                              </a>
+                              <div style={{ cursor: "pointer" }} className="d-flex">
+                                <i
+                                  onClick={() => openConfirmationModal(budget._id)}
+                                  className="fas text-danger fa-trash ms-auto"
+                                ></i>
+                              </div>
+                            </div>
+                          </div>
                         </div>
+                      </div>
+                      
+                      
                     ))}
                 </div>
             )}
