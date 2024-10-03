@@ -99,6 +99,11 @@ const Sidebar = () => {
         </a>
       </li>
       <li className="nav-item">
+        <a className="nav-link" href="/savings-fund/list">
+          <i className="bi bi-piggy-bank"></i> Quỹ tiết kiệm
+        </a>
+      </li>
+      <li className="nav-item">
         <a className="nav-link" href="/profile">
           <i className="bi bi-person-circle"></i> Hồ Sơ Người Dùng
         </a>
