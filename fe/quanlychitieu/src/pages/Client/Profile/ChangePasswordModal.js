@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";  
 import { verifyOldPassword, updateUser } from "../../../service/Auth";
 
 const ChangePasswordModal = ({ show, handleClose, userId, profile }) => {
@@ -8,8 +9,10 @@ const ChangePasswordModal = ({ show, handleClose, userId, profile }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMismatchError, setPasswordMismatchError] = useState("");
   const [oldPasswordError, setOldPasswordError] = useState("");
+  const [newPasswordError, setNewPasswordError] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate(); 
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
@@ -17,23 +20,31 @@ const ChangePasswordModal = ({ show, handleClose, userId, profile }) => {
     setSuccess("");
     setPasswordMismatchError("");
     setOldPasswordError("");
-
+    setNewPasswordError("");
+ 
     if (password === "" || confirmPassword === "") {
       setPasswordMismatchError("Mật khẩu và xác nhận mật khẩu không được để trống!");
       return;
     }
 
+    
     if (password !== confirmPassword) {
       setPasswordMismatchError("Xác nhận mật khẩu không trùng khớp!");
       return;
     }
 
-    try {
+    try {   
       const isOldPasswordValid = await verifyOldPassword(userId, oldPassword);
       if (!isOldPasswordValid) {
         setOldPasswordError("Mật khẩu cũ không đúng!");
         return;
       }
+      
+      if (oldPassword === password) {
+        setNewPasswordError("Mật khẩu mới không được trùng với mật khẩu cũ!"); 
+        return;
+      }
+
     } catch (error) {
       setOldPasswordError("Lỗi khi kiểm tra mật khẩu cũ");
       return;
@@ -49,9 +60,11 @@ const ChangePasswordModal = ({ show, handleClose, userId, profile }) => {
 
     try {
       await updateUser(userId, updateData);
-      setSuccess("Cập nhật mật khẩu thành công");
-      handleClose();
-      window.location.reload();
+      setSuccess("Cập nhật mật khẩu thành công");     
+      localStorage.removeItem("userId");
+      localStorage.removeItem("token");
+      navigate("/login");
+
     } catch (error) {
       setError("Cập nhật mật khẩu thất bại");
       console.error("Password update error:", error);
@@ -84,6 +97,7 @@ const ChangePasswordModal = ({ show, handleClose, userId, profile }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            {newPasswordError && <p className="text-danger">{newPasswordError}</p>}
           </Form.Group>
 
           <Form.Group className="mb-3">

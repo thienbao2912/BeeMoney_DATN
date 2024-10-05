@@ -4,7 +4,8 @@ import { Form, Button, Alert } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { storage } from "../../../config/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import ChangePasswordModal from "./ChangePasswordModal"; 
+import ChangePasswordModal from "./ChangePasswordModal";
+import ChangeEmailModal from "./ChangeEmailModal";
 import "./Profile.css";
 
 const ProfileForm = () => {
@@ -14,9 +15,10 @@ const ProfileForm = () => {
   const [avatar, setAvatar] = useState(null);
   const [success, setSuccess] = useState("");
   const [avatarError, setAvatarError] = useState("");
-  const [showPasswordModal, setShowPasswordModal] = useState(false); 
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [userName, setUserName] = useState(""); 
+  const [userName, setUserName] = useState("");
 
   const userId = localStorage.getItem("userId");
 
@@ -25,7 +27,7 @@ const ProfileForm = () => {
       try {
         const data = await getUserProfile(userId);
         setProfile(data);
-        setUserName(data.name); 
+        setUserName(data.name);
         setLoading(false);
       } catch (error) {
         setError("Failed to fetch profile");
@@ -60,7 +62,7 @@ const ProfileForm = () => {
     }
 
     const updateData = {
-      name: userName, 
+      name: userName,
       email: profile.email,
       avatar: avatarURL,
       role: profile.role,
@@ -68,8 +70,8 @@ const ProfileForm = () => {
 
     try {
       await updateUser(userId, updateData);
-      // setSuccess("Thông tin cập nhật thành công");
-      setEditMode(false); 
+
+      setEditMode(false);
       window.location.reload();
     } catch (error) {
       setError("Có lỗi khi cập nhật thông tin");
@@ -79,14 +81,15 @@ const ProfileForm = () => {
 
   const handleShowPasswordModal = () => setShowPasswordModal(true);
   const handleClosePasswordModal = () => setShowPasswordModal(false);
-
+  const handleShowEmailModal = () => setShowEmailModal(true);
+  const handleCloseEmailModal = () => setShowEmailModal(false);
   const handleUserNameChange = (e) => {
     setUserName(e.target.value);
   };
 
   const handleUserNameKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      setEditMode(false); 
+    if (e.key === "Enter") {
+      setEditMode(false);
       handleProfileUpdate(e);
     }
   };
@@ -96,7 +99,9 @@ const ProfileForm = () => {
       <div className="page-header">
         <ul className="breadcrumb">
           <li className="breadcrumb-item">
-            <a href="/" className="text-dark">Trang chủ</a>
+            <a href="/" className="text-dark">
+              Trang chủ
+            </a>
           </li>
           <li className="breadcrumb-item active">Thông tin tài khoản</li>
         </ul>
@@ -125,7 +130,11 @@ const ProfileForm = () => {
                       src={profile.avatar || "/default-avatar.png"}
                       alt="Avatar"
                       className="rounded-circle mb-3"
-                      style={{ width: "150px", height: "150px", objectFit: "cover" }}
+                      style={{
+                        width: "150px",
+                        height: "150px",
+                        objectFit: "cover",
+                      }}
                     />
                     <div className="d-flex align-items-center">
                       {editMode ? (
@@ -140,21 +149,29 @@ const ProfileForm = () => {
                       ) : (
                         <h5>{userName}</h5>
                       )}
-                      <Button 
-                        variant="link" 
-                        className="edit" 
-                        onClick={() => setEditMode(!editMode)} 
+                      <Button
+                        variant="link"
+                        className="edit"
+                        onClick={() => setEditMode(!editMode)}
                       >
                         <i className="text-piramary fa fa-edit"></i>
                       </Button>
                     </div>
-                    <a 
-                      href="#" 
-                      onClick={handleShowPasswordModal} 
-                      className="btn btn-link float-end" 
-                      style={{ textDecoration: "none" }} 
+                    <a
+                      href="#"
+                      onClick={handleShowPasswordModal}
+                      className="btn btn-link float-end"
+                      style={{ textDecoration: "none" }}
                     >
                       Thay đổi mật khẩu
+                    </a>
+                    <a
+                      href="#"
+                      onClick={handleShowEmailModal} 
+                      className="btn btn-link float-end"
+                      style={{ textDecoration: "none" }}
+                    >
+                      Thay đổi email
                     </a>
                   </div>
 
@@ -162,13 +179,22 @@ const ProfileForm = () => {
                     <div className="row">
                       <Form.Group className="mb-3 col-md-12">
                         <Form.Label>Email</Form.Label>
-                        <Form.Control type="email" defaultValue={profile.email} disabled />
+                        <Form.Control
+                          type="email"
+                          defaultValue={profile.email}
+                          disabled
+                        />
                       </Form.Group>
 
                       <Form.Group className="mb-3 col-md-12">
                         <Form.Label>Chọn hình ảnh</Form.Label>
-                        <Form.Control type="file" onChange={(e) => setAvatar(e.target.files[0])} />
-                        {avatarError && <p className="text-danger">{avatarError}</p>}
+                        <Form.Control
+                          type="file"
+                          onChange={(e) => setAvatar(e.target.files[0])}
+                        />
+                        {avatarError && (
+                          <p className="text-danger">{avatarError}</p>
+                        )}
                       </Form.Group>
                     </div>
 
@@ -186,6 +212,12 @@ const ProfileForm = () => {
       <ChangePasswordModal
         show={showPasswordModal}
         handleClose={handleClosePasswordModal}
+        userId={userId}
+        profile={profile}
+      />
+       <ChangeEmailModal
+        show={showEmailModal}
+        handleClose={handleCloseEmailModal}  
         userId={userId}
         profile={profile}
       />

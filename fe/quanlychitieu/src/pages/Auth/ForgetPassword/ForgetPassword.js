@@ -96,16 +96,26 @@ function ForgetPassword() {
                   message: "Email không hợp lệ.",
                 },
               })}
-              style={{ width: "20rem" }}
+              style={{ width: "30rem" }}
               disabled={isCooldown}
             />
             {errors.email && (
               <p className={styles.error}>{errors.email.message}</p>
             )}
+            {errorMessage && <p className={styles.error}>{errorMessage}</p>}
+            {successMessage && <p className={styles.success}>{successMessage}</p>}
           </div>
-
-          {errorMessage && <p className={styles.error}>{errorMessage}</p>}
-          {successMessage && <p className={styles.success}>{successMessage}</p>}
+          <div className="d-flex justify-content-between align-items-center mt-2 mb-3">
+            
+            <a
+              href="/login"
+              style={{ color: "#8e2de2" }}
+              className="text-decoration-none"
+            >
+             Quay lại trang đăng nhập
+            </a>
+          </div>
+          
           {isCooldown && (
             <p className={styles.cooldownMessage}>
               Bạn chưa nhận được mã?
