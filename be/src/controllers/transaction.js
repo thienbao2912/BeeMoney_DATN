@@ -1,6 +1,6 @@
 const Transaction = require("../models/Transaction");
 const Budget = require("../models/Budget");
-
+const User = require('../models/User'); // Đảm bảo đường dẫn đúng với vị trí model User của bạn
 class TransactionController {
   static async getAll(req, res) {
     try {
@@ -51,29 +51,41 @@ class TransactionController {
 
   static async create(req, res) {
     try {
-      let userId = req.user.id;
-      let { date, amount, type, categoryId, description } = req.body;
+        let userId = req.user.id;
+        let { date, amount, type, categoryId, description } = req.body;
 
-      if (!date || !amount || !type || !categoryId) {
-        return res.status(400).json({ message: "Missing required fields" });
-      }
+        if (!date || !amount || !type || !categoryId) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
 
-      let data = { userId, date, amount, type, categoryId, description };
-      let createRes = await Transaction.create(data);
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-      await TransactionController.updateBudget(userId, categoryId, date);
+        if (type === 'expense') {
+            user.wallet -= amount; // Có thể âm
+        } else if (type === 'income') {
+            user.wallet += amount; // Cộng vào ví
+        }
 
-      console.log("Transaction created:", createRes);
+        await user.save();
 
-      return res.status(200).json({
-        message: "Created successfully",
-        data: createRes,
-      });
+        let data = { userId, date, amount, type, categoryId, description };
+        let createRes = await Transaction.create(data);
+
+        await TransactionController.updateBudget(userId, categoryId, date);
+
+        return res.status(200).json({
+            message: "Created successfully",
+            data: createRes,
+        });
     } catch (error) {
-      console.error("Error creating transaction:", error);
-      return res.status(500).json({ message: "Server error" });
+        console.error("Error creating transaction:", error); // Log chi tiết lỗi
+        return res.status(500).json({ message: "Server error", error: error.message });
     }
-  }
+}
+
 
   static async edit(req, res) {
     try {

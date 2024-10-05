@@ -216,8 +216,8 @@ const authController = {
                 return res.status(404).json({ error: "Không tìm thấy người dùng" });
             }
 
-            const { _id, email, name, avatar, role } = user;
-            res.status(200).json({ _id, email, name, avatar, role });
+            const { _id, email, name, avatar, role, wallet } = user;
+            res.status(200).json({ _id, email, name, avatar, role,  wallet });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

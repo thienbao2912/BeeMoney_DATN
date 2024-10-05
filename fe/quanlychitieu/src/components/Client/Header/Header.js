@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import NotificationList from '../Notification/notificationList'; 
 import { useNotifications } from './NotificationContext'; 
+import { getUserProfile } from '../../../service/Auth';
 import './Header.css';
 
 const Header = () => {
+    const [user, setUser] = useState([])
     const { notifications, checkBudgetExceed, checkSavingGoals } = useNotifications();
     const notificationCount = (notifications && notifications.length) ? notifications.length : 0;
 
@@ -13,7 +15,20 @@ const Header = () => {
             checkBudgetExceed(userId); 
             checkSavingGoals(userId);
         }
+        const fetchUserProfile = async () => {
+            try {
+              const profile = await getUserProfile();
+              setUser({
+                wallet: profile.wallet,
+              });
+            } catch (error) {
+              console.error("Error fetching user profile:", error);
+            }
+          };
+      
+          fetchUserProfile();
     }, []);
+   
     
 
     return (
@@ -40,10 +55,12 @@ const Header = () => {
                                         </span>
                                     )}
                                 </button>
+                                {user.wallet}
                                 <div className="dropdown-menu dropdown-menu-end" style={{ marginRight: "20px", marginTop: "5px" }}>
                                     <NotificationList />
                                 </div>
                             </li>
+                        
                         </ul>
                     </div>
                 </div>
