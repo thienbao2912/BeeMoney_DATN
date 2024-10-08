@@ -55,7 +55,7 @@ const authController = {
                 throw new Error('JWT_ACCESS_KEY is not defined');
             }
 
-            const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
+            const token = jwt.sign(payload, jwtSecret, { expiresIn: '100h' });
             const { password, ...others } = user._doc
             return res.status(200).json({ ...others, accessToken: token });
         } catch (err) {
