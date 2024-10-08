@@ -44,6 +44,8 @@ const Header = () => {
                     <div className="ms-auto d-flex align-items-center p-2">
                         <ul className="navbar-nav">
                             <li className="nav-item dropdown notification_dropdown">
+                          <b className='primary'>{user.wallet ? user.wallet.toLocaleString() : 'Chưa có dữ liệu'} đ</b> 
+
                                 <button className="btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path fillRule="evenodd" clipRule="evenodd" d="M17.5 12H19C19.8284 12 20.5 12.6716 20.5 13.5C20.5 14.3284 19.8284 15 19 15H6C5.17157 15 4.5 14.3284 4.5 13.5C4.5 12.6716 5.17157 12 6 12H7.5L8.05827 6.97553C8.30975 4.71226 10.2228 3 12.5 3C14.7772 3 16.6903 4.71226 16.9417 6.97553L17.5 12Z" fill="#222B40" />
@@ -55,7 +57,7 @@ const Header = () => {
                                         </span>
                                     )}
                                 </button>
-                                {user.wallet}
+                               
                                 <div className="dropdown-menu dropdown-menu-end" style={{ marginRight: "20px", marginTop: "5px" }}>
                                     <NotificationList />
                                 </div>
