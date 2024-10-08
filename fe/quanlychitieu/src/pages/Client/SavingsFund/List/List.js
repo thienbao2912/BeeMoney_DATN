@@ -85,7 +85,7 @@ const SavingsGoalsList = ({ userId }) => {
             <div className="text-center mb-3">
                 <Button
                     onClick={handleAddGoal}
-                    className="mb-3"
+                    className="mb-3 me-3"
                     variant="primary"
                 >
                     Thêm quỹ tiết kiệm
