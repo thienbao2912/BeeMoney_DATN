@@ -100,7 +100,7 @@ const Sidebar = () => {
       </li>
       <li className="nav-item">
         <a className="nav-link" href="/savings-fund/list">
-          <i className="bi bi-piggy-bank"></i> Quỹ tiết kiệm
+        <i class="bi bi-people-fill"></i> Quỹ tiết kiệm
         </a>
       </li>
       <li className="nav-item">
