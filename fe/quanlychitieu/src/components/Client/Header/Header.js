@@ -5,9 +5,9 @@ import { getUserProfile } from '../../../service/Auth';
 import './Header.css';
 
 const Header = () => {
-    const [user, setUser] = useState([])
+    const [user, setUser] = useState({ wallet: 0 });
     const { notifications, checkBudgetExceed, checkSavingGoals } = useNotifications();
-    const notificationCount = (notifications && notifications.length) ? notifications.length : 0;
+    const notificationCount = notifications ? notifications.length : 0;
 
     useEffect(() => {
         const userId = localStorage.getItem('userId');
@@ -15,21 +15,20 @@ const Header = () => {
             checkBudgetExceed(userId); 
             checkSavingGoals(userId);
         }
+        
         const fetchUserProfile = async () => {
             try {
-              const profile = await getUserProfile();
-              setUser({
-                wallet: profile.wallet,
-              });
+                const profile = await getUserProfile();
+                setUser({
+                    wallet: profile.wallet || 0,
+                });
             } catch (error) {
-              console.error("Error fetching user profile:", error);
+                console.error("Error fetching user profile:", error);
             }
-          };
-      
-          fetchUserProfile();
-    }, []);
-   
-    
+        };
+        
+        fetchUserProfile();
+    }, [checkBudgetExceed, checkSavingGoals]);
 
     return (
         <nav className="navbar navbar-expand-lg shadow-sm">
@@ -44,9 +43,16 @@ const Header = () => {
                     <div className="ms-auto d-flex align-items-center p-2">
                         <ul className="navbar-nav">
                             <li className="nav-item dropdown notification_dropdown">
-                          <b className='primary'>{user.wallet ? user.wallet.toLocaleString() : 'Chưa có dữ liệu'} đ</b> 
-
-                                <button className="btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <b className='primary'>
+                                    {user.wallet.toLocaleString()} đ
+                                </b> 
+                                <button 
+                                    className="btn" 
+                                    type="button" 
+                                    data-bs-toggle="dropdown" 
+                                    aria-expanded="false"
+                                    aria-label="Notifications"
+                                >
                                     <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path fillRule="evenodd" clipRule="evenodd" d="M17.5 12H19C19.8284 12 20.5 12.6716 20.5 13.5C20.5 14.3284 19.8284 15 19 15H6C5.17157 15 4.5 14.3284 4.5 13.5C4.5 12.6716 5.17157 12 6 12H7.5L8.05827 6.97553C8.30975 4.71226 10.2228 3 12.5 3C14.7772 3 16.6903 4.71226 16.9417 6.97553L17.5 12Z" fill="#222B40" />
                                         <path opacity="0.3" d="M14.5 18C14.5 16.8954 13.6046 16 12.5 16C11.3954 16 10.5 16.8954 10.5 18C10.5 19.1046 11.3954 20 12.5 20C13.6046 20 14.5 19.1046 14.5 18Z" fill="#222B40" />
@@ -57,12 +63,10 @@ const Header = () => {
                                         </span>
                                     )}
                                 </button>
-                               
                                 <div className="dropdown-menu dropdown-menu-end" style={{ marginRight: "20px", marginTop: "5px" }}>
                                     <NotificationList />
                                 </div>
                             </li>
-                        
                         </ul>
                     </div>
                 </div>
