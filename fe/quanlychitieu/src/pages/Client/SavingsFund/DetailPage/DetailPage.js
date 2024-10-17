@@ -140,7 +140,7 @@ const FundDetail = () => {
       setSuccess('Đã gửi thành công');
       setError(null);
       setInviteEmail('');
-     
+
     } catch (error) {
       if (error.response && error.response.status === 404) {
         setError('Email này không dùng BeeMoney');
@@ -221,7 +221,7 @@ const FundDetail = () => {
                         <Link
                           to={`/savings-fund/edit/${fund._id}`}
                           className="custom-date-style"
-                          style={{backgroundColor: "#711AE1", cursor: "pointer"}}
+                          style={{ backgroundColor: "#711AE1", cursor: "pointer" }}
                           aria-label="Edit"
                         >
                           <i className="fa fa-edit" />
@@ -232,10 +232,10 @@ const FundDetail = () => {
                 </table>
               </div>
               <div className='action-style'>
-                <span className="custom-date-style me-2" onClick={handleShowContributeModal} style={{ backgroundColor: "lightpink",   cursor: "pointer" }}>
+                <span className="custom-date-style me-2" onClick={handleShowContributeModal} style={{ backgroundColor: "lightpink", cursor: "pointer" }}>
                   <i className="fa fa-hand-holding-usd me-2"></i> Nạp tiền
                 </span>
-                <span className="custom-date-style me-2" onClick={handleShowInviteModal} style={{cursor: "pointer"}}>
+                <span className="custom-date-style me-2" onClick={handleShowInviteModal} style={{ cursor: "pointer" }}>
                   <i className="fa fa-user-plus me-2"></i> Mời bạn
                 </span>
               </div>
@@ -244,35 +244,47 @@ const FundDetail = () => {
           </div>
         </div>
       </div>
-
       <Modal show={showInviteModal} onHide={handleCloseInviteModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Mời bạn</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <form onSubmit={handleInvite}>
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                className="form-control"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-              />
-            </div>
-            <div className="mt-3 text-end">
-              <Button variant="secondary" onClick={handleCloseInviteModal}>
-                Đóng
-              </Button>
-              <Button variant="primary" type="submit" className="ms-2">
-                Gửi lời mời
-              </Button>
-              <p>{success}</p>
-              <p>{error}</p>
-            </div>
-          </form>
-        </Modal.Body>
-      </Modal>
+  <Modal.Header closeButton>
+    <Modal.Title>Mời bạn</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <form onSubmit={handleInvite}>
+      <div className="form-group">
+        <label>Email</label>
+        <input
+          type="email"
+          className="form-control"
+          value={inviteEmail}
+          onChange={(e) => setInviteEmail(e.target.value)}
+        />
+      </div>
+
+      {/* Thông báo thành công hoặc lỗi */}
+      {success && (
+        <div className="custom-alert-success mt-3">
+          <i className="fa fa-check-circle"></i>
+          {success}
+        </div>
+      )}
+      {error && (
+        <div className="alert alert-danger mt-3">
+          <i className="fa fa-exclamation-circle"></i> {error}
+        </div>
+      )}
+
+      <div className="mt-3 text-end">
+        <Button variant="secondary" onClick={handleCloseInviteModal}>
+          Đóng
+        </Button>
+        <Button variant="primary" type="submit" className="ms-2">
+          Gửi lời mời
+        </Button>
+      </div>
+    </form>
+  </Modal.Body>
+</Modal>
+
 
       <Modal show={showContributeModal} onHide={handleCloseContributeModal}>
         <Modal.Header closeButton>
