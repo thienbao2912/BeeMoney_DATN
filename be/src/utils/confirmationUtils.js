@@ -9,7 +9,6 @@ const saveConfirmationCode = async (fundId, code) => {
         code,
         expiresAt
     });
-
     await confirmation.save();
 };
 

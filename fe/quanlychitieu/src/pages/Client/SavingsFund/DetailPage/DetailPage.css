@@ -60,9 +60,8 @@
     transition: width 0.4s ease;
 }
 
-/* Gradient đỏ cho thanh tiến trình */
 .heets-gradient-danger {
-    background: linear-gradient(90deg, #fe7070, #ff4757);
+    background: linear-gradient(90deg, #ff7575, #ff4757);
 }
 
 .heets-gradient-warning {
@@ -70,12 +69,12 @@
 }
 
 .heets-gradient-success {
-    background: linear-gradient(90deg, #83ff5d, #1fdb51);
+    background: linear-gradient(90deg, #27c0f7, #2f82da);
 }
 .circle {
-    border-radius: 50%; /* Làm tròn hình ảnh */
-    width: 2.7rem;       /* Đảm bảo hình ảnh có kích thước cố định */
-    height: 2.7rem;      /* Chiều cao bằng với chiều rộng */
+    border-radius: 50%;
+    width: 2.7rem;      
+    height: 2.7rem;     
     background-color: antiquewhite;
 
    

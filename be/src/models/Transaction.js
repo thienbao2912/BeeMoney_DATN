@@ -9,7 +9,7 @@ const TransactionSchema = new Schema({
     "amount": {type: String, required: true},
     "date": {type: Date, required: true},
     "type": {type: String, required: true},
-    "categoryId": {type: Schema.Types.ObjectId, ref: 'categories'},
+    "categoryId": {type: Schema.Types.ObjectId, ref: 'Category'},
     "description": String,
 }, { timestamps: true });
 
