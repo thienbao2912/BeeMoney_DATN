@@ -59,10 +59,10 @@ const addSavingsGoal = async (savingsGoal) => {
     }
   };
   
-const updateSavingGoalAmount  = async (goalId, updateData) => {
+const addTransaction  = async (goalId, updateData) => {
     try {
         const response = await request({
-            method: 'PATCH',
+            method: 'POST',
             path: `/api/savings-goals/${goalId}`,
             data: updateData
         });
@@ -110,9 +110,7 @@ const deleteSavingsGoal = async (id) => {
 
         if (response && response.data === 'Xóa mục tiêu tiết kiệm thành công') {
             return response; 
-        } else {
-            throw new Error('Unexpected response format');
-        }
+        } 
     } catch (error) {
         console.error('Error deleting savings goal:', error.response ? error.response.data : error.message);
         throw error; 
@@ -141,4 +139,4 @@ const getCategories = async (userId) => {
     }
 };
 
-export { getAllSavingsGoals, getSavingsGoalById, addSavingsGoal, updateSavingGoalAmount, updateSavingsGoal, deleteSavingsGoal, getCategories };
+export { getAllSavingsGoals, getSavingsGoalById, addSavingsGoal, addTransaction, updateSavingsGoal, deleteSavingsGoal, getCategories };

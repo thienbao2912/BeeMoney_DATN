@@ -1,10 +1,11 @@
 .custom-date-style {
     font-size:smaller;
-    color: #fff; 
+    color: #41a9fe; 
     font-weight: bold;
-    background-color: #78c3f9; 
-    padding: 0.2rem;
-    border-radius: 8px;
+    background-color: #ceeaffd4; 
+    padding: 0.3rem;
+    border: 1px solid #41a9fe;
+    border-radius: 5px;
   }
  
   @media (max-width: 768px) {

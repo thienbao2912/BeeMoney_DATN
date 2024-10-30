@@ -270,7 +270,7 @@ const SavingGoalAdd = () => {
                           </div>
                           <div className="money text-secondary mb-3">
                             <i className="fa-solid fa-sack-dollar me-2"></i>
-                           Số tiền mục tiêu:  <span className='custom-date-style'>{goal.targetAmount != null ? goal.targetAmount.toLocaleString() : '0'}đ</span> 
+                           Số tiền mục tiêu: {goal.targetAmount != null ? goal.targetAmount.toLocaleString() : '0'}đ
                           </div>
                         </div>
                       </div>

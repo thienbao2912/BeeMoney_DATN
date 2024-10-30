@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { updateSavingGoalAmount } from '../../../../service/SavingGoal';
+import { addTransaction } from '../../../../service/SavingGoal';
 
 const EditGoalModal = ({ goal, onClose, onUpdate }) => {
     const [additionalAmount, setAdditionalAmount] = useState('');
     const [error, setError] = useState(null);
-
+    const [loading, setLoading] = useState(false);
     const formatCurrency = (value) => {
         return Number(value).toLocaleString('vi-VN');
     };
@@ -26,14 +26,17 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
 
     const handleUpdate = async () => {
         try {
-            const newCurrentAmount = parseFloat(goal.currentAmount) + parseFloat(additionalAmount);
-            await updateSavingGoalAmount(goal._id, { currentAmount: newCurrentAmount });
+            const amountToAdd = parseFloat(additionalAmount); // Số tiền người dùng nhập
+            await addTransaction(goal._id, { amount: amountToAdd }); // Gọi hàm với số tiền nạp
             onUpdate();
             onClose();
         } catch (error) {
             setError('Lỗi nạp tiền ' + error.message);
         }
     };
+    
+    
+    
 
     return (
         <div className="modal fade show" tabIndex="-1" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>

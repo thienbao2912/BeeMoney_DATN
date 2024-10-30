@@ -7,6 +7,7 @@ import "./SavingGoalList.css";
 import { Link } from "react-router-dom";
 import EditGoalModal from "../EditGoalModal/EditGoalModal";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
+import { Button } from "react-bootstrap";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -224,6 +225,7 @@ targetAmount: goal.targetAmount || 0,
 
           return (
             <div className="col-md-6 mb-3" key={goal._id}>
+             
   <div className="income-overview card">
     <div className="card-body">
       <div className="category-target d-flex align-items-center mb-3">
@@ -232,7 +234,11 @@ targetAmount: goal.targetAmount || 0,
           alt={goal.categoryId?.name || "Không tồn tại"}
           width="50px"
         />
-        <h5 className="ms-3">{goal.name}</h5>
+         <Link to={`/saving-goal/detail/${goal._id}`}
+              style={{ textDecoration: 'none'}}
+              className="primary"
+        aria-label="Detail">
+        <h5 className="ms-3">{goal.name}</h5></Link>
         <div className="ms-auto text-secondary d-flex flex-column align-items-end">
           <div className="date-saving mb-1">
             <i className="fas fa-calendar-alt me-2"></i>
@@ -253,15 +259,16 @@ targetAmount: goal.targetAmount || 0,
         </div>
       </div>
 
-      <div className="progress-container mb-3">
+      <div className="progress-wrapper d-flex align-items-center mt-2">
+      <span className="text-muted small me-2">{Math.round(percentage)}%</span>
+      <div className="progress flex-grow-1">
         <div
           className={`progress-bar ${progressBarClass}`}
           role="progressbar"
           style={{ width: `${Math.min(percentage, 100)}%` }}
         >
-          <span className="progress-percentage">
-            {Math.round(percentage)}%
-          </span>
+        
+        </div>
         </div>
       </div>
 
@@ -277,13 +284,15 @@ targetAmount: goal.targetAmount || 0,
         className="text-success me-2"
 aria-label="Edit"
       >
-        <i className="fa fa-edit" />
+   
+     <i class="bi bi-pencil-fill"></i>
       </Link>
       <div className="text-danger">
         <i style={{cursor:"pointer"}}
-          className="fa fa-trash"
+          className="bi bi-trash-fill"
           onClick={() => openConfirmationModal(goal)}
         />
+
       </div>
     </div>
   </div>

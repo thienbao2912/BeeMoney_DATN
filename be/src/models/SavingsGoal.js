@@ -1,36 +1,46 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
+
 const SavingsGoalSchema = new Schema({
-    "userId": {
+    userId: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    "name": {
+    name: {
         type: String,
         required: true
     },
-    "targetAmount": {
+    targetAmount: {
         type: Number,
         required: true
     },
-    "currentAmount": {
+    currentAmount: {
         type: Number,
         default: 0
     },
-    "startDate": {
+    startDate: {
         type: Date,
         required: true
     },
-    "endDate": {
+    endDate: {
         type: Date,
         required: true
     },
-    "categoryId": {
+    categoryId: {
         type: Schema.Types.ObjectId,
         ref: 'categories',
         required: true
-    }
+    },
+    transactionHistory: [
+        {
+            amount: Number,
+            date: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ]
 }, { timestamps: true });
 
 module.exports = mongoose.model('SavingsGoal', SavingsGoalSchema);

@@ -12,6 +12,7 @@ import ExpenseList from './pages/Client/Transaction/Expense/ExpenseList/ExpenseL
 import ExpenseEdit from './pages/Client/Transaction/Expense/ExpenseEdit/ExpenseEdit';
 import SavingGoalAdd from './pages/Client/SavingGoals/SavingGoalAdd/SavingGoalAdd';
 import SavingGoalList from './pages/Client/SavingGoals/SavingGoalList/SavingGoalList';
+import SavingGoalDetail from './pages/Client/SavingGoals/SavingGoalDetail/SavingGoalDetail';
 import PassSaving from './pages/Client/SavingGoals/PassSaving/PassSaving';
 import SavingGoalEdit from './pages/Client/SavingGoals/SavingGoalEdit/SavingGoalEdit';
 import Home from './pages/Client/Home/Home';
@@ -63,6 +64,7 @@ function App() {
           <Route path="/expense/edit/:id" element={<ExpenseEdit />} />
           <Route path="/saving-goal/add" element={<SavingGoalAdd />} />
           <Route path="/saving-goal/list" element={<SavingGoalList />} />
+          <Route path="/saving-goal/detail/:id" element={<SavingGoalDetail />} />
           <Route path="/saving-goal/past" element={<PassSaving />} />
           <Route path="/saving-goal/edit/:id" element={<SavingGoalEdit />} />
           <Route path="/income/add" element={<IncomeAdd />} />

@@ -1,5 +1,5 @@
 const SavingsGoal = require("../models/SavingsGoal")
-
+const User = require('../models/User'); 
 class SavingsGoalController {
 
   static async getAll(req, res) {
@@ -40,7 +40,7 @@ class SavingsGoalController {
             })
         }
     }
-    static create(req, res) {
+    static async create(req, res) {
         try {
             let { name, targetAmount, currentAmount, startDate, endDate, categoryId } = req.body;
             let userId = req.user.id;
@@ -62,7 +62,20 @@ class SavingsGoalController {
                     message: 'Chưa chọn danh mục'
                 });
             }
-            
+    
+            // Tìm người dùng để kiểm tra số dư ví
+            const user = await User.findById(userId);
+            if (!user || user.wallet < currentAmount) {
+                return res.status(400).json({
+                    message: 'Số dư trong ví không đủ để thực hiện giao dịch'
+                });
+            }
+    
+            // Trừ tiền từ ví của người dùng
+            user.wallet -= currentAmount;
+            await user.save();
+    
+            // Tạo mục tiêu tiết kiệm nếu validation passes
             let data = {
                 userId,
                 name,
@@ -73,65 +86,58 @@ class SavingsGoalController {
                 categoryId
             };
     
-            // Create the savings goal if validation passes
-            SavingsGoal.create(data)
-                .then(() => {
-                    res.status(200).json({
-                        data: 'Thêm dữ liệu thành công'
-                    });
-                })
-                .catch(error => {
-                    res.status(400).json({
-                        message: error.message || 'Error adding data'
-                    });
-                });
+            const savingsGoal = await SavingsGoal.create(data);
+            res.status(200).json({
+                data: 'Thêm dữ liệu thành công',
+                savingsGoal // có thể trả về mục tiêu vừa tạo
+            });
         } catch (error) {
+            console.error(error); // Ghi lại lỗi nếu có
             res.status(500).json({
                 message: 'Server error'
             });
         }
     }
     
-// controllers/SavingsGoalController.js
-static async edit(req, res) {
-    try {
-        const _id = req.params.id;
-        const userId = req.user.id;
-        const { currentAmount } = req.body;
-
-        const checkSavingsGoalUser = await SavingsGoal.findOne({ userId, _id });
-        console.log(userId, _id, checkSavingsGoalUser);
-
-        if (checkSavingsGoalUser) {
-            // Update only the currentAmount field and preserve the rest
-            const updatedGoal = await SavingsGoal.findByIdAndUpdate(
-                _id,
-                { $set: { currentAmount } },
-                { new: true, useFindAndModify: false }
-            );
-
-          
-            if (updatedGoal) {
-                res.status(200).json({
-                    message: 'Cập nhật mục tiêu tiết kiệm thành công',
-                    data: updatedGoal
-                });
-            } else {
-                res.status(403).json({
-                    message: 'Đã xảy ra lỗi'
-                });
+    
+    static async addTransaction(req, res) {
+        try {
+            const _id = req.params.id;
+            const userId = req.user.id;
+            const { amount } = req.body; // Số tiền người dùng muốn nạp vào mục tiêu
+    
+            // Tìm kiếm mục tiêu tiết kiệm của người dùng
+            const savingsGoal = await SavingsGoal.findOne({ userId, _id });
+            if (!savingsGoal) {
+                return res.status(404).json({ message: 'Mục tiêu tiết kiệm không tồn tại' });
             }
-        } else {
-            res.status(403).json({
-                message: 'Đã xảy ra lỗi'
+    
+            // Kiểm tra số dư ví người dùng
+            const user = await User.findById(userId);
+            if (!user || user.wallet < amount) { // Kiểm tra xem ví có đủ số tiền để nạp không
+                return res.status(400).json({ message: 'Số dư trong ví không đủ để thực hiện giao dịch' });
+            }
+    
+            // Trừ tiền từ ví của người dùng bằng số tiền nạp vào
+            user.wallet -= amount; // Trừ từ ví bằng số tiền nạp vào
+            await user.save();
+    
+            // Cập nhật số tiền hiện tại và thêm vào lịch sử nạp tiền
+            savingsGoal.currentAmount += amount; // Cập nhật currentAmount với số tiền nạp vào
+            savingsGoal.transactionHistory.push({ amount, date: new Date() });
+            const updatedGoal = await savingsGoal.save();
+    
+            res.status(200).json({
+                message: 'Cập nhật mục tiêu tiết kiệm thành công',
+                data: updatedGoal
             });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Lỗi server' });
         }
-    } catch (error) {
-        res.status(500).json({
-            message: 'Server error'
-        });
     }
-}
+    
+    
 static async updateAllFields(req, res) {
     try {
         const _id = req.params.id;
@@ -170,22 +176,39 @@ static async updateAllFields(req, res) {
 }
 
 
-    static async delete(req, res) {
-        try {
-            let _id = req.params.id
-            let userId = req.user.id
-            let result = await SavingsGoal.findOneAndDelete({ userId, _id })
-            if (result) {
-                return res.status(200).json({
-                    data: 'Xóa mục tiêu tiết kiệm thành công'
-                })
-            }
-        } catch (error) {
-            res.status(500).json({
-                message: 'Server error'
-            })
+static async delete(req, res) {
+    try {
+        const _id = req.params.id;
+        const userId = req.user.id;
+
+        // Tìm kiếm mục tiêu tiết kiệm
+        const savingsGoal = await SavingsGoal.findOne({ userId, _id });
+        if (!savingsGoal) {
+            return res.status(404).json({
+                message: 'Mục tiêu tiết kiệm không tồn tại'
+            });
         }
+
+        // Phục hồi số tiền vào ví
+        const user = await User.findById(userId);
+        user.wallet += savingsGoal.currentAmount; // Thêm currentAmount vào wallet
+        await user.save();
+
+        // Xóa mục tiêu tiết kiệm
+        await SavingsGoal.findOneAndDelete({ userId, _id });
+
+        res.status(200).json({
+            data: 'Xóa mục tiêu tiết kiệm thành công và đã phục hồi số tiền vào ví'
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: 'Server error'
+        });
     }
+}
+
+
     
 }
 
