@@ -75,7 +75,7 @@ class SavingsGoalController {
             user.wallet -= currentAmount;
             await user.save();
     
-            // Tạo mục tiêu tiết kiệm nếu validation passes
+            // Tạo đối tượng dữ liệu mục tiêu tiết kiệm
             let data = {
                 userId,
                 name,
@@ -83,8 +83,13 @@ class SavingsGoalController {
                 currentAmount,
                 startDate,
                 endDate,
-                categoryId
+                categoryId,
             };
+    
+            // Thêm lịch sử giao dịch chỉ khi currentAmount > 0
+            if (currentAmount > 0) {
+                data.transactionHistory = [{ amount: currentAmount, date: new Date() }];
+            }
     
             const savingsGoal = await SavingsGoal.create(data);
             res.status(200).json({
@@ -98,6 +103,8 @@ class SavingsGoalController {
             });
         }
     }
+    
+    
     
     
     static async addTransaction(req, res) {
@@ -138,43 +145,43 @@ class SavingsGoalController {
     }
     
     
-static async updateAllFields(req, res) {
-    try {
-        const _id = req.params.id;
-        const userId = req.user.id;
-        const { name, targetAmount, currentAmount, startDate, endDate, categoryId } = req.body;
-
-        const checkSavingsGoalUser = await SavingsGoal.findOne({ userId, _id });
-
-        if (checkSavingsGoalUser) {
-            const updatedGoal = await SavingsGoal.findByIdAndUpdate(
-                _id,
-                { $set: { name, targetAmount, currentAmount, startDate, endDate, categoryId } },
-                { new: true, useFindAndModify: false }
-            );
-
-            if (updatedGoal) {
+    static async updateAllFields(req, res) {
+        try {
+            const _id = req.params.id;
+            const userId = req.user.id;
+            const { name, targetAmount, startDate, endDate, categoryId } = req.body; // Bỏ currentAmount khỏi body
+    
+            // Tìm kiếm mục tiêu tiết kiệm của người dùng
+            const savingsGoal = await SavingsGoal.findOne({ userId, _id });
+    
+            if (savingsGoal) {
+                // Cập nhật từng trường ngoại trừ currentAmount
+                savingsGoal.name = name;
+                savingsGoal.targetAmount = targetAmount;
+                savingsGoal.startDate = startDate;
+                savingsGoal.endDate = endDate;
+                savingsGoal.categoryId = categoryId;
+    
+                // Lưu thay đổi
+                const updatedGoal = await savingsGoal.save();
+    
                 res.status(200).json({
                     message: 'Cập nhật mục tiêu tiết kiệm thành công',
                     data: updatedGoal
                 });
             } else {
-                res.status(403).json({
-                    message: 'Đã xảy ra lỗi'
+                res.status(404).json({
+                    message: 'Mục tiêu tiết kiệm không tồn tại'
                 });
             }
-        } else {
-            res.status(403).json({
-                message: 'Đã xảy ra lỗi'
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({
+                message: 'Server error'
             });
         }
-    } catch (error) {
-        res.status(500).json({
-            message: 'Server error'
-        });
     }
-}
-
+    
 
 static async delete(req, res) {
     try {

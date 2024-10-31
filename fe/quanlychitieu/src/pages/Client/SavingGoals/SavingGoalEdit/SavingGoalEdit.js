@@ -31,11 +31,9 @@ const SavingGoalEdit = () => {
         setLoading(true);
 
         const categoriesResponse = await getCategories(userId);
-        console.log('Categories Response:', categoriesResponse);
         setCategories(categoriesResponse);
 
         const savingGoalResponse = await getSavingsGoalById(id);
-        console.log('SavingGoal Response:', savingGoalResponse);
 
         const formatDate = (dateStr) => {
           if (!dateStr) return '';
@@ -96,7 +94,6 @@ const SavingGoalEdit = () => {
         targetAmount: unformatCurrency(formData.targetAmount),
         type: 'expense'
       };
-      console.log('Submitting payload:', payload);
       if (!id) {
         throw new Error('Goal ID is undefined');
       }
@@ -163,6 +160,7 @@ const SavingGoalEdit = () => {
                   name="currentAmount"
                   value={formData.currentAmount}
                   onChange={handleAmountInput}
+                  disabled
                 />
               </div>
             </div>

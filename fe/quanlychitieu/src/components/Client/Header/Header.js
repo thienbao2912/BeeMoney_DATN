@@ -41,11 +41,12 @@ const Header = () => {
 
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                     <div className="ms-auto d-flex align-items-center p-2">
-                        <ul className="navbar-nav">
-                            <li className="nav-item dropdown notification_dropdown">
-                                <b className='primary'>
+                    <b className='primary'>
+                                <i class="bi bi-wallet-fill me-2"></i>
                                     {user.wallet.toLocaleString()} đ
                                 </b> 
+                        <ul className="navbar-nav">
+                            <li className="nav-item dropdown notification_dropdown">
                                 <button 
                                     className="btn" 
                                     type="button" 

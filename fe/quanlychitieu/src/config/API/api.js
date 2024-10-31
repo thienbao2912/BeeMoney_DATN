@@ -13,7 +13,6 @@ const request = async ({
 }) => {
     try {
         const token = cookies.get("token");
-        console.log("Sending token: ", token);
 
         const response = await axios({
             method: method,

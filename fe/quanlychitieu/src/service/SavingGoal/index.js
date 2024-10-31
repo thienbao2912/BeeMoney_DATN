@@ -8,8 +8,6 @@ const getAllSavingsGoals = async (userId) => {
             params: { userId }
         });
 
-        console.log('API Response:', response);
-
         if (response  && Array.isArray(response.data)) {
             return response.data; 
         } else {
@@ -41,7 +39,6 @@ const getSavingsGoalById = async (id) => {
 
 const addSavingsGoal = async (savingsGoal) => {
     try {
-      console.log('Payload for addSavingsGoal:', savingsGoal);
       const response = await request({
         method: 'POST',
         path: '/api/savings-goals',
@@ -79,9 +76,6 @@ const addTransaction  = async (goalId, updateData) => {
 };
 const updateSavingsGoal = async (goalId, updatedFields) => {
     try {
-      console.log('Updating goal with ID:', goalId);
-      console.log('Updated fields:', updatedFields);
-      
       const response = await request({
         method: 'PATCH',
         path: `/api/savings-goals/allFields/${goalId}`,
@@ -106,8 +100,6 @@ const deleteSavingsGoal = async (id) => {
             path: `/api/savings-goals/${id}`
         });
 
-        console.log('Delete response:', response);
-
         if (response && response.data === 'Xóa mục tiêu tiết kiệm thành công') {
             return response; 
         } 
@@ -127,7 +119,6 @@ const getCategories = async (userId) => {
             params: { userId }
         });
 
-        console.log('API Response:', response);
         if (response && Array.isArray(response.data)) {
             return response.data;
         } else {
