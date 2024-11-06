@@ -22,6 +22,8 @@ router.get("/get-one/:id", authController.getOne);
 // Cập nhật thông tin người dùng
 router.put('/update/:id', authController.update);
 
+router.put('/update-last-login/:id', authController.updateLastLogin);
+
 // Xác minh mật khẩu cũ
 router.post('/verify-password', authController.verifyOldPassword);
 

@@ -6,10 +6,10 @@ import {
   getTransactionById,
 } from "../../../../../service/Transaction";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form"; // Import useForm
+import { useForm } from "react-hook-form";
 
 const ExpenseEdit = () => {
-  const { id } = useParams(); // Get the transaction ID from the URL params
+  const { id } = useParams(); 
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
   const {
@@ -18,7 +18,7 @@ const ExpenseEdit = () => {
     formState: { errors },
     setValue,
     getValues,
-  } = useForm(); // Destructure form hooks
+  } = useForm(); 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -155,7 +155,7 @@ const ExpenseEdit = () => {
                   id="amount"
                   name="amount"
                   className="form-control"
-                  value={getValues("amount")} // Không thêm ₫ khi hiển thị
+                  value={getValues("amount")} 
                   {...register("amount", { required: "Số tiền là bắt buộc" })}
                   onChange={handleAmountInput}
                 />
