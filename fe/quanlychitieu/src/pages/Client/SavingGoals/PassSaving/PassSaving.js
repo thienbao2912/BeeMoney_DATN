@@ -164,20 +164,10 @@ const PassSaving = () => {
                 </div>
       <div className="row mt-3">
         {paginatedGoals.map((goal) => {
-          const percentage =
-            goal.currentAmount != null && goal.targetAmount != null
-              ? (goal.currentAmount / goal.targetAmount) * 100
-              : 0;
-          let progressBarClass;
-
-          if (percentage < 25) {
-            progressBarClass = "bg-danger";
-          } else if (percentage >= 25 && percentage <= 50) {
-            progressBarClass = "bg-warning";
-          } else {
-            progressBarClass = "bg-success";
-          }
-
+           const percentage =
+           goal.currentAmount != null && goal.targetAmount != null
+             ? (goal.currentAmount / goal.targetAmount) * 100
+             : 0;
           return (
             <div className="col-md-6 mb-3" key={goal._id}>
   <div className="income-overview card">
@@ -188,38 +178,40 @@ const PassSaving = () => {
           alt={goal.categoryId?.name || "Không tồn tại"}
           width="50px"
         />
-        <h5 className="ms-3">{goal.name}</h5>
-        <div className="ms-auto text-secondary d-flex flex-column align-items-end">
-          <div className="date-saving mb-1">
-            <i className="fas fa-calendar-alt me-2"></i>
-            {new Date(goal.startDate).toLocaleDateString()} -{" "}
-            {new Date(goal.endDate).toLocaleDateString()}
-          </div>
-          <div className="money">
+        <h5 className="ms-3"> {goal.name.length > 13 ? `${goal.name.substring(0, 13)}...` : goal.name}</h5>
+        <div className="ms-auto d-flex flex-column align-items-end">
+        <div className="text-secondary">
             <i className="fa-solid fa-sack-dollar me-2"></i>
             {goal.currentAmount != null
-              ? goal.currentAmount.toLocaleString()
-              : "0"}
+                          ? (goal.currentAmount.toString().length > 9
+                            ? `${goal.currentAmount.toLocaleString().slice(0, 9)}...`
+                            : goal.currentAmount.toLocaleString())
+                          : "0"}
             đ -{" "}
             {goal.targetAmount != null
-              ? goal.targetAmount.toLocaleString()
-              : "0"}
+                          ? (goal.targetAmount.toString().length > 9
+                            ? `${goal.targetAmount.toLocaleString().slice(0, 9)}...`
+                            : goal.targetAmount.toLocaleString())
+                          : "0"}
             đ
           </div>
         </div>
       </div>
 
-      <div className="progress-container mb-3">
-        <div
-          className={`progress-bar ${progressBarClass}`}
-          role="progressbar"
-          style={{ width: `${Math.min(percentage, 100)}%` }}
-        >
-          <span className="progress-percentage">
-            {Math.round(percentage)}%
-          </span>
-        </div>
-      </div>
+      <div className="progress-wrapper d-flex align-items-center mt-2">
+                    <span className="text-muted small me-2">{Math.round(percentage)}%</span>
+                    <div className="progress flex-grow-1">
+                      <div
+                        className="progress-bar"
+                        role="progressbar"
+                        style={{
+                          width: `${Math.min(percentage, 100)}%`,
+                          backgroundColor: `hsl(${Math.min(percentage, 100) * 1.5}, 100%, ${Math.max(50 - percentage * 0.1, 20)}%)`,
+                        }}
+                      >
+                      </div>
+                    </div>
+                  </div>
 
       {percentage >= 100 ? (
   <div className={`remaining-percentage-message ${getPercentageClass(percentage)} d-flex justify-content-between align-items-center mb-2`}>
@@ -249,9 +241,16 @@ const PassSaving = () => {
             />
       </div>
   </div>
+  
+  
 
 )}
-
+  <div className="text-center align-items-center">
+                      <Link to={`/saving-goal/detail/${goal._id}`}
+                      // style={{textDecorationLine: 'none'}}
+                        className="text-secondary"
+                        aria-label="Detail">Xem chi tiết </Link>
+                    </div>
       
     </div>
   </div>

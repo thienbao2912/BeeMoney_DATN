@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getCategories, getSavingsGoalById } from '../../../../service/SavingGoal';
-import { FaHistory } from 'react-icons/fa';
 import EditGoalModal from "../EditGoalModal/EditGoalModal";
 
 const SavingGoalDetail = () => {
@@ -11,7 +10,7 @@ const SavingGoalDetail = () => {
   const [savingGoal, setSavingGoal] = useState(null);
   const [selectedGoal, setSelectedGoal] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCategoriesAndSavingGoal = async () => {
@@ -38,27 +37,21 @@ const SavingGoalDetail = () => {
     fetchCategoriesAndSavingGoal();
   }, [id, userId]);
 
-  const handleSaveTransaction = (newAmount) => {
-    const parsedAmount = parseFloat(newAmount);
-
-    if (isNaN(parsedAmount)) {
-      console.error("Invalid amount");
-      return;
-    }
-
-    setSavingGoal((prevGoal) => {
-      const updatedAmount = (parseFloat(prevGoal.currentAmount) || 0) + parsedAmount;
-
-      return {
+  const handleSaveTransaction = (newAmount, note) => {
+    setSavingGoal((prevGoal) => ({
         ...prevGoal,
-        currentAmount: updatedAmount,
+        currentAmount: (parseFloat(prevGoal.currentAmount) || 0) + newAmount,
         transactionHistory: [
-          ...prevGoal.transactionHistory,
-          { amount: parsedAmount, date: new Date().toISOString() },
+            ...prevGoal.transactionHistory,
+            { 
+                amount: newAmount, 
+                date: new Date().toISOString(),
+                note: note 
+            },
         ],
-      };
-    });
-  };
+    }));
+};
+
 
 
   const openModal = (goal) => {
@@ -94,7 +87,7 @@ const SavingGoalDetail = () => {
   return (
     <div className="saving-goal-detail-container">
       <nav aria-label="breadcrumb">
-        <ol className="breadcrumb">
+        <ol className="breadcrumb bg-transparent p-0">
           <li className="breadcrumb-item">
             <a className="text-secondary" href="/saving-goal/list">Mục tiêu</a>
           </li>
@@ -104,100 +97,109 @@ const SavingGoalDetail = () => {
 
       <div className="row">
         <div className="col-md-7 mb-3">
-          <div className="card saving-goal-card shadow-sm">
+          <div className="fw-bold text-secondary mb-2">
+            <i class="bi bi-info-circle"></i> Thông tin mục tiêu
+          </div>
+          <div className="card">
             <div className="card-body">
-              <div className="form-group mb-3">
+              <div className="form-group mb-4">
                 <label className="form-label text-muted">
-                  <i className="bi bi-ticket-detailed-fill" style={{ padding: '0.4rem', backgroundColor: 'lightBlue', color: 'white', borderRadius: '0.2rem' }}></i> Tên mục tiêu
-                </label>
-                <p className="text-secondary fw-bold ms-5">
-                  {savingGoal.name}
-                </p>
-                <label className="form-label text-muted">
-                  <i className="bi bi-coin" style={{ padding: '0.4rem', backgroundColor: 'lightBlue', color: 'white', borderRadius: '0.2rem' }}></i> Số tiền
-                </label>
-                <p className="text-secondary fw-bold ms-5">
-                  {formatCurrency(savingGoal.currentAmount)} đ / {formatCurrency(savingGoal.targetAmount)} đ
-                </p>
-              </div>
-              <div className="form-group mb-3">
-                <label className="form-label text-muted">
-                  <i className="bi bi-alarm-fill" style={{ padding: '0.4rem', backgroundColor: 'lightBlue', color: 'white', borderRadius: '0.2rem' }}></i> Thời gian
-                </label>
-                <p className="text-secondary ms-5">
-                  {new Date(savingGoal.startDate).toLocaleDateString('vi-VN')} - {new Date(savingGoal.endDate).toLocaleDateString('vi-VN')}
-                </p>
-              </div>
-              <div className="form-group mb-3">
-                <label className="form-label text-muted">
-                  <i className="bi bi-tags-fill" style={{ padding: '0.4rem', backgroundColor: 'lightBlue', color: 'white', borderRadius: '2.5rem' }}></i> Danh mục
+                  <i className="bi bi-tags-fill icon-style"></i> Danh mục
                 </label>
                 {categories.length > 0 && categories.map((category) => (
-                  category._id === savingGoal.categoryId ? (
-                    <div key={category._id} className="category-item d-flex align-items-center ms-5">
-                      <img src={category.image || 'placeholder.jpg'} alt={category.name} style={{ width: '50px', height: '50px' }} />
-                      <p className="mb-0 text-secondary fw-bold">{category.name}</p>
+                  category._id === savingGoal.categoryId && (
+                    <div key={category._id} className="category-item d-flex align-items-center ms-4 mt-2">
+                      <img src={category.image || 'rabbit.png'} alt={category.name} style={{ width: '50px', height: '50px' }} />
+                      <p className="text-secondary fw-bold mb-0 ms-3">{category.name}</p>
                     </div>
-                  ) : null
+                  )
                 ))}
               </div>
-              <div className="progress-wrapper d-flex align-items-center mt-2">
+              <div className="form-group mb-4">
+                <label className="form-label text-muted">
+                  <i className="bi bi-ticket-detailed-fill icon-style"></i> Tên mục tiêu
+                </label>
+                <div className="text-secondary ms-4">{savingGoal.name}</div>
+              </div>
+
+              <div className="form-group mb-4">
+                <label className="form-label text-muted">
+                  <i className="bi bi-coin icon-style"></i> Số tiền
+                </label>
+                <div className="text-secondary ms-4">
+                  {formatCurrency(savingGoal.currentAmount)} đ - {formatCurrency(savingGoal.targetAmount)} đ
+                </div>
+              </div>
+
+              <div className="form-group mb-4">
+                <label className="form-label text-muted">
+                  <i className="bi bi-alarm-fill icon-style"></i> Thời gian
+                </label>
+                <div className="text-secondary ms-4">
+                  {new Date(savingGoal.startDate).toLocaleDateString('vi-VN')} - {new Date(savingGoal.endDate).toLocaleDateString('vi-VN')}
+                </div>
+              </div>
+              <div className="progress-wrapper d-flex align-items-center mt-4">
                 <span className="text-muted small me-2">{Math.round(progressPercentage)}%</span>
-                <div className="progress flex-grow-1">
+                <div className="progress flex-grow-1 rounded-pill">
                   <div
                     className="progress-bar"
                     role="progressbar"
                     style={{
                       width: `${Math.min(progressPercentage, 100)}%`,
-                      backgroundColor: `hsl(${Math.min(progressPercentage, 100) * 1.2}, 100%, 50%)`,
+                      backgroundColor: `hsl(${Math.min(progressPercentage, 100) * 1.5}, 100%, ${Math.max(50 - progressPercentage * 0.1, 20)}%)`,
                     }}
-                  >
-                  </div>
+                  ></div>
                 </div>
               </div>
+
               {progressPercentage < 100 && (
-                <button
-                  className="btn btn-primary"
-                  onClick={() => openModal(savingGoal)}
-                >
+                <button className="btn btn-primary mt-3" onClick={() => openModal(savingGoal)}>
                   Nạp tiền
                 </button>
               )}
             </div>
           </div>
         </div>
+
         <div className="col-md-5 mb-3">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h6 className="mb-0 text-secondary">
-              <FaHistory /> Lịch sử nạp tiền
-            </h6>
+          <div className="fw-bold text-secondary mb-2">
+            <i class="bi bi-clock-history"></i> Lịch sử nạp tiền
           </div>
-          <div className="card transaction-history-card shadow-sm">
-            <div className="card-body">
-              <div className="table-responsive">
-                <table className="table table-hover align-items-center">
-                  <tbody>
-                    {savingGoal.transactionHistory.length > 0 ? (
-                      savingGoal.transactionHistory.map((transaction, index) => (
-                        <tr key={index}>
-                          <td>
-                            <h6 className="text-success mb-0">+ {formatCurrency(transaction.amount)} đ</h6>
-                          </td>
-                          <td className="text-end">
-                            <h6 className="text-secondary mb-0">{new Date(transaction.date).toLocaleDateString('vi-VN')}</h6>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="2" className="text-center">Không có giao dịch nào được ghi lại.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+
+          <div className="card shadow-sm rounded" style={{ border: '1px solid #e0e0e0' }}>
+  <div className="card-body" style={{ backgroundColor: '#fafbff', borderRadius: '0.5rem' }}>
+    <div className="table-responsive" style={{ maxHeight: '22rem', overflowY: 'auto' }}>
+      <table className="table table-hover">
+        <tbody>
+          {savingGoal.transactionHistory.length > 0 ? (
+            savingGoal.transactionHistory.map((transaction, index) => (
+              <tr key={index} className="align-middle">
+                <td>
+                  <h6 className="text-success mb-0">+ {formatCurrency(transaction.amount)} đ</h6>
+                  <div className="text-secondary">
+                    {transaction.note}
+                  </div>
+                </td>
+                <td className="text-end">
+                  <div className="text-secondary mb-0">
+                    {new Date(transaction.date).toLocaleDateString('vi-VN')}
+                  </div>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="2" className="text-center">Không có giao dịch nào được ghi lại.</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
           {isModalOpen && selectedGoal && (
             <EditGoalModal
               goal={selectedGoal}
@@ -206,9 +208,10 @@ const SavingGoalDetail = () => {
             />
           )}
         </div>
-
       </div>
     </div>
+
+
   );
 };
 
