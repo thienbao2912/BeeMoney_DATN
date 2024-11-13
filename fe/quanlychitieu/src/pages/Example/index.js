@@ -63,7 +63,6 @@ const ExampleComponent = () => {
                     </li>
                 ))}
             </ul>
-            {/* Add forms or other components for creating and updating transactions */}
         </div>
     );
 };

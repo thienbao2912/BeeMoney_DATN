@@ -5,7 +5,19 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
-const IncomeChart = ({ data, onClick }) => { // Nhận thêm prop onClick
+const formatCurrency = (value) => {
+    if (value >= 1e9) {
+        return `${(value / 1e9).toFixed(1)} T`;
+    } else if (value >= 1e6) {
+        return `${(value / 1e6).toFixed(1)} tr`; 
+    } else if (value >= 1e5) {
+        return `${(value / 1e3).toFixed(0)}k`; 
+    } else {
+        return value.toLocaleString('vi-VN');   
+    }
+};
+
+const IncomeChart = ({ data, onClick }) => {
     console.log("IncomeChart Data:", data);
 
     const chartData = {
@@ -50,15 +62,15 @@ const IncomeChart = ({ data, onClick }) => { // Nhận thêm prop onClick
                     label: (tooltipItem) => {
                         const label = tooltipItem.label || '';
                         const value = tooltipItem.raw || 0;
-                        return `${label}: ${value}`;
+                        return `${label}: ${formatCurrency(value)}`; 
                     }
                 }
             }
         },
-        onClick: (event, elements) => { // Thêm sự kiện onClick
+        onClick: (event, elements) => { 
             if (elements.length > 0) {
                 const elementIndex = elements[0].index;
-                onClick(data[elementIndex]); // Gọi onClick với dữ liệu phần tử được nhấn
+                onClick(data[elementIndex]);
             }
         }
     };

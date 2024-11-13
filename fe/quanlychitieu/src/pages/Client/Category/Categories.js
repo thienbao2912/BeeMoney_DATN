@@ -2,15 +2,14 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { getAllCategories, deleteCategory } from '../../../service/Category';
 import ConfirmationModal from '../SavingGoals/ConfirmationModal/ConfirmationModal';
-import './Categories.css'; // Import the CSS file
-
+import './Categories.css';
 const Categories = () => {
     const [categories, setCategories] = useState([]);
     const [isFetching, setIsFetching] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
     const [goalToDelete, setGoalToDelete] = useState(null);
-    const [activeTab, setActiveTab] = useState('expense'); // State to track the active tab
+    const [activeTab, setActiveTab] = useState('expense'); 
     const itemsPerPage = 5;
 
     useEffect(() => {
@@ -59,7 +58,7 @@ const Categories = () => {
 
     const handleTabChange = (tab) => {
         setActiveTab(tab);
-        setCurrentPage(1); // Reset lại trang hiện tại về 1 khi thay đổi tab
+        setCurrentPage(1);
     };
 
     const totalPages = Math.ceil(categories.filter(category => category.type === activeTab).length / itemsPerPage);

@@ -24,13 +24,21 @@ const TotalOverviewChart = ({ totalIncome, totalExpenses }) => {
     };
 
     const colors = [
-        'rgba(255, 99, 132, 0.8)',  // Red
-        'rgba(54, 162, 235, 0.8)',  // Blue
-        'rgba(255, 159, 64, 0.8)',  // Orange
-        'rgba(255, 206, 86, 0.8)',  // Yellow
-        'rgba(75, 192, 192, 0.8)',  // Teal
-        'rgba(153, 102, 255, 0.8)', // Purple
+        'rgba(255, 99, 132, 0.8)',  
+        'rgba(54, 162, 235, 0.8)', 
+        'rgba(255, 159, 64, 0.8)',  
+        'rgba(255, 206, 86, 0.8)', 
+        'rgba(75, 192, 192, 0.8)',  
+        'rgba(153, 102, 255, 0.8)', 
     ];
+
+    if (totalIncome === 0 && totalExpenses === 0) {
+        return (
+            <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                <strong>Hôm nay chưa có chi tiêu hay thu nhập nào</strong>
+            </div>
+        );
+    }
 
     return (
         <div style={{ padding: '20px' }}>
@@ -46,7 +54,7 @@ const TotalOverviewChart = ({ totalIncome, totalExpenses }) => {
                     axisBottom={{
                         tickSize: 5,
                         tickPadding: 5,
-                        tickRotation: -45, // Rotate labels
+                        tickRotation: -45,
                         legend: '',
                         legendPosition: 'middle',
                         legendOffset: 40,
@@ -55,7 +63,7 @@ const TotalOverviewChart = ({ totalIncome, totalExpenses }) => {
                         tickSize: 5,
                         tickPadding: 5,
                         tickRotation: 0,
-                        legend: '',  // Removed "Value" label
+                        legend: '',  
                         legendPosition: 'middle',
                         legendOffset: -40,
                         format: formatCurrency,
@@ -78,9 +86,9 @@ const TotalOverviewChart = ({ totalIncome, totalExpenses }) => {
                         </div>
                     )}
                     label={({ value }) => formatCurrency(value)}
-                    labelSkipWidth={0} // Make sure to skip width for labels
-                    labelSkipHeight={0} // Make sure to skip height for labels
-                    labelTextColor="#fff" // Set the label color
+                    labelSkipWidth={0}
+                    labelSkipHeight={0}
+                    labelTextColor="#fff"
                     animate={true}
                     motionStiffness={90}
                     motionDamping={15}

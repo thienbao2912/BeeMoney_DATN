@@ -8,8 +8,6 @@ const getAllSavingsGoals = async (userId) => {
             params: { userId }
         });
 
-        console.log('API Response:', response);
-
         if (response  && Array.isArray(response.data)) {
             return response.data; 
         } else {
@@ -41,7 +39,6 @@ const getSavingsGoalById = async (id) => {
 
 const addSavingsGoal = async (savingsGoal) => {
     try {
-      console.log('Payload for addSavingsGoal:', savingsGoal);
       const response = await request({
         method: 'POST',
         path: '/api/savings-goals',
@@ -59,10 +56,10 @@ const addSavingsGoal = async (savingsGoal) => {
     }
   };
   
-const updateSavingGoalAmount  = async (goalId, updateData) => {
+const addTransaction  = async (goalId, updateData) => {
     try {
         const response = await request({
-            method: 'PATCH',
+            method: 'POST',
             path: `/api/savings-goals/${goalId}`,
             data: updateData
         });
@@ -79,9 +76,6 @@ const updateSavingGoalAmount  = async (goalId, updateData) => {
 };
 const updateSavingsGoal = async (goalId, updatedFields) => {
     try {
-      console.log('Updating goal with ID:', goalId);
-      console.log('Updated fields:', updatedFields);
-      
       const response = await request({
         method: 'PATCH',
         path: `/api/savings-goals/allFields/${goalId}`,
@@ -106,18 +100,12 @@ const deleteSavingsGoal = async (id) => {
             path: `/api/savings-goals/${id}`
         });
 
-        console.log('Delete response:', response);
-
-        // Adjust the response check based on the actual response format
         if (response && response.data === 'Xóa mục tiêu tiết kiệm thành công') {
             return response; 
-        } else {
-            throw new Error('Unexpected response format');
-        }
+        } 
     } catch (error) {
-        // Improved error handling
         console.error('Error deleting savings goal:', error.response ? error.response.data : error.message);
-        throw error; // Re-throw the error for the calling function to handle
+        throw error; 
     }
 };
 
@@ -131,7 +119,6 @@ const getCategories = async (userId) => {
             params: { userId }
         });
 
-        console.log('API Response:', response);
         if (response && Array.isArray(response.data)) {
             return response.data;
         } else {
@@ -143,4 +130,4 @@ const getCategories = async (userId) => {
     }
 };
 
-export { getAllSavingsGoals, getSavingsGoalById, addSavingsGoal, updateSavingGoalAmount, updateSavingsGoal, deleteSavingsGoal, getCategories };
+export { getAllSavingsGoals, getSavingsGoalById, addSavingsGoal, addTransaction, updateSavingsGoal, deleteSavingsGoal, getCategories };

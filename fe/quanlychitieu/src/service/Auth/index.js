@@ -11,7 +11,6 @@ const registerUser = async ({ email, password, name }) => {
             data: { email, password, name }
         });
         
-        // Kiểm tra thông báo thành công từ phản hồi API
         if (res.success) {
             return { success: true, message: res.msg };
         } else {
@@ -23,6 +22,36 @@ const registerUser = async ({ email, password, name }) => {
     }
 };
 
+const verifyOldPassword = async (userId, oldPassword) => {
+    try {
+        const res = await request({
+            method: 'POST',
+            path: '/api/auth/verify-password',
+            data: { userId, oldPassword }
+        });
+
+        if (res.success) {
+            return true;
+        } else {
+            throw new Error(res.msg);
+        }
+    } catch (error) {
+        console.error('Error verifying old password:', error);
+        return false;
+    }
+};
+
+const updateLastLogin = async (userId) => {
+    try {
+        await request({
+            method: 'PUT',
+            path: `/api/auth/update-last-login/${userId}`,
+        });
+    } catch (error) {
+        console.error('Error updating last login:', error.response || error.message);
+    }
+};
+
 const loginUser = async ({ email, password }) => {
     try {
         const res = await request({
@@ -31,19 +60,24 @@ const loginUser = async ({ email, password }) => {
             data: { email, password }
         });
 
+        if (res?.status === "locked") {
+            // eslint-disable-next-line no-throw-literal
+            throw { response: { status: 403, message: "Tài khoản của bạn đã bị khóa." } };
+          }
+
         if (res?.accessToken) {
-            localStorage.setItem('userId', res._id); // Lưu userId vào localStorage
-            localStorage.setItem('userName', res.name); // Save user name
+            localStorage.setItem('userId', res._id); 
+            localStorage.setItem('userName', res.name); 
             localStorage.setItem('userRole', res.role);
 
-            // Lưu token và role vào cookie
+            
             cookies.set('token', res.accessToken, {
                 path: '/',
                 secure: true,
                 httpOnly: false,
                 sameSite: 'Lax'
             });
-            cookies.set('role', res.role, { // Giả sử vai trò được trả về từ API
+            cookies.set('role', res.role, { 
                 path: '/',
                 secure: true,
                 httpOnly: false,
@@ -60,26 +94,43 @@ const loginUser = async ({ email, password }) => {
     }
 };
 
-
-const forgotPassword = async (email) => {
+const sendResetPasswordEmail = async (email) => {
     const res = await request({
         method: "POST",
-        path: "/api/auth/forgot-password",
+        path: "/api/auth/forgot-password", 
         data: { email }
     });
-
     return res;
+  };
+
+const forgotPassword = async (email) => {
+    try {
+        const res = await request({
+          method: "POST",
+          path: "/api/auth/forgot-password",
+          data: { email },
+        });
+        return res.data;
+      } catch (error) {
+        throw error.response?.data?.message || "Đã có lỗi xảy ra.";
+      }
 };
 
 const resetPassword = async ({ password, token }) => {
-    const res = await request({
-        method: "POST",
-        path: "/api/auth/reset-password",
-        data: { password, token }
-    });
-
-    return res;
+    try {
+        console.log("Sending password reset request:", { password, token }); 
+        const res = await request({
+            method: "POST",
+            path: "/api/auth/reset-password",
+            data: { password, token },
+        });
+        return res.data;
+    } catch (error) {
+        console.error("Reset Password Error:", error.response?.data || error.message);
+        throw error.response?.data?.message || "Đã có lỗi xảy ra.";
+    }
 };
+
 
 const getAllUsers = async () => {
     try {
@@ -96,7 +147,7 @@ const getAllUsers = async () => {
 
 const getUserProfile = async () => {
     try {
-        const userId = localStorage.getItem('userId'); // Lấy userId từ localStorage
+        const userId = localStorage.getItem('userId'); 
         const res = await request({
             method: "GET",
             path: `/api/auth/get-profile/${userId}`
@@ -137,11 +188,25 @@ const  deleteUser = async (id) => {
     try {
         const res = await request({
             method: "DELETE",
-            path: `/api/users/delete/${id}`  // Correct endpoint based on your backend routes
+            path: `/api/users/delete/${id}` 
         });
         return res;
     } catch (error) {
         console.error('Delete user error:', error.response || error.message);
+        throw error;
+    }
+};
+
+const updateUserStatus = async (userId, { status }) => {
+    try {
+        const res = await request({
+            method: "PUT",
+            path: `/api/users/update-status/${userId}`,
+            data: { status }
+        });
+        return res;
+    } catch (error) {
+        console.error('Update status error:', error.response || error.message);
         throw error;
     }
 };
@@ -155,5 +220,9 @@ export {
     getAllUsers,
     getUserProfile,
     updateUser,
-    deleteUser
+    deleteUser,
+    verifyOldPassword,
+    sendResetPasswordEmail,
+    updateUserStatus,
+    updateLastLogin
 };

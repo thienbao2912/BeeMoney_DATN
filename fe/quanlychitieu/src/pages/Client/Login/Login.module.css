@@ -11,7 +11,7 @@
     padding: 20px;
     background: linear-gradient(to bottom right, #8e2de2, #4a00e0);
     color: white;
-    max-width: 800px; /* Increase max-width for larger welcome section */
+    max-width: 800px;
 }
 
 .loginSection {
@@ -26,7 +26,7 @@
 
 .form-login {
     width: 100%;
-    max-width: 700rem; /* Increase max-width for larger form */
+    max-width: 700rem; 
     margin: 0 auto;
     text-align: center;
 }
@@ -49,7 +49,7 @@ p {
 input[type="text"],
 input[type="password"] {
     width: 100%;
-    padding: 14px; /* Increase padding for better input field appearance */
+    padding: 14px;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
@@ -78,7 +78,7 @@ input[type="password"] {
 
 .loginButton {
     width: 100%;
-    padding: 14px; /* Increase padding for better button appearance */
+    padding: 14px;
     border: none;
     border-radius: 5px;
     background: linear-gradient(to right, #8e2de2, #4a00e0);
@@ -96,14 +96,13 @@ input[type="password"] {
     margin-bottom: 20px;
 }
 
-/* Responsive styles */
 @media (max-width: 768px) {
     .loginContainer {
-        flex-direction: column; /* Stack sections vertically on smaller screens */
+        flex-direction: column; 
     }
 
     .welcomeSection {
-        max-width: none; /* Remove max-width restriction */
+        max-width: none; 
     }
     
     .form-login {

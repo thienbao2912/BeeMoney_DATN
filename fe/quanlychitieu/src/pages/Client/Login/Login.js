@@ -12,7 +12,6 @@ function Login() {
             setError('Username and password are required.');
         } else {
             setError('');
-            // Handle login logic here
             console.log('Logged in with', { username, password });
         }
     };

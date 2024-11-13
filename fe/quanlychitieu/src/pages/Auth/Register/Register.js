@@ -8,7 +8,7 @@ function Register() {
     const { register, handleSubmit, formState: { errors }, setError } = useForm();
     const [successMessage, setSuccessMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false); // State for confirm password visibility
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false); 
     const navigate = useNavigate();
 
     const togglePasswordVisibility = () => {

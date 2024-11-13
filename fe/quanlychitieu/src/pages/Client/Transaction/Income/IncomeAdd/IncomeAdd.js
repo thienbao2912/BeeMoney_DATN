@@ -71,7 +71,6 @@ const IncomeAdd = () => {
   }, [userId]);
 
   useEffect(() => {
-    // Clear errors for 'amount' field if the amount field has a value
     if (amount && amount.trim() !== '') {
       clearErrors('amount');
     }
@@ -80,33 +79,36 @@ const IncomeAdd = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const payload = {
-        ...data,
-        amount: unformatCurrency(data.amount), // Remove currency formatting
-        type: 'income'
-      };
-      console.log('Submitting payload:', payload);
+        const payload = {
+            ...data,
+            amount: unformatCurrency(data.amount),
+            date: new Date(data.date).toISOString(),
+            type: 'income'
+        };
+        console.log('Submitting payload:', payload);
 
-      if (!payload.date || !payload.amount || !payload.categoryId) {
-        throw new Error('Missing required fields');
-      }
+        if (!payload.date || !payload.amount || !payload.categoryId) {
+            throw new Error('Missing required fields');
+        }
 
-      const response = await addTransaction(payload);
-      console.log('Response:', response);
-      setValue('date', today); // Reset date to today after submission
-      setValue('amount', '');
-      setValue('description', '');
-      setValue('categoryId', '');
+        const response = await addTransaction(payload);
+        console.log('Response:', response);
 
-      const incomesResponse = await getAllTransactions('income', userId);
-      setIncomes(incomesResponse || []);
+        setValue('date', today); 
+        setValue('amount', '');
+        setValue('description', '');
+        setValue('categoryId', '');
+
+        const incomesResponse = await getAllTransactions('income', userId);
+        setIncomes(incomesResponse || []);
     } catch (err) {
-      console.error('Error adding income:', err.response ? err.response.data : err.message);
-      setError('Failed to add income. Please try again later.');
+        console.error('Error adding income:', err.response ? err.response.data : err.message);
+        setError('Failed to add income. Please try again later.');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
 
   const formatCurrency = (value) => {
     return Number(value).toLocaleString('vi-VN');
@@ -117,7 +119,6 @@ const IncomeAdd = () => {
   };
 
   const handleAmountInput = (e) => {
-    // Allow only numbers and format the value as currency
     const rawValue = e.target.value.replace(/[^\d]/g, '');
     const formattedValue = formatCurrency(rawValue);
     setValue('amount', formattedValue, { shouldValidate: true });
@@ -133,7 +134,7 @@ const IncomeAdd = () => {
   }
 
   // Sort incomes by date (most recent first) and limit to top 5
-  const sortedIncomes = [...incomes].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  const sortedIncomes = [...incomes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
 
   return (
     <div className="categories-overview">

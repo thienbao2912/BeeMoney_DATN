@@ -1,5 +1,15 @@
+.button-circle {
+    border-radius: 50%;
+    width: 2.7rem;
+    height: 2.7rem;
+    border: none;
+    color: #fff;
+    background-color: #9d88fc;
+    justify-content: center;
+    align-items: center;
+}
 .primary {
-    color: #b199fd;
+    color: #711AE1;
     text-decoration: none;
 }
 
@@ -7,10 +17,19 @@
     margin-bottom: 15px;
 }
 
-.btn-primary,
-.btn-outline-primary,
+.btn-primary {
+    background-color: #711AE1;
+    border: none;
+    border: 2px solid #711AE1;
+}
+.btn-outline-primary {
+    background-color: #ffffff;
+    color: #711AE1;
+    border: 2px solid #711AE1;
+}
+
 .wide-button {
-    background-color: #b199fd;
+    background-color: #711AE1;
     color: #ffffff;
     border: none;
     border-radius: 5px;
@@ -25,18 +44,15 @@
 
 .btn-primary:hover,
 .wide-button:hover {
-    background-color: #9d88fc;
+    background-color: #5415a7;
+    border: 2px solid #5415a7;
 }
 
-.btn-outline-primary {
-    background-color: #ffffff;
-    color: #b199fd;
-    border: 2px solid #b199fd;
-}
 
 .btn-outline-primary:hover {
-    background-color: #b199fd;
+    background-color: #5415a7;
     color: #fff;
+    border: 2px solid #5415a7;
 }
 
 label {

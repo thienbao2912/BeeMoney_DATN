@@ -1,0 +1,53 @@
+.money {
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.date-saving {
+    border-radius: 5px;
+}
+
+
+.category-target img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover; 
+}
+
+.category-target {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.category-target h5 {
+    margin-top: 1rem;
+    margin-left: 2rem;
+    font-size: 1.2rem;
+}
+
+
+.progress-container {
+    background-color: #e9ecef;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+.progress-bar {
+    color: #fff;
+    text-align: center;
+    border-radius: 0.25rem;
+}
+
+
+.progress-percentage {
+    text-align: center;
+    color: #fff;
+    font-size: 0.7rem;
+}
+.bg-action {
+   
+    padding: 5px 8px;
+    border-radius: 5px;
+    box-shadow: 2px 2px #e9ecef;
+}

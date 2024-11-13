@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import ReCAPTCHA from "react-google-recaptcha";
 import { loginUser } from "../../../service/Auth";
 import styles from "./Login.module.css";
 
@@ -13,19 +14,30 @@ function Login() {
     clearErrors,
   } = useForm();
   const navigate = useNavigate();
-  const [successMessage, setSuccessMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [capVal, setCapVal] = useState(null);
+  const [recaptchaError, setRecaptchaError] = useState(""); 
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-  const onSubmit = async (data) => {
+
+  const onSubmit = async (data) => {   
+    if (!capVal) {
+      setRecaptchaError("Vui lòng xác nhận ReCAPTCHA."); 
+      return;
+    }
+
     try {
       const response = await loginUser(data);
-      console.log("Logged in with", response);
-
-      if (response?.accessToken) {
-        console.log("Access Token:", response.accessToken); // Log the access token here
+      if (response?.status === "locked") {
+        setError("api", {
+          type: "manual",
+          message: "Tài khoản của bạn đã bị khóa.",
+        });
+      } else if (response?.accessToken) {
         navigate("/");
       } else {
         setError("api", {
@@ -34,18 +46,31 @@ function Login() {
         });
       }
     } catch (err) {
-      setError("api", {
-        type: "manual",
-        message: err?.response?.data?.message || "Thông tin đăng nhập sai!!!",
-      });
-      console.error("Login error:", err);
+      if (err?.response?.status === 403) {
+        setError("api", {
+          type: "manual",
+          message: "Tài khoản của bạn đã bị khóa.",
+        });
+      } else {
+        setError("api", {
+          type: "manual",
+          message: err?.response?.data?.message || "Thông tin đăng nhập sai!!!",
+        });
+      }
     }
   };
 
-  const handleInputChange = () => {
+  const handleInputChange = (e, field) => {
+    if (field === "email") {
+      setEmail(e.target.value);
+    } else if (field === "password") {
+      setPassword(e.target.value);
+    }
     clearErrors("email");
     clearErrors("password");
     clearErrors("api");
+    clearErrors("recaptcha");
+    setRecaptchaError(""); 
   };
 
   return (
@@ -79,49 +104,68 @@ function Login() {
                   message: "Email không hợp lệ.",
                 },
               })}
-              onChange={handleInputChange}
-              style={{ width: "20rem" }}
+              value={email}
+              onChange={(e) => handleInputChange(e, "email")}
             />
             {errors.email && (
               <p className={styles.error}>{errors.email.message}</p>
             )}
           </div>
-          <div className={styles.inputGroup} style={{ position: "relative" }}>
-            <div style={{ position: "relative" }}>
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Mật khẩu..."
-                {...register("password", {
-                  required: "Mật khẩu không được để trống.",
-                })}
-                onChange={handleInputChange}
-              />
-              <span
-                className="toggle-password"
-                onClick={togglePasswordVisibility}
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                }}
-              >
-                {showPassword ? "🙉" : "🙈"}
-              </span>
-            </div>
+          <div style={{ position: "relative" }}>
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Mật khẩu..."
+              {...register("password", {
+                required: "Mật khẩu không được để trống.",
+              })}
+              value={password}
+              onChange={(e) => handleInputChange(e, "password")}
+            />
+            <span
+              className="toggle-password"
+              onClick={togglePasswordVisibility}
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+              }}
+            >
+              {showPassword ? "🙉" : "🙈"}
+            </span>
             {errors.password && (
               <p className={styles.error}>{errors.password.message}</p>
             )}
           </div>
           {errors.api && <p className={styles.error}>{errors.api.message}</p>}
-          <div className={styles.actions}>
-            {/* <label>
-                            <input type="checkbox" /> Ghi nhớ tài khoản
-                        </label> */}
-            <a href="/register">Bạn chưa có tài khoản?</a>
+          <div className="d-flex justify-content-between align-items-center mt-2 mb-3">
+            <a
+              href="/forget-password"
+              style={{ color: "#8e2de2" }}
+              className="text-decoration-none"
+            >
+              Quên mật khẩu?
+            </a>
+            <a
+              href="/register"
+              style={{ color: "#8e2de2" }}
+              className="text-decoration-none"
+            >
+              Bạn chưa có tài khoản?
+            </a>
           </div>
+          <ReCAPTCHA
+            sitekey="6LcZwlAqAAAAAMWeZ1Bkzt-Kjnux1WLDYAJ776Jl"
+            onChange={(val) => {
+              setCapVal(val);
+              setRecaptchaError(""); 
+            }}
+          />
+          {recaptchaError && (
+            <p className={styles.error}>{recaptchaError}</p>
+          )}
           <button type="submit" className={styles.loginButton}>
             Đăng nhập
           </button>

@@ -19,7 +19,7 @@ const getCategories = async () => {
             method: 'GET',
             path: '/api/v2/categories'
         });
-        return response.data; // Chỉ trả về phần dữ liệu của response
+        return response.data; 
     } catch (error) {
         console.error('Error fetching categories:', error.response || error.message);
         throw error;

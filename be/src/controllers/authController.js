@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { sendPasswordResetEmail } = require('../services/emailservices');
 const passport = require('passport');
+const { inactive } = require('../services/lockedaccount');
 const cron = require('node-cron');
 const crypto = require('crypto');
 
@@ -42,9 +43,10 @@ const authController = {
                 return res.status(400).json({ error: 'Thông tin đăng nhập không chính xác' });
             }
 
-            if (user.status != 'active') {
-                return res.status(400).json({ error: 'Tài khoản đã bị khóa' });
+            if (user.status === 'locked') {
+                return res.status(403).json({ error: 'Tài khoản đã bị khóa' });
             }
+
             const payload = {
                 id: user.id,
                 role: user.role,
@@ -55,11 +57,20 @@ const authController = {
                 throw new Error('JWT_ACCESS_KEY is not defined');
             }
 
-            const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
+            const token = jwt.sign(payload, jwtSecret, { expiresIn: '100h' });
+            await authController.updateLastLogin(user._id);
             const { password, ...others } = user._doc
             return res.status(200).json({ ...others, accessToken: token });
         } catch (err) {
             return res.status(500).json({ error: err.message });
+        }
+    },
+
+    updateLastLogin: async (userId) => {
+        try {
+            await User.findByIdAndUpdate(userId, { lastLogin: new Date() });
+        } catch (error) {
+            console.error('Error updating last login:', error);
         }
     },
 
@@ -91,27 +102,51 @@ const authController = {
         }
     },
 
-    resetPassword: async (req, res) => {
+    verifyOldPassword: async (req, res) => {
+        const { userId, oldPassword } = req.body;
+
+        try {
+            const user = await User.findById(userId);
+
+            if (!user) {
+                return res.status(404).json({ success: false, msg: 'User not found' });
+            }
+
+            const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+            if (!isMatch) {
+                return res.status(400).json({ success: false, msg: 'Old password is incorrect' });
+            }
+
+            return res.status(200).json({ success: true, msg: 'Old password is correct' });
+        } catch (error) {
+            return res.status(500).json({ success: false, msg: 'Server error' });
+        }
+    },
+
+    resetPassword : async (req, res) => {
         try {
             const { password, token } = req.body;
+    
             if (!password || !token) {
                 return res.status(400).json({ error: 'Password and token are required' });
             }
-
+    
             const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
             const user = await User.findOne({ resetPasswordToken: hashedToken, resetPasswordExpires: { $gt: Date.now() } });
-
+    
             if (!user) {
-                return res.status(400).json({ error: 'Token đã hết hạn' });
+                return res.status(400).json({ error: 'Token đã hết hạn hoặc không hợp lệ' });
             }
-
-            user.password = password;
+    
+            user.password = password; // Bạn có thể thêm mã hóa mật khẩu nếu cần
             user.resetPasswordToken = undefined;
             user.resetPasswordExpires = undefined;
             await user.save();
-
+    
             res.status(200).json({ success: true });
         } catch (error) {
+            console.error("Server Error:", error); // Debugging
             res.status(500).json({ error: 'Server error' });
         }
     },
@@ -192,8 +227,8 @@ const authController = {
                 return res.status(404).json({ error: "Không tìm thấy người dùng" });
             }
 
-            const { _id, email, name, avatar, role } = user;
-            res.status(200).json({ _id, email, name, avatar, role });
+            const { _id, email, name, avatar, role, wallet } = user;
+            res.status(200).json({ _id, email, name, avatar, role,  wallet });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
@@ -221,4 +256,24 @@ cron.schedule('*/1 * * * *', async () => {
     }
 });
 
+cron.schedule('*/3 * * * *', async () => { 
+    try {
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+        const result = await User.updateMany(
+            { lastLogin: { $lte: oneYearAgo }, status: { $ne: 'locked' } }, 
+            { $set: { status: 'locked' } }
+        );
+
+        const lockedUsers = await User.find({ lastLogin: { $lte: oneYearAgo }, status: 'locked' });
+        
+        lockedUsers.forEach(async (updatedUser) => {
+            await inactive(updatedUser.email, updatedUser._id);
+        });
+
+    } catch (error) {
+        console.error('Error locking inactive accounts:', error);
+    }
+});
 module.exports = authController;

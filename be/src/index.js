@@ -8,8 +8,10 @@ const categorieRoutes = require("./routes/admin/categorieRoutes");
 const transactionRoutes = require("./routes/transaction");
 const userRoutes = require("./routes/admin/userRoutes");
 const authRoutes = require("./routes/auth");
+const savingsFund = require("./routes/savingsFund");
+const fundRoutes = require('./routes/fund');
 const authGoogle = require("./routes/authGoogle");
-require('../passport');  // Make sure this is correctly required
+require('../passport');
 
 // const expenseRoutes= require("./routes/expenseRoutes");
 const income = require("./routes/income");
@@ -33,6 +35,8 @@ app.use("/api/transactions", transactionRoutes);
 app.use('/api/savings-goals', require('./routes/savingsGoal'));
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/savings-fund", savingsFund)
+app.use('/api', fundRoutes);
 connectDB();
 
 // app.use('/api/expenses', expenseRoutes);
@@ -42,5 +46,5 @@ app.use('/api/budgets', budgetRoutes);
 // Start server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port http://localhost:${PORT}`);
 });

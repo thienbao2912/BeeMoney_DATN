@@ -2,16 +2,16 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../../layouts/AdminLayout';
 import { useForm } from 'react-hook-form';
-import { registerUser } from '../../../service/Auth'; // Import your service method
+import { registerUser } from '../../../service/Auth'; 
 
-const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng']; // Add forbidden words here
+const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng']; 
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 };
 
 const normalizeText = (text) => {
-  return removeAccents(text).toLowerCase().replace(/\s+/g, ''); // Remove spaces
+  return removeAccents(text).toLowerCase().replace(/\s+/g, ''); 
 };
 
 const containsForbiddenWords = (value) => {
@@ -33,17 +33,16 @@ const AddUser = () => {
 
     const userSubmit = async (data) => {
         try {
-            // Call the registerUser service method
             const response = await registerUser({
                 email: data.email,
-                password: data.password, // Ensure you have password in the form
+                password: data.password,
                 name: data.username
             });
 
             if (response.success) {
                 setSubmitSuccess(response.message);
-                reset(); // Reset form fields
-                navigate('/admin/users'); // Redirect immediately after success
+                reset(); 
+                navigate('/admin/users'); 
             } else {
                 setSubmitError(response.message);
             }

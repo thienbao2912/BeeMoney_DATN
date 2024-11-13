@@ -1,5 +1,3 @@
-/* add-budget.css */
-
 .categories-overview {
     margin: 0 auto;
     max-width: 1200px;
@@ -23,15 +21,15 @@
 }
 
 .budget-card .category-image {
-    width: 40px; /* Resize to half of the original size */
-    height: 40px; /* Resize to half of the original size */
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
 }
 
 .budget-card .placeholder-image {
-    width: 25px; /* Resize to half of the original size */
-    height: 25px; /* Resize to half of the original size */
+    width: 25px; 
+    height: 25px;
     background-color: #f0f0f0;
     border-radius: 50%;
 }
@@ -49,7 +47,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 150px; /* Adjust max-width as needed */
+    max-width: 150px; 
 }
 
 .budget-card .text-right {
@@ -65,19 +63,19 @@
 .category-buttons .btn {
     flex: 2;
     min-width: 100px;
-    max-width: 150px; /* Limit the maximum width */
-    height: 50px; /* Set a fixed height */
+    max-width: 150px;
+    height: 50px; 
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    white-space: nowrap; /* Prevent text from wrapping */
+    white-space: nowrap;
     text-align: center;
 }
 
 .category-buttons .btn img {
-    max-width: 25px; /* Resize to half of the original size */
-    max-height: 25px; /* Resize to half of the original size */
+    max-width: 25px; 
+    max-height: 25px;
     margin-right: 0.5rem;
 }
 

@@ -4,17 +4,17 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { addCategory, getAllCategories } from '../../../../service/Category';
-import { storage } from '../../../../config/firebase'; // Adjust the import path accordingly
+import { storage } from '../../../../config/firebase'; 
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng']; // Add forbidden words here
+const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng']; 
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 };
 
 const normalizeText = (text) => {
-  return removeAccents(text).toLowerCase().replace(/\s+/g, ''); // Remove spaces
+  return removeAccents(text).toLowerCase().replace(/\s+/g, '');
 };
 
 const containsForbiddenWords = (value) => {
@@ -76,7 +76,6 @@ const AddCategory = () => {
                 return;
             }
 
-            // Check for duplicate category names
             const duplicateCategory = existingCategories.find(
                 (category) => category.name.toLowerCase() === data.categoryName.toLowerCase()
             );
@@ -96,7 +95,7 @@ const AddCategory = () => {
             };
             
             await addCategory(categoryData);
-            navigate('/categories'); // Redirect to the category list page
+            navigate('/categories'); 
         } catch (error) {
             console.error('Error adding category:', error);
             alert('Đã xảy ra lỗi khi thêm danh mục');

@@ -6,7 +6,8 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     name: { type: String, required: true },
-    status: { type: String, default: 'active' },
+    status: { type: String, enum: ['active', 'locked'], default: 'active' },
+    lastLogin: { type: Date, default: Date.now },
     socialLogin: {
         googleId: String,
         facebookId: String
@@ -16,6 +17,7 @@ const UserSchema = new mongoose.Schema({
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     tokenLogin: String,
+    wallet: { type: Number, default: 0 },
 }, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {

@@ -1,6 +1,5 @@
 import request from '../../config/API/api';
 
-// Function to get all transactions
 const getAllTransactions = async (type, userId) => {
     try {
         const response = await request({
@@ -20,7 +19,6 @@ const getAllTransactions = async (type, userId) => {
     }
 };
 
-// Function to add a new transaction
 const addTransaction = async (transaction) => {
     try {
         const { amount, ...rest } = transaction;
@@ -43,7 +41,6 @@ const addTransaction = async (transaction) => {
     }
 };
 
-// Function to delete a transaction
 const deleteTransaction = async (id) => {
     try {
         const response = await request({
@@ -51,12 +48,10 @@ const deleteTransaction = async (id) => {
             path: `/api/transactions/${id}`
         });
 
-        // Log the response to check its format
         console.log('Delete response:', response);
 
-        // Check if response contains a message key and treat it as success
         if (response && response.message === 'Deleted successfully') {
-            return response; // Return response if it has the expected format
+            return response; 
         } else {
             throw new Error('Unexpected response format');
         }
@@ -66,7 +61,6 @@ const deleteTransaction = async (id) => {
     }
 };
 
-// Function to get categories
 const getCategories = async (userId) => {
     try {
         const response = await request({
@@ -87,14 +81,13 @@ const getCategories = async (userId) => {
     }
 };
 
-// Function to update an existing transaction
 const updateTransaction = async (id, updatedTransaction) => {
     try {
         const { amount, ...rest } = updatedTransaction;
         const payload = { ...rest, amount: Number(amount) };
 
         const response = await request({
-            method: 'PATCH', // Changed from 'Patch' to 'PATCH'
+            method: 'PATCH', 
             path: `/api/transactions/${id}`,
             data: payload
         });
@@ -110,7 +103,6 @@ const updateTransaction = async (id, updatedTransaction) => {
     }
 };
 
-// Function to get a transaction by ID
 const getTransactionById = async (id) => {
     try {
         const response = await request({
@@ -148,7 +140,6 @@ const getExpensesByCategory = async (userId) => {
     }
 };
 
-// Function to get income by category
 const getIncomeByCategory = async (userId) => {
     try {
         const response = await request({
@@ -174,7 +165,7 @@ const getExpensesByCategories = async (userId) => {
             method: 'GET',
             path: `/api/v2/transactions/expenses?userId=${userId}`
         });
-        return response.data; // Chỉ trả về phần dữ liệu của response
+        return response.data; 
     } catch (error) {
         console.error('Error fetching expenses:', error.response || error.message);
         throw error;
@@ -187,7 +178,7 @@ const getIncomeByCategories = async (userId) => {
             method: 'GET',
             path: `/api/v2/transactions/income?userId=${userId}`
         });
-        return response.data; // Chỉ trả về phần dữ liệu của response
+        return response.data; 
     } catch (error) {
         console.error('Error fetching income:', error.response || error.message);
         throw error;

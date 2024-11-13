@@ -1,26 +1,19 @@
 .custom-date-style {
     font-size:smaller;
-    color: #fff; 
+    color: #41a9fe; 
     font-weight: bold;
-    background-color: #78c3f9; 
-    padding: 4px;
-    border-radius: 8px;
+    background-color: #ceeaffd4; 
+    padding: 0.3rem;
+    border: 1px solid #41a9fe;
+    border-radius: 5px;
   }
-  .fa-pen{
-    margin-left: 15px;
-  }
+ 
   @media (max-width: 768px) {
     .table th, .table td {
-        font-size: 12px; /* Reduce text size */
+        font-size: 12px; 
     }
     .table img {
-        width: 40px; /* Reduce image size */
+        width: 40px; 
         height: 40px;
     }
-}
-@media (max-width: 576px) {
-  .modal-dialog {
-      max-width: 95%;
-      margin: 1rem auto;
-  }
 }

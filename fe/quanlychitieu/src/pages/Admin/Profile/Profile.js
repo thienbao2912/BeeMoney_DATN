@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Layout from '../../../layouts/AdminLayout';
-import { getUserProfile, updateUser } from '../../../service/Auth'; // Import your service methods
+import { getUserProfile, updateUser } from '../../../service/Auth'; 
 import { storage } from '../../../config/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { RingLoader } from 'react-spinners'; // Import spinner
+import { RingLoader } from 'react-spinners';
 import './Profile.css';
 
 const Profile = () => {
@@ -19,21 +19,21 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [userData, setUserData] = useState(null);
     const [avatar, setAvatar] = useState(null);
-    const [avatarPreview, setAvatarPreview] = useState(null); // State for avatar preview
+    const [avatarPreview, setAvatarPreview] = useState(null); 
 
-    const userId = localStorage.getItem('userId'); // Get userId from localStorage
+    const userId = localStorage.getItem('userId'); 
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const data = await getUserProfile(userId);
-                console.log('Fetched user data:', data); // Debug log
+                console.log('Fetched user data:', data); 
                 setUserData(data);
-                setValue('username', data.name || ''); // Set username value
+                setValue('username', data.name || ''); 
                 setValue('email', data.email || '');
                 setValue('role', data.role || localStorage.getItem('userRole') || '');
-                setValue('avatar', data.avatar || ''); // Set avatar value
-                setAvatarPreview(data.avatar || '/images/default-avatar.jpg'); // Set avatar preview
+                setValue('avatar', data.avatar || ''); 
+                setAvatarPreview(data.avatar || '/images/default-avatar.jpg'); 
                 setLoading(false);
             } catch (error) {
                 console.error('Profile fetch error:', error);
@@ -50,7 +50,7 @@ const Profile = () => {
 
     const handleSave = async (data) => {
         try {
-            console.log('Data to be sent:', data); // Debug log
+            console.log('Data to be sent:', data);
 
             let avatarURL = userData.avatar;
             if (avatar) {
@@ -64,7 +64,7 @@ const Profile = () => {
                 email: data.email,
                 role: data.role,
                 avatar: avatarURL
-            };
+            };                    
             await updateUser(userId, updateData);
             localStorage.setItem('userRole', data.role);
             setIsEditing(false);
@@ -77,7 +77,7 @@ const Profile = () => {
         const file = e.target.files[0];
         if (file) {
             setAvatar(file);
-            setAvatarPreview(URL.createObjectURL(file)); // Preview the selected image
+            setAvatarPreview(URL.createObjectURL(file)); 
         }
     };
 
@@ -164,16 +164,18 @@ const Profile = () => {
                                     </div>
                                 </div>
                                 <div className="mb-3">
-                                <div className="info-box">
+                                
                                 {isEditing && (
+                                    <div className="info-box">
                                     <input
                                         type="file"
                                         className="form-control mt-2"
                                         id="avatar"
                                         onChange={handleAvatarChange}
                                     />
+                                    </div>
                                 )}
-                                </div>
+                                
                                 </div>
 
                                 <div className="mb-3">

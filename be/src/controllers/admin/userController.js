@@ -1,5 +1,6 @@
 const modelUser = require('../../models/User');
 const bcrypt = require('bcryptjs');
+const { lockedAccount } = require('../../services/lockedaccount');
 
 
 exports.add = async (req, res) => {
@@ -52,7 +53,7 @@ exports.hardDelete = async (req, res) => {
         res.status(500).json({ message: "Lỗi server" });
     }
 };
-// Xóa mềm danh mục
+
 exports.softDelete = async (req, res) => {
     try {
         const id = req.params.id;
@@ -66,7 +67,6 @@ exports.softDelete = async (req, res) => {
     }
 };
 
-// Lấy danh sách các danh mục đã xóa mềm
 exports.deletedList = async (req, res) => {
     try {
         const deleteListUser = await modelUser.find({ status: 'Đã xóa' });
@@ -75,7 +75,7 @@ exports.deletedList = async (req, res) => {
         res.status(500).json({ message: "Server errors" });
     }
 };
-// Khôi phục danh mục đã xóa mềm
+
 exports.restore = async (req, res) => {
     try {
         const id = req.params.id;
@@ -122,6 +122,28 @@ exports.update = async (req, res) => {
         }
 
         const updatedUser = await user.save();
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Lỗi server' });
+    }
+};
+
+exports.updateStatus = async (req, res) => {
+    const { status } = req.body;
+    const id = req.params.id;
+
+    try {
+        const updatedUser = await modelUser.findByIdAndUpdate(id, { status }, { new: true });
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "Không tìm thấy người dùng" });
+        }
+
+        if (status === 'locked') {
+            await lockedAccount(updatedUser.email, updatedUser._id);
+        }
+
         res.status(200).json(updatedUser);
     } catch (error) {
         console.error(error);

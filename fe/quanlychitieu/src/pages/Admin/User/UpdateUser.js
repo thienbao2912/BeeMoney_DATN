@@ -4,14 +4,13 @@ import Layout from '../../../layouts/AdminLayout';
 import { useForm } from 'react-hook-form';
 import { getUser, updateUser } from '../../../service/Auth';
 
-const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng']; // Add forbidden words here
-
+const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng'];
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 };
 
 const normalizeText = (text) => {
-  return removeAccents(text).toLowerCase().replace(/\s+/g, ''); // Remove spaces
+  return removeAccents(text).toLowerCase().replace(/\s+/g, '');
 };
 
 const containsForbiddenWords = (value) => {
