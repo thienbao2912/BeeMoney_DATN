@@ -35,6 +35,7 @@ const SavingsGoalSchema = new Schema({
     transactionHistory: [
         {
             amount: Number,
+            note: String,
             date: {
                 type: Date,
                 default: Date.now

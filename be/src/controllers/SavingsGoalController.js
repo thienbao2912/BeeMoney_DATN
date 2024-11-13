@@ -1,7 +1,6 @@
 const SavingsGoal = require("../models/SavingsGoal")
 const User = require('../models/User');
 class SavingsGoalController {
-
     static async getAll(req, res) {
         try {
             const userId = req.user.id;
@@ -21,7 +20,6 @@ class SavingsGoalController {
             });
         }
     }
-
 
     static async getById(req, res) {
         try {
@@ -107,6 +105,7 @@ class SavingsGoalController {
             const _id = req.params.id;
             const userId = req.user.id;
             const { amount } = req.body; // Số tiền người dùng muốn nạp vào mục tiêu
+            const { note } = req.body;
 
             // Tìm kiếm mục tiêu tiết kiệm của người dùng
             const savingsGoal = await SavingsGoal.findOne({ userId, _id });
@@ -126,7 +125,7 @@ class SavingsGoalController {
 
             // Cập nhật số tiền hiện tại và thêm vào lịch sử nạp tiền
             savingsGoal.currentAmount += amount; // Cập nhật currentAmount với số tiền nạp vào
-            savingsGoal.transactionHistory.push({ amount, date: new Date() });
+            savingsGoal.transactionHistory.push({ amount, note, date: new Date() });
             const updatedGoal = await savingsGoal.save();
 
             res.status(200).json({

@@ -89,7 +89,7 @@ const SavingGoalList = () => {
     setConfirmationModalOpen(false);
   };
 
-  const handleUpdate = async () => {
+  const handleSaveTransaction = async () => {
     try {
       const userId = localStorage.getItem("userId");
       let data = await getAllSavingsGoals(userId);
@@ -209,7 +209,7 @@ const SavingGoalList = () => {
           return (
             <div className="col-md-6 mb-3" key={goal._id}>
 
-              <div className="income-overview card">
+              <div className="card saving-goal">
                 <div className="card-body">
                   <div className="category-target d-flex align-items-center mb-3">
                     <img
@@ -218,21 +218,22 @@ const SavingGoalList = () => {
                       width="50px"
                     />
 
-                    <h5 className="ms-3">{goal.name}</h5>
-                    <div className="ms-auto text-secondary d-flex flex-column align-items-end">
-                      <div className="date-saving mb-1">
-                        <i className="fas fa-calendar-alt me-2"></i>
-                        {new Date(goal.startDate).toLocaleDateString()} -{" "}
-                        {new Date(goal.endDate).toLocaleDateString()}
-                      </div>
-                      <div className="money">
+                    <h5 className="ms-3"> {goal.name.length > 13 ? `${goal.name.substring(0, 13)}...` : goal.name}</h5>
+                    <div className="ms-auto d-flex flex-column align-items-end">
+
+                      <div className="text-secondary">
                         <i className="fa-solid fa-sack-dollar me-2"></i>
                         {goal.currentAmount != null
-                          ? goal.currentAmount.toLocaleString()
+                          ? (goal.currentAmount.toString().length > 9
+                            ? `${goal.currentAmount.toLocaleString().slice(0, 9)}...`
+                            : goal.currentAmount.toLocaleString())
                           : "0"}
+
                         đ -{" "}
                         {goal.targetAmount != null
-                          ? goal.targetAmount.toLocaleString()
+                          ? (goal.targetAmount.toString().length > 9
+                            ? `${goal.targetAmount.toLocaleString().slice(0, 9)}...`
+                            : goal.targetAmount.toLocaleString())
                           : "0"}
                         đ
                       </div>
@@ -247,7 +248,7 @@ const SavingGoalList = () => {
                         role="progressbar"
                         style={{
                           width: `${Math.min(percentage, 100)}%`,
-                          backgroundColor: `hsl(${Math.min(percentage, 100) * 1.2}, 100%, 50%)`,
+                          backgroundColor: `hsl(${Math.min(percentage, 100) * 1.5}, 100%, ${Math.max(50 - percentage * 0.1, 20)}%)`,
                         }}
                       >
                       </div>
@@ -323,7 +324,7 @@ const SavingGoalList = () => {
         <EditGoalModal
           goal={selectedGoal}
           onClose={closeModal}
-          onUpdate={handleUpdate}
+          onUpdate={handleSaveTransaction}
         />
       )}
       {isConfirmationModalOpen && (

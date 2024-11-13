@@ -7,7 +7,6 @@ import MemberList from '../MemberList';
 import TransactionList from '../TransactionList';
 import './DetailPage.css'
 import axios from 'axios';
-
 const FundDetail = () => {
   const [fund, setFund] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -23,100 +22,69 @@ const FundDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [transactionUsers, setTransactionUsers] = useState([]);
-
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const data = await getCategories();
-        setCategories(data);
-      } catch (error) {
-        console.error('Lỗi hiển thị categories', error);
-        setError('Lỗi hiển thị categories');
+  const fetchCategories = async () => {
+    try {
+      const data = await getCategories();
+      setCategories(data);
+    } catch (error) {
+      console.error('Lỗi hiển thị categories', error);
+      setError('Lỗi hiển thị categories');
+    }
+  };
+  const fetchFund = async () => {
+    try {
+      setLoading(true);
+      const fundData = await getSavingsFundById(id);
+      setFund(fundData);
+      const category = categories.find(cat => cat._id === fundData.categoryId);
+      if (category) {
+        setCategoryImage(category.image);
       }
-    };
-
+    } catch (error) {
+      console.error('Lỗi hiển thị chi tiết quỹ tiết kiệm:', error);
+      setError('Lỗi hiển thị chi tiết quỹ tiết kiệm');
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchCategories();
   }, []);
-
-
-
-
   useEffect(() => {
-    const fetchFund = async () => {
-      try {
-        const fundData = await getSavingsFundById(id);
-        setFund(fundData);
-        console.log(fundData);
-
-        const category = categories.find(cat => cat._id === fundData.categoryId);
-        if (category) {
-          setCategoryImage(category.image);
-        }
-
-
-      } catch (error) {
-        console.error('Lỗi hiển thị chi tiết quỹ tiết kiệm:', error);
-        setError('Lỗi hiển thị chi tiết quỹ tiết kiệm');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (categories.length > 0) {
       fetchFund();
     }
   }, [id, categories]);
-
-
-  ;
-
   const handleShowContributeModal = () => setShowContributeModal(true);
   const handleCloseContributeModal = () => setShowContributeModal(false);
-
   //Hiển thị modal mời bạn
   const handleShowInviteModal = () => setShowInviteModal(true);
   //Đóng
   const handleCloseInviteModal = () => setShowInviteModal(false);
-
   const handleContribute = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const currentUser = await getUserProfile();
-      await updateSavingFundAmount(id, { amount: contributionAmount, note });
+      const response = await updateSavingFundAmount(id, { amount: contributionAmount, note });
+      setFund((prevFund) => ({
+        ...prevFund,
+        currentAmount: prevFund.currentAmount + parseFloat(contributionAmount),
+      }));
       setSuccess('Nạp tiền thành công');
       setShowContributeModal(false);
-      setFund((prev) => ({
-        ...prev,
-        currentAmount: prev.currentAmount + parseFloat(contributionAmount),
-        transactions: [
-          ...prev.transactions,
-          {
-            participantId: currentUser._id,
-            amount: parseFloat(contributionAmount),
-            note,
-            date: new Date(),
-          },
-        ],
-      }));
-
-
       setTransactionUsers((prev) => [...prev, currentUser]);
       setContributionAmount('');
       setNote('');
     } catch (error) {
       console.error('Lỗi nạp tiền:', error);
-      setError(null);
+      setError('Có lỗi xảy ra khi nạp tiền');
       setShowContributeModal(false);
     } finally {
       setLoading(false);
     }
   };
-
-
   const handleInvite = async (e) => {
     e.preventDefault();
     if (!inviteEmail || !fund) {
@@ -126,7 +94,6 @@ const FundDetail = () => {
     try {
       const cookies = new Cookies();
       const token = cookies.get('token');
-
       await axios.post(
         'http://localhost:4000/api/send-invite-code',
         { email: inviteEmail, fundId: fund._id },
@@ -136,11 +103,9 @@ const FundDetail = () => {
           },
         }
       );
-
       setSuccess('Đã gửi thành công');
       setError(null);
       setInviteEmail('');
-
     } catch (error) {
       if (error.response && error.response.status === 404) {
         setError('Email này không dùng BeeMoney');
@@ -158,15 +123,12 @@ const FundDetail = () => {
       </div>
     );
   }
-
   if (!fund) return <p>Không có dữ liệu</p>;
-
   const { currentAmount, targetAmount, endDate } = fund || {};
   const today = new Date();
   const daysLeft = Math.ceil((new Date(endDate) - today) / (1000 * 60 * 60 * 24));
   const percentage = targetAmount ? (currentAmount / targetAmount) * 100 : 0;
   const progressBarClass = percentage >= 50 ? 'heets-gradient-success' : 'heets-gradient-warning';
-
   return (
     <div className="container">
       <div className="row">
@@ -220,11 +182,8 @@ const FundDetail = () => {
                       <td>
                         <Link
                           to={`/savings-fund/edit/${fund._id}`}
-                          className="custom-date-style"
-                          style={{ backgroundColor: "#711AE1", cursor: "pointer" }}
-                          aria-label="Edit"
                         >
-                          <i className="fa fa-edit" />
+                          <i className="fa fa-edit text-success" />
                         </Link>
                       </td>
                     </tr>
@@ -232,7 +191,7 @@ const FundDetail = () => {
                 </table>
               </div>
               <div className='action-style'>
-                <span className="custom-date-style me-2" onClick={handleShowContributeModal} style={{ backgroundColor: "lightpink", cursor: "pointer" }}>
+                <span className="custom-date-style me-2" onClick={handleShowContributeModal} style={{ backgroundColor: "#FAEBD7", color: "#F4A460", borderColor: "#F4A460", cursor: "pointer" }}>
                   <i className="fa fa-hand-holding-usd me-2"></i> Nạp tiền
                 </span>
                 <span className="custom-date-style me-2" onClick={handleShowInviteModal} style={{ cursor: "pointer" }}>
@@ -240,52 +199,47 @@ const FundDetail = () => {
                 </span>
               </div>
             </div>
-
           </div>
         </div>
       </div>
       <Modal show={showInviteModal} onHide={handleCloseInviteModal}>
-  <Modal.Header closeButton>
-    <Modal.Title>Mời bạn</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <form onSubmit={handleInvite}>
-      <div className="form-group">
-        <label>Email</label>
-        <input
-          type="email"
-          className="form-control"
-          value={inviteEmail}
-          onChange={(e) => setInviteEmail(e.target.value)}
-        />
-      </div>
-
-      {/* Thông báo thành công hoặc lỗi */}
-      {success && (
-        <div className="custom-alert-success mt-3">
-          <i className="fa fa-check-circle"></i>
-          {success}
-        </div>
-      )}
-      {error && (
-        <div className="alert alert-danger mt-3">
-          <i className="fa fa-exclamation-circle"></i> {error}
-        </div>
-      )}
-
-      <div className="mt-3 text-end">
-        <Button variant="secondary" onClick={handleCloseInviteModal}>
-          Đóng
-        </Button>
-        <Button variant="primary" type="submit" className="ms-2">
-          Gửi lời mời
-        </Button>
-      </div>
-    </form>
-  </Modal.Body>
-</Modal>
-
-
+        <Modal.Header closeButton>
+          <Modal.Title>Mời bạn</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form onSubmit={handleInvite}>
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                className="form-control"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+              />
+            </div>
+            {/* Thông báo thành công hoặc lỗi */}
+            {success && (
+              <div className="custom-alert-success mt-3">
+                <i className="fa fa-check-circle"></i>
+                {success}
+              </div>
+            )}
+            {error && (
+              <div className="alert alert-danger mt-3">
+                <i className="fa fa-exclamation-circle"></i> {error}
+              </div>
+            )}
+            <div className="mt-3 text-end">
+              <Button variant="secondary" onClick={handleCloseInviteModal}>
+                Đóng
+              </Button>
+              <Button variant="primary" type="submit" className="ms-2">
+                Gửi lời mời
+              </Button>
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
       <Modal show={showContributeModal} onHide={handleCloseContributeModal}>
         <Modal.Header closeButton>
           <Modal.Title>Nạp tiền</Modal.Title>
@@ -321,7 +275,6 @@ const FundDetail = () => {
           </form>
         </Modal.Body>
       </Modal>
-
       <div className='row'>
         <TransactionList fundId={id} />
         <MemberList fundId={id} currentAmount={fund.currentAmount} />
@@ -329,5 +282,4 @@ const FundDetail = () => {
     </div>
   );
 };
-
 export default FundDetail;
