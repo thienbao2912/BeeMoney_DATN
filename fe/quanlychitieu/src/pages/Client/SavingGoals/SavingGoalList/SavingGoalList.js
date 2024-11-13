@@ -32,13 +32,18 @@ const SavingGoalList = () => {
         let data = await getAllSavingsGoals(userId);
 
         const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
         data = data
           .map((goal) => ({
             ...goal,
             currentAmount: goal.currentAmount || 0,
             targetAmount: goal.targetAmount || 0,
           }))
-          .filter((goal) => new Date(goal.endDate) >= currentDate);
+          .filter((goal) => {
+            const endDate = new Date(goal.endDate);
+            endDate.setHours(0, 0, 0, 0); 
+            return endDate >= currentDate;
+          });
 
         data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setSavingsGoals(data);

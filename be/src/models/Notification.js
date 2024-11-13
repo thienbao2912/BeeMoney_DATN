@@ -13,7 +13,8 @@ const NotificationSchema = new mongoose.Schema({
     customId: {
         type: String,
         required: true
-    }
+    },
+    status: { type: String, enum: ['not read', 'read'], default: 'not read' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Notification', NotificationSchema);
