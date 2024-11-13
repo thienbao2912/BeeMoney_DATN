@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { sendPasswordResetEmail } = require('../services/emailservices');
 const passport = require('passport');
+const { inactive } = require('../services/lockedaccount');
 const cron = require('node-cron');
 const crypto = require('crypto');
 
@@ -42,9 +43,10 @@ const authController = {
                 return res.status(400).json({ error: 'Thông tin đăng nhập không chính xác' });
             }
 
-            if (user.status != 'active') {
-                return res.status(400).json({ error: 'Tài khoản đã bị khóa' });
+            if (user.status === 'locked') {
+                return res.status(403).json({ error: 'Tài khoản đã bị khóa' });
             }
+
             const payload = {
                 id: user.id,
                 role: user.role,
@@ -56,10 +58,19 @@ const authController = {
             }
 
             const token = jwt.sign(payload, jwtSecret, { expiresIn: '100h' });
+            await authController.updateLastLogin(user._id);
             const { password, ...others } = user._doc
             return res.status(200).json({ ...others, accessToken: token });
         } catch (err) {
             return res.status(500).json({ error: err.message });
+        }
+    },
+
+    updateLastLogin: async (userId) => {
+        try {
+            await User.findByIdAndUpdate(userId, { lastLogin: new Date() });
+        } catch (error) {
+            console.error('Error updating last login:', error);
         }
     },
 
@@ -245,4 +256,24 @@ cron.schedule('*/1 * * * *', async () => {
     }
 });
 
+cron.schedule('*/3 * * * *', async () => { 
+    try {
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+        const result = await User.updateMany(
+            { lastLogin: { $lte: oneYearAgo }, status: { $ne: 'locked' } }, 
+            { $set: { status: 'locked' } }
+        );
+
+        const lockedUsers = await User.find({ lastLogin: { $lte: oneYearAgo }, status: 'locked' });
+        
+        lockedUsers.forEach(async (updatedUser) => {
+            await inactive(updatedUser.email, updatedUser._id);
+        });
+
+    } catch (error) {
+        console.error('Error locking inactive accounts:', error);
+    }
+});
 module.exports = authController;

@@ -41,6 +41,16 @@ const verifyOldPassword = async (userId, oldPassword) => {
     }
 };
 
+const updateLastLogin = async (userId) => {
+    try {
+        await request({
+            method: 'PUT',
+            path: `/api/auth/update-last-login/${userId}`,
+        });
+    } catch (error) {
+        console.error('Error updating last login:', error.response || error.message);
+    }
+};
 
 const loginUser = async ({ email, password }) => {
     try {
@@ -49,6 +59,11 @@ const loginUser = async ({ email, password }) => {
             path: '/api/auth/login',
             data: { email, password }
         });
+
+        if (res?.status === "locked") {
+            // eslint-disable-next-line no-throw-literal
+            throw { response: { status: 403, message: "Tài khoản của bạn đã bị khóa." } };
+          }
 
         if (res?.accessToken) {
             localStorage.setItem('userId', res._id); 
@@ -182,6 +197,20 @@ const  deleteUser = async (id) => {
     }
 };
 
+const updateUserStatus = async (userId, { status }) => {
+    try {
+        const res = await request({
+            method: "PUT",
+            path: `/api/users/update-status/${userId}`,
+            data: { status }
+        });
+        return res;
+    } catch (error) {
+        console.error('Update status error:', error.response || error.message);
+        throw error;
+    }
+};
+
 export {
     getUser,
     registerUser,
@@ -193,5 +222,7 @@ export {
     updateUser,
     deleteUser,
     verifyOldPassword,
-    sendResetPasswordEmail
+    sendResetPasswordEmail,
+    updateUserStatus,
+    updateLastLogin
 };
