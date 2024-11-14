@@ -37,7 +37,7 @@ const SavingGoalList = () => {
           }))
           .filter((goal) => {
             const endDate = new Date(goal.endDate);
-            endDate.setHours(0, 0, 0, 0); 
+            endDate.setHours(0, 0, 0, 0);
             return endDate >= currentDate;
           });
 
@@ -206,16 +206,16 @@ const SavingGoalList = () => {
                         <i className="fa-solid fa-sack-dollar me-2"></i>
                         {goal.currentAmount != null
                           ? (goal.currentAmount.toString().length > 9
-                            ? `${goal.currentAmount.toLocaleString().slice(0, 9)}...`
-                            : goal.currentAmount.toLocaleString())
-                          : "0"}
-                        đ /{" "}
+                            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount).slice(0, 9)}...`
+                            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount))
+                          : "0 đ"} /
+
                         {goal.targetAmount != null
                           ? (goal.targetAmount.toString().length > 9
-                            ? `${goal.targetAmount.toLocaleString().slice(0, 9)}...`
-                            : goal.targetAmount.toLocaleString())
-                          : "0"}
-                        đ
+                            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount).slice(0, 9)}...`
+                            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount))
+                          : "0 đ"}
+
                       </div>
                     </div>
                   </div>
