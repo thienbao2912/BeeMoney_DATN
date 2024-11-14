@@ -1,21 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import NotificationList from '../Notification/notificationList'; 
-import { useNotifications } from './NotificationContext'; 
+import NotificationList from '../Notification/notificationList';
 import { getUserProfile } from '../../../service/Auth';
+import { getAllNotification } from '../../../service/Notification';
 import './Header.css';
 
 const Header = () => {
     const [user, setUser] = useState({ wallet: 0 });
-    const { notifications, checkBudgetExceed, checkSavingGoals } = useNotifications();
-    const notificationCount = notifications ? notifications.length : 0;
+    const [notifications, setNotifications] = useState([]);
+    const notificationCount = notifications.length;
 
     useEffect(() => {
         const userId = localStorage.getItem('userId');
-        if (userId) {
-            checkBudgetExceed(userId); 
-            checkSavingGoals(userId);
-        }
         
+        const fetchNotifications = async () => {
+            if (userId) {
+                try {
+                    const response = await getAllNotification(userId);
+                    setNotifications(response.data || []);
+                } catch (error) {
+                    console.error("Error fetching notifications:", error);
+                }
+            }
+        };
+
         const fetchUserProfile = async () => {
             try {
                 const profile = await getUserProfile();
@@ -26,9 +33,10 @@ const Header = () => {
                 console.error("Error fetching user profile:", error);
             }
         };
-        
+
+        fetchNotifications();
         fetchUserProfile();
-    }, [checkBudgetExceed, checkSavingGoals]);
+    }, []);
 
     return (
         <nav className="navbar navbar-expand-lg shadow-sm">
@@ -41,16 +49,16 @@ const Header = () => {
 
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                     <div className="ms-auto d-flex align-items-center p-2">
-                    <b className='primary'>
-                                <i class="bi bi-wallet-fill me-2"></i>
-                                    {user.wallet.toLocaleString()} đ
-                                </b> 
+                        <b className="primary">
+                            <i className="bi bi-wallet-fill me-2"></i>
+                            {user.wallet.toLocaleString()} đ
+                        </b>
                         <ul className="navbar-nav">
                             <li className="nav-item dropdown notification_dropdown">
-                                <button 
-                                    className="btn" 
-                                    type="button" 
-                                    data-bs-toggle="dropdown" 
+                                <button
+                                    className="btn"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
                                     aria-expanded="false"
                                     aria-label="Notifications"
                                 >
@@ -65,7 +73,7 @@ const Header = () => {
                                     )}
                                 </button>
                                 <div className="dropdown-menu dropdown-menu-end" style={{ marginRight: "20px", marginTop: "5px" }}>
-                                    <NotificationList />
+                                    <NotificationList notifications={notifications} />
                                 </div>
                             </li>
                         </ul>
