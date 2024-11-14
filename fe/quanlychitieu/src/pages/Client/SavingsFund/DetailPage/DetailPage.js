@@ -152,7 +152,7 @@ const FundDetail = () => {
                       <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         <span className="text-muted small">
                           <i className="fa-solid fa-sack-dollar me-2"></i>
-                          {Number(currentAmount).toLocaleString()} đ - {Number(targetAmount).toLocaleString()} đ
+                          {Number(currentAmount).toLocaleString()} đ / {Number(targetAmount).toLocaleString()} đ
                         </span>
                         <div className="progress-wrapper d-flex align-items-center mt-2">
                           <span className="text-muted small me-2">{Math.floor(percentage)}%</span>

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getAllTransactions, deleteTransaction } from '../../../../../service/Transaction';
 import ConfirmationModal from '../../../SavingGoals/ConfirmationModal/ConfirmationModal';
-import { getCategories } from "../../../../../service/Category"; 
+import { getCategories } from "../../../../../service/Category";
 import CustomDropdown from "../../CustomDropdown";
-import { Link } from 'react-router-dom'; 
+import { Link } from 'react-router-dom';
 
 const IncomeList = () => {
     const [incomes, setIncomes] = useState([]);
@@ -18,22 +18,22 @@ const IncomeList = () => {
     const [goalToDelete, setGoalToDelete] = useState(null);
     const [itemsPerPage] = useState(5);
     const [filterOption, setFilterOption] = useState("all");
-    const userId = localStorage.getItem('userId'); 
+    const userId = localStorage.getItem('userId');
 
     const generateMonthOptions = () => {
         const months = [];
         const currentDate = new Date();
         const year = currentDate.getFullYear();
-    
+
         for (let i = 1; i <= 12; i++) {
-          const month = i.toString().padStart(2, "0");
-          months.push({
-            display: `${i}`,
-            value: `${year}-${month}`,
-          });
+            const month = i.toString().padStart(2, "0");
+            months.push({
+                display: `${i}`,
+                value: `${year}-${month}`,
+            });
         }
         return months;
-      };
+    };
 
     useEffect(() => {
         const fetchIncomes = async () => {
@@ -55,7 +55,7 @@ const IncomeList = () => {
                 setLoading(false);
             }
         };
-       
+
 
         const fetchCategories = async () => {
             try {
@@ -68,11 +68,11 @@ const IncomeList = () => {
                 console.error("Error fetching categories:", error);
             }
         };
-    
+
         fetchIncomes();
         fetchCategories();
     }, [userId]);
-    
+
     useEffect(() => {
         if (incomes.length > 0) {
             applyFilter(filterOption);
@@ -91,7 +91,7 @@ const IncomeList = () => {
             setError('Failed to delete income. Please try again later.');
         }
     };
-    
+
     const applyFilter = (option) => {
         let filtered = [...incomes];
         switch (option) {
@@ -101,19 +101,19 @@ const IncomeList = () => {
             case "bottom5":
                 filtered = filtered.sort((a, b) => a.amount - b.amount).slice(0, 5);
                 break;
-                case "category":
-                    if (selectedCategory) {
-                        filtered = filtered.filter(
-                            (income) => income.categoryId?._id === selectedCategory
-                        );
-                    }
-                    break;
+            case "category":
+                if (selectedCategory) {
+                    filtered = filtered.filter(
+                        (income) => income.categoryId?._id === selectedCategory
+                    );
+                }
+                break;
             case "month":
                 if (selectedMonth) {
                     filtered = filtered.filter((income) => {
                         const incomeMonth = new Date(income.date)
                             .toISOString()
-                            .slice(0, 7); 
+                            .slice(0, 7);
                         return incomeMonth === selectedMonth;
                     });
                 }
@@ -123,26 +123,26 @@ const IncomeList = () => {
                 break;
         }
         setFilteredIncomes(filtered);
-        setCurrentPage(1); 
+        setCurrentPage(1);
     };
-    
-      const handleFilterChange = (e) => {
+
+    const handleFilterChange = (e) => {
         setFilterOption(e.target.value);
         if (e.target.value !== "category") {
-          setSelectedCategory("");
+            setSelectedCategory("");
         }
         if (e.target.value !== "month") {
-          setSelectedMonth("");
+            setSelectedMonth("");
         }
-      };
-    
-      const handleCategoryChange = (e) => {
+    };
+
+    const handleCategoryChange = (e) => {
         setSelectedCategory(e.target.value);
     };
-    
-      const handleMonthChange = (e) => {
+
+    const handleMonthChange = (e) => {
         setSelectedMonth(e.target.value);
-      };
+    };
 
     const openConfirmationModal = (goalId) => {
         setGoalToDelete(goalId);
@@ -184,43 +184,43 @@ const IncomeList = () => {
                 </ol>
             </nav>
             <div className="col-lg-6 col-md-8 col-sm-12 d-flex align-items-center mb-2">
-          <select
-            value={filterOption}
-            onChange={handleFilterChange}
-            className="form-select me-2"
-            style={{ width: "200px" }}
-          >
-            <option value="all">Tất cả</option>
-            <option value="top5">5 chi tiêu lớn nhất</option>
-            <option value="bottom5">5 chi tiêu nhỏ nhất</option>
-            <option value="category">Lọc theo danh mục</option>
-            <option value="month">Lọc theo tháng</option>
-          </select>
+                <select
+                    value={filterOption}
+                    onChange={handleFilterChange}
+                    className="form-select me-2"
+                    style={{ width: "200px" }}
+                >
+                    <option value="all">Tất cả</option>
+                    <option value="top5">5 chi tiêu lớn nhất</option>
+                    <option value="bottom5">5 chi tiêu nhỏ nhất</option>
+                    <option value="category">Lọc theo danh mục</option>
+                    <option value="month">Lọc theo tháng</option>
+                </select>
 
-          {filterOption === "category" && (
-            <CustomDropdown
-              options={categories}
-              value={selectedCategory}
-              onChange={handleCategoryChange}
-              className="form-select me-2"
-            />
-          )}
-          {filterOption === "month" && (
-            <select
-              value={selectedMonth}
-              onChange={handleMonthChange}
-              className="form-select me-2"
-              style={{ width: "200px" }}
-            >
-              <option value="">Chọn tháng</option>
-              {generateMonthOptions().map(({ display, value }) => (
-                <option key={value} value={value}>
-                  Tháng {display}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
+                {filterOption === "category" && (
+                    <CustomDropdown
+                        options={categories}
+                        value={selectedCategory}
+                        onChange={handleCategoryChange}
+                        className="form-select me-2"
+                    />
+                )}
+                {filterOption === "month" && (
+                    <select
+                        value={selectedMonth}
+                        onChange={handleMonthChange}
+                        className="form-select me-2"
+                        style={{ width: "200px" }}
+                    >
+                        <option value="">Chọn tháng</option>
+                        {generateMonthOptions().map(({ display, value }) => (
+                            <option key={value} value={value}>
+                                Tháng {display}
+                            </option>
+                        ))}
+                    </select>
+                )}
+            </div>
             <div className="text-center mt-4 mb-4">
                 <Link to="/income/add" className="primary">
                     <i className="fa fa-plus"></i> Thêm thu nhập
@@ -271,10 +271,10 @@ const IncomeList = () => {
                                                 <span className="text-secondary">{income.description}</span>
                                             </td>
                                             <td className="align-middle">
-                                                <span className="text-success"> {Number(income.amount) < 0
-                                                        ? `${Number(income.amount).toLocaleString()} đ`
-                                                        : `+ ${Number(income.amount).toLocaleString()} đ`
-                                                    }</span>
+                                                <span className="text-success">+ {new Intl.NumberFormat("vi-VN", {
+                                                    style: "currency",
+                                                    currency: "VND",
+                                                }).format(income.amount)}</span>
                                             </td>
                                             <td className="align-middle">
                                                 <span className="custom-date-style">{new Date(income.date).toLocaleDateString()}</span>
@@ -310,16 +310,16 @@ const IncomeList = () => {
             </div>
 
             <div className="pagination text-center mt-4">
-                <button 
-                    className="btn btn-secondary" 
+                <button
+                    className="btn btn-secondary"
                     onClick={() => paginate(currentPage - 1)}
                     disabled={currentPage === 1}
                 >
                     <i className="fa-solid fa-backward"></i>
                 </button>
                 <span className="mx-2">{currentPage} / {totalPages}</span>
-                <button 
-                    className="btn btn-secondary" 
+                <button
+                    className="btn btn-secondary"
                     onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === totalPages}
                 >

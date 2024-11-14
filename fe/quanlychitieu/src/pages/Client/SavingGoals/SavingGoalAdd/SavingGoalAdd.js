@@ -150,10 +150,10 @@ const SavingGoalAdd = () => {
                       type="date"
                       id="startDate"
                       name="startDate"
-                      className="form-control"
+                      className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
                       {...register('startDate', { required: 'Ngày bắt đầu là bắt buộc' })}
                     />
-                    {errors.startDate && <p className="text-danger">{errors.startDate.message}</p>}
+                    {errors.startDate && <div className="invalid-feedback">{errors.startDate.message}</div>}
                   </div>
                   <div className="form-group col">
                     <label htmlFor="endDate">Ngày kết thúc</label>
@@ -161,10 +161,10 @@ const SavingGoalAdd = () => {
                       type="date"
                       id="endDate"
                       name="endDate"
-                      className="form-control"
+                      className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
                       {...register('endDate', { required: 'Ngày kết thúc là bắt buộc' })}
                     />
-                    {errors.endDate && <p className="text-danger">{errors.endDate.message}</p>}
+                    {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
                   </div>
                 </div>
                 <div className="form-group">
@@ -173,14 +173,14 @@ const SavingGoalAdd = () => {
                     type="text"
                     id="name"
                     name="name"
-                    className="form-control"
+                    className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                     {...register('name', {
                       required: 'Tên mục tiêu là bắt buộc',
                       validate: value =>
                         !containsForbiddenWords(value) || 'Tên mục tiêu chứa từ cấm',
                     })}
                   />
-                  {errors.name && <p className="text-danger">{errors.name.message}</p>}
+                  {errors.name && <div className="invalid-feedback">{errors.name.message}</div>}
                 </div>
                 <div className="form-row">
                   <div className="form-group col">
@@ -189,13 +189,13 @@ const SavingGoalAdd = () => {
                       type="text"
                       id="targetAmount"
                       name="targetAmount"
-                      className="form-control"
+                      className={`form-control ${errors.targetAmount ? 'is-invalid' : ''}`}
                       {...register('targetAmount', { 
                         required: 'Số tiền mục tiêu là bắt buộc' 
                       })}
-                      onChange={handleAmountChange}
+                      onInput={handleAmountChange}
                     />
-                    {errors.targetAmount && <p className="text-danger">{errors.targetAmount.message}</p>}
+                    {errors.targetAmount && <div className="invalid-feedback">{errors.targetAmount.message}</div>}
                   </div>
                   <div className="form-group col">
                     <label htmlFor="currentAmount">Số tiền tiết kiệm</label>
@@ -203,11 +203,11 @@ const SavingGoalAdd = () => {
                       type="text"
                       id="currentAmount"
                       name="currentAmount"
-                      className="form-control"
+                      className={`form-control ${errors.currentAmount ? 'is-invalid' : ''}`}
                       {...register('currentAmount', { required: 'Số tiền nạp là bắt buộc' })}
                       onChange={handleAmountChange}
                     />
-                    {errors.currentAmount && <p className="text-danger">{errors.currentAmount.message}</p>}
+                    {errors.currentAmount && <div className="invalid-feedback">{errors.currentAmount.message}</div>}
                   </div>
                 </div>
                 <div className="form-group">
@@ -270,7 +270,10 @@ const SavingGoalAdd = () => {
                           </div>
                           <div className="money text-secondary mb-3">
                             <i className="fa-solid fa-sack-dollar me-2"></i>
-                           Số tiền mục tiêu: {goal.targetAmount != null ? goal.targetAmount.toLocaleString() : '0'}đ
+                           Số tiền mục tiêu: {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(goal.targetAmount)}
                           </div>
                         </div>
                       </div>

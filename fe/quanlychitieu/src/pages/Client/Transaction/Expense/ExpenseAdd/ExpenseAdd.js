@@ -158,10 +158,10 @@ const ExpenseAdd = () => {
                       type="date"
                       id="date"
                       name="date"
-                      className="form-control"
+                      className={`form-control ${errors.date ? 'is-invalid' : ''}`}
                       {...register('date', { required: 'Ngày là bắt buộc' })}
                     />
-                    {errors.date && <p className="text-danger">{errors.date.message}</p>}
+                    {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
                   </div>
                   <div className="form-group col">
                     <label htmlFor="amount">Số tiền</label>
@@ -169,11 +169,11 @@ const ExpenseAdd = () => {
                       type="text"
                       id="amount"
                       name="amount"
-                      className="form-control"
+                      className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
                       {...register('amount', { required: 'Số tiền là bắt buộc' })}
                       onInput={handleAmountChange}
                     />
-                    {errors.amount && <p className="text-danger">{errors.amount.message}</p>}
+                    {errors.amount && <div className="invalid-feedback">{errors.amount.message}</div>}
                   </div>
                 </div>
                 <div className="form-group">
@@ -182,14 +182,14 @@ const ExpenseAdd = () => {
                     type="text"
                     id="description"
                     name="description"
-                    className="form-control"
+                    className={`form-control ${errors.description ? 'is-invalid' : ''}`}
                     {...register('description', {
                       required: 'Ghi chú là bắt buộc',
                       validate: value =>
                         !containsForbiddenWords(value) || 'Ghi chú chứa từ cấm',
                     })}
                   />
-                  {errors.description && <p className="text-danger">{errors.description.message}</p>}
+                  {errors.description && <div className="invalid-feedback">{errors.description.message}</div>}
                 </div>
 
                 <div className="form-group">
@@ -252,7 +252,6 @@ const ExpenseAdd = () => {
                         <img
                           src={expense.categoryId.image}
                           alt={expense.categoryId.name}
-                          className=""
                           width="50"
                           height="50"
                         />
@@ -262,7 +261,10 @@ const ExpenseAdd = () => {
                     </div>
                     <div className="text-center flex-grow-1">
                       <h6 className="mb-0">{expense.description}</h6>
-                      <p className="text-danger mb-0">- {Number(expense.amount).toLocaleString()}</p>
+                      <p className="text-danger mb-0">- {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(expense.amount)}</p>
                     </div>
                     <div className="text-end">
                       <p className="text-secondary mb-0">{new Date(expense.date).toLocaleDateString()}</p>

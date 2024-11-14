@@ -122,24 +122,22 @@ const SavingGoalDetail = () => {
                 <div className="text-secondary ms-4">{savingGoal.name}</div>
               </div>
 
-              <div className="form-group mb-4">
+              <div className="form-group mb-2">
                 <label className="form-label text-muted">
                   <i className="bi bi-coin icon-style"></i> Số tiền
                 </label>
                 <div className="text-secondary ms-4">
-                  {formatCurrency(savingGoal.currentAmount)} đ - {formatCurrency(savingGoal.targetAmount)} đ
+              <h6 className="text-primary">Đã tiết kiệm được: {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(savingGoal.currentAmount)}</h6>  
+                 <h6 className="text-success">Mục tiêu: {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(savingGoal.targetAmount)}</h6>   
                 </div>
               </div>
-
-              <div className="form-group mb-4">
-                <label className="form-label text-muted">
-                  <i className="bi bi-alarm-fill icon-style"></i> Thời gian
-                </label>
-                <div className="text-secondary ms-4">
-                  {new Date(savingGoal.startDate).toLocaleDateString('vi-VN')} - {new Date(savingGoal.endDate).toLocaleDateString('vi-VN')}
-                </div>
-              </div>
-              <div className="progress-wrapper d-flex align-items-center mt-4">
+              <div className="progress-wrapper d-flex align-items-center mb-4">
                 <span className="text-muted small me-2">{Math.round(progressPercentage)}%</span>
                 <div className="progress flex-grow-1 rounded-pill">
                   <div
@@ -153,6 +151,15 @@ const SavingGoalDetail = () => {
                 </div>
               </div>
 
+
+              <div className="form-group mb-2">
+                <label className="form-label text-muted">
+                  <i className="bi bi-alarm-fill icon-style"></i> Thời gian
+                </label>
+                <div className="text-secondary ms-4">
+                  {new Date(savingGoal.startDate).toLocaleDateString('vi-VN')} - {new Date(savingGoal.endDate).toLocaleDateString('vi-VN')}
+                </div>
+              </div>
               {progressPercentage < 100 && (
                 <button className="btn btn-primary mt-3" onClick={() => openModal(savingGoal)}>
                   Nạp tiền
@@ -176,8 +183,11 @@ const SavingGoalDetail = () => {
             savingGoal.transactionHistory.map((transaction, index) => (
               <tr key={index} className="align-middle">
                 <td>
-                  <h6 className="text-success mb-0">+ {formatCurrency(transaction.amount)} đ</h6>
-                  <div className="text-secondary">
+                  <h6 className="text-success mb-0">+{new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(transaction.amount)}</h6>
+                  <div className="text-secondary mb-0">
                     {transaction.note}
                   </div>
                 </td>

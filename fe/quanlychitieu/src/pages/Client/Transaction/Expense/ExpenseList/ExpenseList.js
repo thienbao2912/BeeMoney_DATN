@@ -326,10 +326,10 @@ const ExpenseList = () => {
                         </span>
                       </td>
                       <td className="align-middle">
-                        <span className="text-danger">
-                          {Number(expense.amount) < 0
-                            ? `${Number(expense.amount).toLocaleString()} đ`
-                            : `- ${Number(expense.amount).toLocaleString()} đ`}
+                        <span className="text-danger">- {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(expense.amount)}
                         </span>
                       </td>
 

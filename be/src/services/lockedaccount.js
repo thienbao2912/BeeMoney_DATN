@@ -11,7 +11,11 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: 'laravelp9@gmail.com',
         pass: 'axiadnjxzrlzthnz'
+    },
+    tls: {
+        rejectUnauthorized: false
     }
+    
 });
 
 module.exports.lockedAccount = async (email) => {

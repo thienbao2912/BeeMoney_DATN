@@ -133,7 +133,7 @@ const IncomeAdd = () => {
     );
   }
 
-  // Sort incomes by date (most recent first) and limit to top 5
+ 
   const sortedIncomes = [...incomes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
 
   return (
@@ -163,10 +163,10 @@ const IncomeAdd = () => {
                       type="date"
                       id="date"
                       name="date"
-                      className="form-control"
+                      className={`form-control ${errors.date ? 'is-invalid' : ''}`}
                       {...register('date', { required: 'Ngày là bắt buộc' })}
                     />
-                    {errors.date && <p className="text-danger">{errors.date.message}</p>}
+                    {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
                   </div>
                   <div className="form-group col">
                     <label htmlFor="amount">Số tiền</label>
@@ -174,11 +174,11 @@ const IncomeAdd = () => {
                       type="text"
                       id="amount"
                       name="amount"
-                      className="form-control"
+                      className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
                       {...register('amount', { required: 'Số tiền là bắt buộc' })}
                       onInput={handleAmountInput}
                     />
-                    {errors.amount && <p className="text-danger">{errors.amount.message}</p>}
+                    {errors.amount && <div className="invalid-feedback">{errors.amount.message}</div>}
                   </div>
                 </div>
                 <div className="form-group">
@@ -187,14 +187,14 @@ const IncomeAdd = () => {
                     type="text"
                     id="description"
                     name="description"
-                    className="form-control"
+                    className={`form-control ${errors.description ? 'is-invalid' : ''}`}
                     {...register('description', {
                       required: 'Ghi chú là bắt buộc',
                       validate: value => 
                         !containsForbiddenWords(value) || 'Ghi chú chứa từ cấm',
                     })}
                   />
-                  {errors.description && <p className="text-danger">{errors.description.message}</p>}
+                  {errors.description && <div className="invalid-feedback">{errors.description.message}</div>}
                 </div>
 
                 <div className="form-group">
@@ -256,7 +256,6 @@ const IncomeAdd = () => {
                         <img
                           src={income.categoryId.image}
                           alt={income.categoryId.name}
-                          className="category-image"
                           width="50"
                           height="50"
                         />
@@ -266,7 +265,10 @@ const IncomeAdd = () => {
                     </div>
                     <div className="text-center flex-grow-1">
                       <h6 className="mb-0">{income.description}</h6>
-                      <p className="text-success mb-0">+ {Number(income.amount).toLocaleString()}</p>
+                      <p className="text-success mb-0">+ {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(income.amount)}</p>
                     </div>
                     <div className="text-end">
                       <p className="text-secondary mb-0">{new Date(income.date).toLocaleDateString()}</p>
