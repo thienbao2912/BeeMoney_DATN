@@ -451,125 +451,100 @@ const Home = () => {
             </div>
 
             <div className="row">
-    <div className="col-md-6">
+      <div className="col-md-6">
         <div className="card mb-4 shadow-sm">
-            <div className="card-body">
-                <h5 className="card-title">Chi tiêu</h5>
-                <p className="text-danger fw-bold">
-                    Tổng chi tiêu: {totalExpenses.toLocaleString()} đ
-                </p>
-                <OutcomeChart data={expensesData} onClick={(category) => handleChartClick(category, 'expense')} />
-                <h5 className="card-title" style={{ marginTop: "1.5rem", marginBottom: "1.5rem" }}>Danh sách chi tiêu</h5>
-                {currentExpenses.length > 0 ? (
-                    currentExpenses.map((category, index) => (
-                        <div
-                            key={index}
-                            className="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2"
-                            style={{
-                                transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                                cursor: "pointer"
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = "translateY(-5px)";
-                                e.currentTarget.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = "translateY(0)";
-                                e.currentTarget.style.boxShadow = "none";
-                            }}
-                        >
-                            <div className="d-flex align-items-center">
-                                <img
-                                    src={category.categoryImage || "../images/no.png"}
-                                    className="rounded-circle me-3"
-                                    alt={category.name}
-                                    style={{ width: '40px', height: '40px', objectFit: 'cover' }}
-                                />
-                                <div>
-                                    <h6 className="mb-0">{category.name}</h6>
-                                    <p className="text-danger mb-0">- {category.y.toLocaleString()} đ</p>
-                                </div>
-                            </div>
-                            <button className="btn btn-primary btn-sm" onClick={() => handleViewDetailsClick(category, 'expense')}>Xem chi tiết</button>
-                        </div>
-                    ))
-                ) : (
-                    <p>Chưa có chi tiêu</p>
-                )}
-                <nav>
-                    <ul className="pagination">
-                        {expensePageNumbers.map((number) => (
-                            <li key={number} className="page-item">
-                                <button onClick={() => paginateExpenses(number)} className="page-link">
-                                    {number}
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
-            </div>
+          <div className="card-body">
+            <h5 className="card-title">Chi tiêu</h5>
+            <p className="text-danger fw-bold">
+              Tổng chi tiêu: {totalExpenses.toLocaleString()} đ
+            </p>
+            <OutcomeChart data={expensesData} onClick={(category) => handleChartClick(category, 'expense')} />
+            <h5 className="card-title" style={{ marginTop: "1.5rem", marginBottom: "1.5rem" }}>Danh sách chi tiêu</h5>
+            {currentExpenses.length > 0 ? (
+              currentExpenses.map((category, index) => (
+                <div key={index}>
+                  <div className="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <div className="d-flex align-items-center">
+                      <img
+                        src={category.categoryImage || "../images/no.png"}
+                        className="rounded-circle me-3"
+                        alt={category.name}
+                        style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                      />
+                      <div>
+                        <h6 className="mb-0">{category.name}</h6>
+                        <p className="text-danger mb-0">- {category.y.toLocaleString()} đ</p>
+                      </div>
+                    </div>
+                    <button className="btn btn-primary btn-sm" onClick={() => handleViewDetailsClick(category, 'expense')}>Xem chi tiết</button>
+                  </div>
+                  {selectedCategory.category === category && renderCategoryDetails('expense')}
+                </div>
+              ))
+            ) : (
+              <p>Chưa có chi tiêu</p>
+            )}
+            <nav>
+              <ul className="pagination">
+                {expensePageNumbers.map((number) => (
+                  <li key={number} className="page-item">
+                    <button onClick={() => paginateExpenses(number)} className="page-link">
+                      {number}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <div className="col-md-6">
+      <div className="col-md-6">
         <div className="card mb-4 shadow-sm">
-            <div className="card-body">
-                <h5 className="card-title">Thu nhập</h5>
-                <p className="text-success fw-bold">
-                    Tổng thu nhập: {totalIncome.toLocaleString()} đ
-                </p>
-                <IncomeChart data={incomeData} onClick={(category) => handleChartClick(category, 'income')} />
-                <h5 className="card-title" style={{ marginTop: "1.5rem", marginBottom: "1.5rem" }}>Danh sách thu nhập</h5>
-                {currentIncomes.length > 0 ? (
-                    currentIncomes.map((category, index) => (
-                        <div
-                            key={index}
-                            className="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2"
-                            style={{
-                                transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                                cursor: "pointer"
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = "translateY(-5px)";
-                                e.currentTarget.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = "translateY(0)";
-                                e.currentTarget.style.boxShadow = "none";
-                            }}
-                        >
-                            <div className="d-flex align-items-center">
-                                <img
-                                    src={category.categoryImage || "../images/no.png"}
-                                    className="rounded-circle me-3"
-                                    alt={category.name}
-                                    style={{ width: '40px', height: '40px', objectFit: 'cover' }}
-                                />
-                                <div>
-                                    <h6 className="mb-0">{category.name}</h6>
-                                    <p className="text-success mb-0">+ {category.y.toLocaleString()} đ</p>
-                                </div>
-                            </div>
-                            <button className="btn btn-primary btn-sm" onClick={() => handleViewDetailsClick(category, 'income')}>Xem chi tiết</button>
-                        </div>
-                    ))
-                ) : (
-                    <p>Chưa có thu nhập</p>
-                )}
-                <nav>
-                    <ul className="pagination">
-                        {incomePageNumbers.map((number) => (
-                            <li key={number} className="page-item">
-                                <button onClick={() => paginateIncome(number)} className="page-link">
-                                    {number}
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
+          <div className="card-body">
+            <h5 className="card-title">Thu nhập</h5>
+            <p className="text-success fw-bold">
+              Tổng thu nhập: {totalIncome.toLocaleString()} đ
+            </p>
+            <IncomeChart data={incomeData} onClick={(category) => handleChartClick(category, 'income')} />
+            <h5 className="card-title" style={{ marginTop: "1.5rem", marginBottom: "1.5rem" }}>Danh sách thu nhập</h5>
+            {currentIncomes.length > 0 ? (
+              currentIncomes.map((category, index) => (
+                <div key={index}><div className="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                <div className="d-flex align-items-center">
+                  <img
+                    src={category.categoryImage || "../images/no.png"}
+                    className="rounded-circle me-3"
+                    alt={category.name}
+                    style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                  />
+                  <div>
+                    <h6 className="mb-0">{category.name}</h6>
+                    <p className="text-success mb-0">+ {category.y.toLocaleString()} đ</p>
+                  </div>
+                </div>
+                <button className="btn btn-primary btn-sm" onClick={() => handleViewDetailsClick(category, 'income')}>Xem chi tiết</button>
+              </div>
+              {selectedCategory.category === category && renderCategoryDetails('income')}
             </div>
-        </div>
+          ))
+        ) : (
+          <p>Chưa có thu nhập</p>
+        )}
+        <nav>
+          <ul className="pagination">
+            {incomePageNumbers.map((number) => (
+              <li key={number} className="page-item">
+                <button onClick={() => paginateIncome(number)} className="page-link">
+                  {number}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
     </div>
+  </div>
 </div>
 
         </div>
