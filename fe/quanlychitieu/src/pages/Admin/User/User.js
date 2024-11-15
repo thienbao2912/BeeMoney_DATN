@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../../../layouts/AdminLayout";
 import { Link } from "react-router-dom";
-import { getAllUsers, deleteUser } from "../../../service/Auth";
+import { getAllUsers, updateUserStatus } from "../../../service/Auth";
 import { RingLoader } from "react-spinners";
 import ConfirmDeleteModal from "../../../components/Admin/ConfirmDeleteModal";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -38,16 +38,54 @@ const User = () => {
     fetchUsers();
   }, []);
 
+  // const handleDeleteUser = async () => {
+  //   if (userToDelete) {
+  //     try {
+  //       await deleteUser(userToDelete._id);
+  //       setUsers(users.filter((user) => user._id !== userToDelete._id));
+  //       setShowConfirmModal(false);
+  //     } catch (error) {
+  //       console.error("Error deleting user:", error);
+  //       setError("Failed to delete user.");
+  //     }
+  //   }
+  // };
+
   const handleDeleteUser = async () => {
     if (userToDelete) {
       try {
-        await deleteUser(userToDelete._id);
-        setUsers(users.filter((user) => user._id !== userToDelete._id));
-        setShowConfirmModal(false);
+        
+      await updateUserStatus(userToDelete._id, { status: "locked" });
+      
+      const data = await getAllUsers();
+      const sortedUsers = data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setUsers(sortedUsers);
+      alert('Mở khóa tài khoản thành công');
+      setShowConfirmModal(false);
       } catch (error) {
-        console.error("Error deleting user:", error);
-        setError("Failed to delete user.");
+        console.error("Lỗi khi khóa người dùng:", error);
+        setError("Không thể khóa người dùng.");
       }
+    }
+  };
+
+  const unblockUser = async (user) => {
+    try {
+      
+      await updateUserStatus(user._id, { status: "active" });
+  
+      const data = await getAllUsers();
+      const sortedUsers = data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setUsers(sortedUsers);
+      alert('Mở khóa tài khoản thành công');
+      setShowConfirmModal(false);
+    } catch (error) {
+      console.error("Lỗi khi mở khóa người dùng:", error);
+      setError("Không thể mở khóa người dùng.");
     }
   };
 
@@ -61,19 +99,25 @@ const User = () => {
     setUserToDelete(null);
   };
 
+  const openUnlockModal = (user) => {
+    unblockUser(user);
+  };
+
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
 
   const filteredUsers = users
-    .filter((user) => {
-      if (roleFilter === "all") {
-        return true;
-      }
-      return user.role === roleFilter;
-    })
-    .filter((user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  .filter((user) => {
+    if (roleFilter === "all") {
+      return true;
+    } else if (roleFilter === "status") {
+      return user.status === "locked"; 
+    }
+    return user.role === roleFilter;
+  })
+  .filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
@@ -114,6 +158,7 @@ const User = () => {
       <option value="all">Tất cả</option>
       <option value="admin">Admin</option>
       <option value="user">Người dùng</option>
+      <option value="status">Người dùng bị khóa</option>
     </select>
   </div>
 </div>
@@ -208,13 +253,22 @@ const User = () => {
                                     </Link>
                                   </li>
                                   <li>
-                                    <button
-                                      onClick={() => openDeleteModal(user)}
-                                      className="dropdown-item text-danger"
-                                    >
-                                      Xóa
-                                    </button>
-                                  </li>
+                                      {user.status === "locked" ? (
+                                        <button
+                                          onClick={() => openUnlockModal(user)}
+                                          className="dropdown-item text-success"
+                                        >
+                                          Mở khóa
+                                        </button>
+                                      ) : (
+                                        <button
+                                          onClick={() => openDeleteModal(user)} 
+                                          className="dropdown-item text-danger"
+                                        >
+                                          Khóa
+                                        </button>
+                                      )}
+                                    </li>
                                 </ul>
                               </div>
                             </td>

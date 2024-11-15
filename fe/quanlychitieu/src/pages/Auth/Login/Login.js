@@ -32,7 +32,12 @@ function Login() {
 
     try {
       const response = await loginUser(data);
-      if (response?.accessToken) {
+      if (response?.status === "locked") {
+        setError("api", {
+          type: "manual",
+          message: "Tài khoản của bạn đã bị khóa.",
+        });
+      } else if (response?.accessToken) {
         navigate("/");
       } else {
         setError("api", {
@@ -41,10 +46,17 @@ function Login() {
         });
       }
     } catch (err) {
-      setError("api", {
-        type: "manual",
-        message: err?.response?.data?.message || "Thông tin đăng nhập sai!!!",
-      });
+      if (err?.response?.status === 403) {
+        setError("api", {
+          type: "manual",
+          message: "Tài khoản của bạn đã bị khóa.",
+        });
+      } else {
+        setError("api", {
+          type: "manual",
+          message: err?.response?.data?.message || "Thông tin đăng nhập sai!!!",
+        });
+      }
     }
   };
 

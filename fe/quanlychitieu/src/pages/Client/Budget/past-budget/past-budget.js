@@ -29,7 +29,7 @@ const PastBudget = () => {
                         const oneDayAfterEnd = new Date(endDate.getTime() + 24 * 60 * 60 * 1000);
                         return currentDate > oneDayAfterEnd;
                     });
-    
+                    filteredBudgets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                     if (selectedMonth !== 'all') {
                         filteredBudgets = filteredBudgets.filter(budget => {
                             const startDate = new Date(budget.startDate);

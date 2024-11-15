@@ -45,7 +45,7 @@ import HobbyCategory from './pages/Client/hobbyCategory/hobbyCategory';
 import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
 import AdminRoutes from './pages/Admin/Router/AdminRoutes';
 
-import { NotificationProvider } from './components/Client/Header/NotificationContext';
+// import { NotificationProvider } from './components/Client/Header/NotificationContext';
 
 function App() {
   const router = createBrowserRouter(
@@ -96,9 +96,9 @@ function App() {
   );
 
   return (
-    <NotificationProvider>
+    
       <RouterProvider router={router} />
-    </NotificationProvider>
+    
   );
 }
 

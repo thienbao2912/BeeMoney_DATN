@@ -139,8 +139,8 @@ if (existingBudget) {
             // Lấy tất cả các ngân sách của userId và populate các trường liên quan
             const budgets = await Budget.find({ userId }).populate('categoryId').exec();
 
-            console.log(`Budgets found: ${budgets.length}`);
-            console.log(budgets);
+            // console.log(`Budgets found: ${budgets.length}`);
+            // console.log(budgets);
 
             res.status(200).json(budgets);
         } catch (error) {

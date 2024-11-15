@@ -3,8 +3,9 @@ import { addTransaction } from '../../../../service/SavingGoal';
 
 const EditGoalModal = ({ goal, onClose, onUpdate }) => {
     const [additionalAmount, setAdditionalAmount] = useState('');
+    const [note, setNote] = useState('');
     const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
+
     const formatCurrency = (value) => {
         return Number(value).toLocaleString('vi-VN');
     };
@@ -17,7 +18,7 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
         let value = e.target.value;
         value = unformatCurrency(value);
         if (Number(value) < 0) {
-            e.target.value = formatCurrency(0); 
+            e.target.value = formatCurrency(0);
         } else {
             setAdditionalAmount(value);
             e.target.value = formatCurrency(value);
@@ -25,18 +26,26 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
     };
 
     const handleUpdate = async () => {
+        const amountToAdd = parseFloat(additionalAmount);
+        
+        if (isNaN(amountToAdd) || amountToAdd <= 0) {
+            setError('Số tiền không hợp lệ');
+            return;
+        }
+
+        if (amountToAdd < 1000) {
+            setError('Số tiền ít nhất là 1,000 đồng');
+            return;
+        }
+
         try {
-            const amountToAdd = parseFloat(additionalAmount); // Số tiền người dùng nhập
-            await addTransaction(goal._id, { amount: amountToAdd }); // Gọi hàm với số tiền nạp
-            onUpdate();
+            await addTransaction(goal._id, { amount: amountToAdd, note });
+            onUpdate(amountToAdd, note);
             onClose();
         } catch (error) {
             setError('Lỗi nạp tiền ' + error.message);
         }
     };
-    
-    
-    
 
     return (
         <div className="modal fade show" tabIndex="-1" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
@@ -47,7 +56,16 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
                         <button type="button" className="btn-close" onClick={onClose}></button>
                     </div>
                     <div className="modal-body">
-                        {error && <div className="alert alert-danger">{error}</div>}
+                        {error && (
+                            <div className="toast align-items-center text-white bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div className="d-flex">
+                                    <div className="toast-body">
+                                        {error}
+                                    </div>
+                                    <button type="button" className="btn-close btn-close-white me-2 m-auto" onClick={() => setError(null)}></button>
+                                </div>
+                            </div>
+                        )}
                         <div className="mb-3">
                             <label htmlFor="additionalAmount" className="form-label">Số tiền thêm vào</label>
                             <input 
@@ -56,6 +74,17 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
                                 id="additionalAmount" 
                                 value={formatCurrency(additionalAmount)} 
                                 onChange={handleAmountChange} 
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="note" className="form-label">Ghi chú</label>
+                            <input 
+                                type="text" 
+                                className="form-control" 
+                                id="note" 
+                                value={note} 
+                                onChange={(e) => setNote(e.target.value)} 
+                                placeholder="Thêm ghi chú (tuỳ chọn)"
                             />
                         </div>
                     </div>

@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getFundTransactions } from '../../../service/SavingsFund';
-
-
 const TransactionList = ({ fundId }) => {
     const [transactions, setTransactions] = useState([]);
     const [error, setError] = useState(null);
-
     useEffect(() => {
         const fetchTransactionsData = async () => {
             try {
@@ -15,38 +12,35 @@ const TransactionList = ({ fundId }) => {
                 setError('Error fetching transactions.');
             }
         };
-
         fetchTransactionsData();
     }, [fundId]);
-
     if (error) {
         return <div>{error}</div>;
     }
-
     return (
-        <div className="col-md-5">
-            <div className="d-flex justify-content-between align-items-center mb-3">
+        <div className="col-md-6">
+            <div className="d-flex justify-content-between align-items-center mb-2 mt-2">
                 <h6 className="mb-0 text-secondary">  Lịch sử nạp tiền</h6>
             </div>
             <div className="card">
                 <div className="card-body">
-                    <div className="table-responsive">
+                    <div className="table-responsive" style={{ maxHeight: '22rem', overflowY: 'auto' }}>
                         <table className="table table-hover align-items-center">
                             <tbody>
                                 {transactions.map((transaction) => (
                                     <tr key={transaction._id}>
                                         <th>
-                                            <div className="circle mb-2">
-                                                <img
-                                                    src={transaction.userId?.avatar || '/images/chicken.png'}
-                                                    width="40px"
-
-                                                    className="rounded-circle"
-                                                />
-                                            </div>
+                                            <img
+                                                src={transaction.userId?.avatar || '/images/chicken.png'}
+                                                width="40"
+                                                height="40"
+                                                alt="Thành viên"
+                                                className="rounded-circle"
+                                                style={{ objectFit: 'cover' }}
+                                            />
                                         </th>
                                         <td>
-                                            <h6 className="primary mb-0">{transaction.userId?.name || "Người nạp"}</h6>
+                                            <h6 className="text-secondary mb-0">{transaction.userId?.name || "Người nạp"}</h6>
                                             <span className="text-muted small">{transaction.note} </span>
                                         </td>
                                         <td className="text-end">
@@ -65,6 +59,4 @@ const TransactionList = ({ fundId }) => {
         </div>
     );
 };
-
-
 export default TransactionList;

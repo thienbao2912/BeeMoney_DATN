@@ -10,6 +10,7 @@ const userRoutes = require("./routes/admin/userRoutes");
 const authRoutes = require("./routes/auth");
 const savingsFund = require("./routes/savingsFund");
 const fundRoutes = require('./routes/fund');
+const notifiRoutes = require('./routes/notification');
 const authGoogle = require("./routes/authGoogle");
 require('../passport');
 
@@ -39,6 +40,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/savings-fund", savingsFund)
 app.use('/api', fundRoutes);
+app.use('/api/notification', notifiRoutes);
 connectDB();
 
 // app.use('/api/expenses', expenseRoutes);
@@ -50,5 +52,5 @@ app.use('/api/hobbyCategoies', hobbyCategoryRoutes);
 // Start server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port http://localhost:${PORT}`);
 });
