@@ -99,7 +99,9 @@ const handleUpdate = async () => {
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" onClick={onClose}>Đóng</button>
-                        <button type="button" className="btn btn-primary" disabled={loading} onClick={handleUpdate}>Nạp tiền</button>
+                        <button type="button" className="btn btn-primary" disabled={loading} onClick={handleUpdate}> 
+                            {loading ? 'Đang nạp...' : 'Nạp tiền'}
+                             </button>
                     </div>
                 </div>
             </div>

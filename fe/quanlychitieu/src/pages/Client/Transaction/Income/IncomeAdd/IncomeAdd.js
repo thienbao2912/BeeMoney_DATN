@@ -150,8 +150,8 @@ const IncomeAdd = () => {
           <div className="income-overview card">
             <div className="card-body">
               <div className="col-md-auto col-12 d-flex justify-content-center d-flex gap-2">
-                <Link className="btn btn-outline-primary" to='/expense/add'>Chi tiêu</Link>
-                <Link className="btn btn-primary" to='/income/add'>Thu nhập</Link>
+                <Link className="btn btn-outline-primary" style={{width: '6rem'}} to='/expense/add'>Chi tiêu</Link>
+                <Link className="btn btn-primary" style={{width: '6rem'}} to='/income/add'>Thu nhập</Link>
               </div>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="form-row">
