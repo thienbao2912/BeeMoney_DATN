@@ -20,7 +20,6 @@ const FundDetail = () => {
   const [note, setNote] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const { id } = useParams();
-  const navigate = useNavigate();
   const [transactionUsers, setTransactionUsers] = useState([]);
   const fetchCategories = async () => {
     try {

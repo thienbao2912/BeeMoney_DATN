@@ -24,6 +24,7 @@ const ExpenseAdd = () => {
   const [expenses, setExpenses] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingCategoriesAndExpenses, setLoadingCategoriesAndExpenses] = useState(false);
 
   const userId = localStorage.getItem('userId');
   const today = new Date().toISOString().split('T')[0]; 
@@ -42,10 +43,10 @@ const ExpenseAdd = () => {
 
   useEffect(() => {
     const fetchCategoriesAndExpenses = async () => {
-      setLoading(true);
+      setLoadingCategoriesAndExpenses(true);
       try {
         const categoriesResponse = await getCategories('expense', userId);
-        console.log('Categories Response:', categoriesResponse);
+      
 
         if (Array.isArray(categoriesResponse)) {
           const filteredCategories = categoriesResponse.filter(category => category.type === 'expense');
@@ -62,7 +63,7 @@ const ExpenseAdd = () => {
         console.error('Error fetching data:', err.response ? err.response.data : err.message);
         setError('Failed to fetch data. Please try again later.');
       } finally {
-        setLoading(false);
+        setLoadingCategoriesAndExpenses(false);
       }
     };
 
@@ -76,6 +77,7 @@ const ExpenseAdd = () => {
   }, [amount, clearErrors]);
 
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
       const payload = {
         ...data,
@@ -87,7 +89,8 @@ const ExpenseAdd = () => {
         throw new Error('Missing required fields');
       }
 
-      const response = await addTransaction(payload);
+      await addTransaction(payload);
+      window.location.reload();
       setValue('date', today); 
       setValue('amount', '');
       setValue('description', '');
@@ -95,11 +98,13 @@ const ExpenseAdd = () => {
 
       const expensesResponse = await getAllTransactions('expense', userId);
       setExpenses(expensesResponse || []);
-      window.location.reload();
+      
     } catch (err) {
       console.error('Error adding expense:', err.response ? err.response.data : err.message);
       setError('Failed to add expense. Please try again later.');
-    } 
+    } finally {
+      setLoading(false);
+  }
   };
 
   const formatCurrency = (value) => {
@@ -116,7 +121,7 @@ const ExpenseAdd = () => {
     setValue('amount', formatCurrency(value), { shouldValidate: true });
   };
 
-  if (loading) {
+  if (loadingCategoriesAndExpenses) {
     return (
       <div className="text-center mt-5">
         <i className="fa fa-spinner fa-spin fa-2x primary"></i>
@@ -228,7 +233,9 @@ const ExpenseAdd = () => {
                 </div>
 
                 <div className="col-md-auto col-12 d-flex justify-content-center">
-                  <button className="btn btn-primary w-100 text-center" type="submit">Thêm chi tiêu</button>
+                  <button className="btn btn-primary w-100 text-center" type="submit" disabled={loading}>
+                    {loading ? 'Đang thêm...' : 'Thêm chi tiêu'}
+                  </button>
                 </div>
               </form>
               {error && <div className="alert alert-danger mt-3">{error}</div>}

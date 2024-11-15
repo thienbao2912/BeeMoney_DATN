@@ -33,6 +33,7 @@ const SavingGoalAdd = () => {
   const [categories, setCategories] = useState([]);
   const [savingsGoals, setSavingsGoals] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingSavingsGoals, setLoadingSavingsGoals] = useState(false);
   const [error, setErrorMessage] = useState(null);
   const [globalError, setGlobalError] = useState(null);
 
@@ -44,7 +45,7 @@ const SavingGoalAdd = () => {
 
   useEffect(() => {
     const fetchCategoriesAndSavingsGoals = async () => {
-      setLoading(true);
+      setLoadingSavingsGoals(true)
       try {
         const categoriesData = await getCategories();
         setCategories(categoriesData);
@@ -55,7 +56,7 @@ const SavingGoalAdd = () => {
         setErrorMessage('Lỗi hiển thị danh mục');
         console.error('Lỗi hiển thị danh mục', error);
       } finally {
-        setLoading(false);
+        setLoadingSavingsGoals(false)
       }
     };
 
@@ -97,6 +98,7 @@ const SavingGoalAdd = () => {
   };
 
   const onSubmit = async (formData) => {
+    setLoading(true);
     try {
       const payload = {
         ...formData,
@@ -104,7 +106,7 @@ const SavingGoalAdd = () => {
         currentAmount: unformatCurrency(formData.currentAmount) || '0',
       };
       await addSavingsGoal(payload);
-      navigate('/saving-goal/list');
+      // navigate('/saving-goal/list');
       window.location.reload();
       const updatedSavingsGoals = await getAllSavingsGoals(userId);
       setSavingsGoals(updatedSavingsGoals || []);
@@ -112,12 +114,14 @@ const SavingGoalAdd = () => {
     } catch (error) {
       setGlobalError('Lỗi thêm mục tiêu tiết kiệm');
       console.error('Lỗi thêm mục tiêu tiết kiệm:', error);
-    } 
+    } finally {
+      setLoading(false);
+  }
   };
   
 
 
-  if (loading) {
+  if (loadingSavingsGoals) {
     return (
       <div className="text-center mt-5">
         <i className="fa fa-spinner fa-spin fa-2x primary"></i>
@@ -235,7 +239,7 @@ const SavingGoalAdd = () => {
                 </div>
                 <div className="col-md-auto col-12 d-flex justify-content-center">
                 <button className="btn btn-primary w-100 text-center" type="submit" disabled={loading}>
-  {loading ? <i className="fa fa-spinner fa-spin"></i> : 'Thêm mục tiêu'}
+                {loading ? 'Đang thêm...' : 'Thêm mục tiêu'}
 </button>
 
                 </div>

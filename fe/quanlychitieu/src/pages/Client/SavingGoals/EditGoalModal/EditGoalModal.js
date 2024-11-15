@@ -26,30 +26,34 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
         }
     };
 
-    const handleUpdate = async () => {
-        const amountToAdd = parseFloat(additionalAmount);
-        
-        if (isNaN(amountToAdd) || amountToAdd <= 0) {
-            setError('Số tiền không hợp lệ');
-            return;
-        }
-    
-        if (amountToAdd < 1000) {
-            setError('Số tiền ít nhất là 1,000 đồng');
-            return;
-        }
-    
-       
-    
-        try {
-            await addTransaction(goal._id, { amount: amountToAdd, note });
-            window.location.reload();
-            onUpdate(amountToAdd, note);
-            onClose();
-        } catch (error) {
-            setError('Lỗi nạp tiền ' + error.message);
-        } 
-    };
+const handleUpdate = async () => {
+    setLoading(true); 
+    const amountToAdd = parseFloat(additionalAmount);
+
+    if (isNaN(amountToAdd) || amountToAdd <= 0) {
+        setError('Số tiền không hợp lệ');
+        setLoading(false); 
+        return;
+    }
+
+    if (amountToAdd < 1000) {
+        setError('Số tiền ít nhất là 1,000 đồng');
+        setLoading(false);
+        return;
+    }
+
+    try {
+        await addTransaction(goal._id, { amount: amountToAdd, note });
+        window.location.reload();
+        onUpdate(amountToAdd, note);
+        onClose();
+    } catch (error) {
+        setError('Lỗi nạp tiền ' + error.message);
+    } finally {
+        setLoading(false); 
+    }
+};
+
     
 
     return (

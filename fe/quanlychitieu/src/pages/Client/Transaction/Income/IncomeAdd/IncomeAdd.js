@@ -25,6 +25,7 @@ const IncomeAdd = () => {
   const [incomes, setIncomes] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingCategoriesAndIncomes, setLoadingCategoriesAndIncomes] = useState(false);
 
   const userId = localStorage.getItem('userId');
   const today = new Date().toISOString().split('T')[0];
@@ -43,7 +44,7 @@ const IncomeAdd = () => {
 
   useEffect(() => {
     const fetchCategoriesAndIncomes = async () => {
-      setLoading(true);
+      setLoadingCategoriesAndIncomes(true)
       try {
         const categoriesResponse = await getCategories('income', userId);
 
@@ -61,7 +62,7 @@ const IncomeAdd = () => {
         console.error('Error fetching data:', err.response ? err.response.data : err.message);
         setError('Failed to fetch data. Please try again later.');
       } finally {
-        setLoading(false);
+        setLoadingCategoriesAndIncomes(false)
       }
     };
 
@@ -75,6 +76,7 @@ const IncomeAdd = () => {
   }, [amount, clearErrors]);
 
   const onSubmit = async (data) => {
+    setLoading(true); 
     try {
         const payload = {
             ...data,
@@ -87,8 +89,8 @@ const IncomeAdd = () => {
             throw new Error('Missing required fields');
         }
 
-        const response = await addTransaction(payload);
-
+       await addTransaction(payload);
+       window.location.reload();
         setValue('date', today); 
         setValue('amount', '');
         setValue('description', '');
@@ -96,11 +98,13 @@ const IncomeAdd = () => {
 
         const incomesResponse = await getAllTransactions('income', userId);
         setIncomes(incomesResponse || []);
-        window.location.reload();
+       
     } catch (err) {
         console.error('Error adding income:', err.response ? err.response.data : err.message);
         setError('Failed to add income. Please try again later.');
-    } 
+    } finally {
+      setLoading(false); 
+  }
 };
 
 
@@ -118,7 +122,7 @@ const IncomeAdd = () => {
     setValue('amount', formattedValue, { shouldValidate: true });
   };
 
-  if (loading) {
+  if (loadingCategoriesAndIncomes) {
     return (
       <div className="text-center mt-5">
         <i className="fa fa-spinner fa-spin fa-2x primary"></i>
@@ -230,7 +234,9 @@ const IncomeAdd = () => {
                 </div>
 
                 <div className="col-md-auto col-12 d-flex justify-content-center">
-                  <button className="btn btn-primary w-100 text-center" type="submit">Thêm thu nhập</button>
+                  <button className="btn btn-primary w-100 text-center" disabled={loading} type="submit">
+                  {loading ? 'Đang thêm...' : 'Thêm thu nhập'} 
+                  </button>
                 </div>
               </form>
               {error && <div className="alert alert-danger mt-3">{error}</div>}

@@ -77,11 +77,6 @@ const SavingGoalDetail = () => {
     return <p className="text-center">Không tìm thấy thông tin mục tiêu tiết kiệm.</p>;
   }
 
-  const formatCurrency = (value) => {
-    if (value === '' || value === null || value === undefined) return '';
-    return Number(value).toLocaleString('vi-VN');
-  };
-
   const progressPercentage = (savingGoal.currentAmount / savingGoal.targetAmount) * 100;
 
   return (
