@@ -46,7 +46,6 @@ const IncomeAdd = () => {
       setLoading(true);
       try {
         const categoriesResponse = await getCategories('income', userId);
-        console.log('Categories Response:', categoriesResponse);
 
         if (Array.isArray(categoriesResponse)) {
           const filteredCategories = categoriesResponse.filter(category => category.type === 'income');
@@ -57,7 +56,6 @@ const IncomeAdd = () => {
         }
 
         const incomesResponse = await getAllTransactions('income', userId);
-        console.log('Incomes Response:', incomesResponse);
         setIncomes(incomesResponse || []);
       } catch (err) {
         console.error('Error fetching data:', err.response ? err.response.data : err.message);
@@ -77,7 +75,6 @@ const IncomeAdd = () => {
   }, [amount, clearErrors]);
 
   const onSubmit = async (data) => {
-    setLoading(true);
     try {
         const payload = {
             ...data,
@@ -85,14 +82,12 @@ const IncomeAdd = () => {
             date: new Date(data.date).toISOString(),
             type: 'income'
         };
-        console.log('Submitting payload:', payload);
 
         if (!payload.date || !payload.amount || !payload.categoryId) {
             throw new Error('Missing required fields');
         }
 
         const response = await addTransaction(payload);
-        console.log('Response:', response);
 
         setValue('date', today); 
         setValue('amount', '');
@@ -101,12 +96,11 @@ const IncomeAdd = () => {
 
         const incomesResponse = await getAllTransactions('income', userId);
         setIncomes(incomesResponse || []);
+        window.location.reload();
     } catch (err) {
         console.error('Error adding income:', err.response ? err.response.data : err.message);
         setError('Failed to add income. Please try again later.');
-    } finally {
-        setLoading(false);
-    }
+    } 
 };
 
 

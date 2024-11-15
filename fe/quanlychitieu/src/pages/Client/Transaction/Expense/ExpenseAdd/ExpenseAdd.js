@@ -76,21 +76,18 @@ const ExpenseAdd = () => {
   }, [amount, clearErrors]);
 
   const onSubmit = async (data) => {
-    setLoading(true);
     try {
       const payload = {
         ...data,
         amount: unformatCurrency(data.amount),
         type: 'expense'
       };
-      console.log('Submitting payload:', payload);
 
       if (!payload.date || !payload.amount || !payload.categoryId) {
         throw new Error('Missing required fields');
       }
 
       const response = await addTransaction(payload);
-      console.log('Response:', response);
       setValue('date', today); 
       setValue('amount', '');
       setValue('description', '');
@@ -98,12 +95,11 @@ const ExpenseAdd = () => {
 
       const expensesResponse = await getAllTransactions('expense', userId);
       setExpenses(expensesResponse || []);
+      window.location.reload();
     } catch (err) {
       console.error('Error adding expense:', err.response ? err.response.data : err.message);
       setError('Failed to add expense. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   const formatCurrency = (value) => {

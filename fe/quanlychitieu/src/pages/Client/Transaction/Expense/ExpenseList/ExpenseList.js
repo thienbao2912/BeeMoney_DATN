@@ -50,6 +50,7 @@ const ExpenseList = () => {
           );
           setExpenses(sortedExpenses);
           setFilteredExpenses(sortedExpenses);
+          
         } else {
           throw new Error("Unexpected data format");
         }
@@ -75,7 +76,6 @@ const ExpenseList = () => {
         console.error("Error fetching categories:", error);
       }
     };
-
     fetchExpenses();
     fetchCategories();
   }, [userId]);
@@ -93,6 +93,7 @@ const ExpenseList = () => {
         (a, b) => new Date(b.date) - new Date(a.date)
       );
       setExpenses(sortedExpenses || []);
+       window.location.reload();
     } catch (error) {
       console.error(
         "Error deleting expense:",

@@ -39,17 +39,16 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
             return;
         }
     
-        setLoading(true); // Disable the button during the operation
+       
     
         try {
             await addTransaction(goal._id, { amount: amountToAdd, note });
+            window.location.reload();
             onUpdate(amountToAdd, note);
             onClose();
         } catch (error) {
             setError('Lỗi nạp tiền ' + error.message);
-        } finally {
-            setLoading(false); // Re-enable the button after the operation is done
-        }
+        } 
     };
     
 
@@ -90,7 +89,7 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
                                 id="note" 
                                 value={note} 
                                 onChange={(e) => setNote(e.target.value)} 
-                                placeholder="Thêm ghi chú (tuỳ chọn)"
+                                placeholder="Thêm ghi chú"
                             />
                         </div>
                     </div>

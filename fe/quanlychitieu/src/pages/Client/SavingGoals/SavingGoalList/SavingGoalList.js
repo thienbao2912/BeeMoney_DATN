@@ -53,11 +53,14 @@ const SavingGoalList = () => {
   }, []);
   const handleDelete = async (goalId) => {
     try {
+      window.location.reload();
       await deleteSavingsGoal(goalId);
+      
       setSavingsGoals((prevGoals) =>
         prevGoals.filter((goal) => goal._id !== goalId)
       );
       setConfirmationModalOpen(false);
+     
     } catch (error) {
       setError("Error deleting saving goals: " + error.message);
     }

@@ -33,7 +33,7 @@ const FundDetail = () => {
   };
   const fetchFund = async () => {
     try {
-      setLoading(true);
+      
       const fundData = await getSavingsFundById(id);
       setFund(fundData);
       const category = categories.find(cat => cat._id === fundData.categoryId);
@@ -77,6 +77,9 @@ const FundDetail = () => {
       setTransactionUsers((prev) => [...prev, currentUser]);
       setContributionAmount('');
       setNote('');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       console.error('Lỗi nạp tiền:', error);
       setError('Có lỗi xảy ra khi nạp tiền');

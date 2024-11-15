@@ -97,7 +97,6 @@ const SavingGoalAdd = () => {
   };
 
   const onSubmit = async (formData) => {
-    setLoading(true);
     try {
       const payload = {
         ...formData,
@@ -106,15 +105,14 @@ const SavingGoalAdd = () => {
       };
       await addSavingsGoal(payload);
       navigate('/saving-goal/list');
+      window.location.reload();
       const updatedSavingsGoals = await getAllSavingsGoals(userId);
       setSavingsGoals(updatedSavingsGoals || []);
     
     } catch (error) {
       setGlobalError('Lỗi thêm mục tiêu tiết kiệm');
       console.error('Lỗi thêm mục tiêu tiết kiệm:', error);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
   
 

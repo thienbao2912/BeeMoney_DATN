@@ -86,6 +86,7 @@ const IncomeList = () => {
             const updatedIncomes = await getAllTransactions('income', userId);
             const sortedIncomes = updatedIncomes.sort((a, b) => new Date(b.date) - new Date(a.date));
             setIncomes(sortedIncomes || []);
+            window.location.reload();
         } catch (error) {
             console.error('Error deleting income:', error.response ? error.response.data : error.message);
             setError('Failed to delete income. Please try again later.');
