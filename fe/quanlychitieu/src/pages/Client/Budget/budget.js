@@ -25,8 +25,13 @@ const Budget = () => {
         let response = await getAllBudgets(userId);
 
         const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
         response = response
-          .filter((budget) => new Date(budget.endDate) >= currentDate)
+          .filter((budget) => {
+            const endDate = new Date(budget.endDate);
+            endDate.setHours(0, 0, 0, 0);
+            return endDate >= currentDate;
+          })
           .map((budget) => ({
             ...budget,
             amount: budget.amount || 0,
@@ -34,12 +39,12 @@ const Budget = () => {
           }));
 
         response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
         if (selectedMonth !== "all") {
           const selectedMonthNumber = parseInt(selectedMonth, 10);
           response = response.filter((budget) => {
             const startDate = new Date(budget.startDate);
             const endDate = new Date(budget.endDate);
+            endDate.setHours(0, 0, 0, 0);
             const startMonth = startDate.getMonth() + 1;
             const endMonth = endDate.getMonth() + 1;
 
