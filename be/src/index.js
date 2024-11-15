@@ -16,6 +16,8 @@ require('../passport');
 // const expenseRoutes= require("./routes/expenseRoutes");
 const income = require("./routes/income");
 const budgetRoutes = require("./routes/budget")
+const hobbyRoutes = require("./routes/Hobby")
+const hobbyCategoryRoutes = require("./routes/HobbyCategory")
 const app = express();
 app.use(express.json());
 app.use(cors({
@@ -42,6 +44,8 @@ connectDB();
 // app.use('/api/expenses', expenseRoutes);
 app.use('/api/incomes', income);
 app.use('/api/budgets', budgetRoutes);
+app.use('/api/hobbys', hobbyRoutes);
+app.use('/api/hobbyCategoies', hobbyCategoryRoutes);
 
 // Start server
 const PORT = process.env.PORT || 4000;
