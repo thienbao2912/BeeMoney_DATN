@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import { loginUser } from "../../../service/Auth";
+import cookies from 'js-cookie';
 import styles from "./Login.module.css";
 
 function Login() {
@@ -71,6 +72,32 @@ function Login() {
     clearErrors("api");
     clearErrors("recaptcha");
     setRecaptchaError(""); 
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const userId = params.get("userId");
+    const userName = params.get("userName");
+    const role = params.get("role");
+
+    if (token && userId) {
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("userName", userName);
+      localStorage.setItem("userRole", role);
+
+      cookies.set("token", token, {
+        path: "/",
+        secure: true,
+        httpOnly: false,
+        sameSite: "Lax",
+      });
+      navigate("/"); 
+    } 
+  }, [navigate]);
+
+  const loginwithgoogle = ()=>{
+    window.open("http://localhost:4000/auth/google/callback","_self")
   };
 
   return (
@@ -170,6 +197,9 @@ function Login() {
             Đăng nhập
           </button>
         </form>
+        <button className={styles.logingoogle} onClick={loginwithgoogle}>
+                    Sign In With Google
+        </button>
       </div>
     </div>
   );

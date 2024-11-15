@@ -9,7 +9,7 @@ const { sendRandomPasswordEmail } = require('./src/services/emailservices');
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "/api/auth/google/callback"
+  callbackURL: "/auth/google/callback"
 },
 async function (accessToken, refreshToken, profile, cb) {
   try {

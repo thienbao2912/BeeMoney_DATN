@@ -31,18 +31,22 @@ const Sidebar = () => {
     fetchUserProfile();
   }, []);
 
+  const logout = ()=>{
+    window.open("http://localhost:4000/logout","_self")
+}
+
   const handleLogout = () => {
-    try {
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('userRole');
-      sessionStorage.clear();
-      clearCookies();
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
+  try {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userRole");
+    sessionStorage.clear();
+    clearCookies();
+    logout(); 
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+};
 
   const clearCookies = () => {
     document.cookie.split(";").forEach((c) => {
