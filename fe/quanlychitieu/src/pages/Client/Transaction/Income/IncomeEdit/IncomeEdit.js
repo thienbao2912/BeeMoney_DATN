@@ -84,6 +84,7 @@ const IncomeEdit = () => {
 
       await updateTransaction(id, payload);
       navigate('/income/list');
+      window.location.reload();
     } catch (err) {
       setError('Failed to update transaction. Please try again later.');
     }

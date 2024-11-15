@@ -4,6 +4,7 @@ import { addTransaction } from '../../../../service/SavingGoal';
 const EditGoalModal = ({ goal, onClose, onUpdate }) => {
     const [additionalAmount, setAdditionalAmount] = useState('');
     const [note, setNote] = useState('');
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const formatCurrency = (value) => {
@@ -25,27 +26,35 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
         }
     };
 
-    const handleUpdate = async () => {
-        const amountToAdd = parseFloat(additionalAmount);
-        
-        if (isNaN(amountToAdd) || amountToAdd <= 0) {
-            setError('Số tiền không hợp lệ');
-            return;
-        }
+const handleUpdate = async () => {
+    setLoading(true); 
+    const amountToAdd = parseFloat(additionalAmount);
 
-        if (amountToAdd < 1000) {
-            setError('Số tiền ít nhất là 1,000 đồng');
-            return;
-        }
+    if (isNaN(amountToAdd) || amountToAdd <= 0) {
+        setError('Số tiền không hợp lệ');
+        setLoading(false); 
+        return;
+    }
 
-        try {
-            await addTransaction(goal._id, { amount: amountToAdd, note });
-            onUpdate(amountToAdd, note);
-            onClose();
-        } catch (error) {
-            setError('Lỗi nạp tiền ' + error.message);
-        }
-    };
+    if (amountToAdd < 1000) {
+        setError('Số tiền ít nhất là 1,000 đồng');
+        setLoading(false);
+        return;
+    }
+
+    try {
+        await addTransaction(goal._id, { amount: amountToAdd, note });
+        window.location.reload();
+        onUpdate(amountToAdd, note);
+        onClose();
+    } catch (error) {
+        setError('Lỗi nạp tiền ' + error.message);
+    } finally {
+        setLoading(false); 
+    }
+};
+
+    
 
     return (
         <div className="modal fade show" tabIndex="-1" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
@@ -84,13 +93,13 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
                                 id="note" 
                                 value={note} 
                                 onChange={(e) => setNote(e.target.value)} 
-                                placeholder="Thêm ghi chú (tuỳ chọn)"
+                                placeholder="Thêm ghi chú"
                             />
                         </div>
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" onClick={onClose}>Đóng</button>
-                        <button type="button" className="btn btn-primary" onClick={handleUpdate}>Lưu thay đổi</button>
+                        <button type="button" className="btn btn-primary" disabled={loading} onClick={handleUpdate}>Nạp tiền</button>
                     </div>
                 </div>
             </div>

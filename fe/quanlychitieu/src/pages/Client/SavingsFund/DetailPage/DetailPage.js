@@ -20,7 +20,6 @@ const FundDetail = () => {
   const [note, setNote] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const { id } = useParams();
-  const navigate = useNavigate();
   const [transactionUsers, setTransactionUsers] = useState([]);
   const fetchCategories = async () => {
     try {
@@ -33,7 +32,7 @@ const FundDetail = () => {
   };
   const fetchFund = async () => {
     try {
-      setLoading(true);
+      
       const fundData = await getSavingsFundById(id);
       setFund(fundData);
       const category = categories.find(cat => cat._id === fundData.categoryId);
@@ -77,6 +76,9 @@ const FundDetail = () => {
       setTransactionUsers((prev) => [...prev, currentUser]);
       setContributionAmount('');
       setNote('');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       console.error('Lỗi nạp tiền:', error);
       setError('Có lỗi xảy ra khi nạp tiền');
@@ -152,7 +154,7 @@ const FundDetail = () => {
                       <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         <span className="text-muted small">
                           <i className="fa-solid fa-sack-dollar me-2"></i>
-                          {Number(currentAmount).toLocaleString()} đ - {Number(targetAmount).toLocaleString()} đ
+                          {Number(currentAmount).toLocaleString()} đ / {Number(targetAmount).toLocaleString()} đ
                         </span>
                         <div className="progress-wrapper d-flex align-items-center mt-2">
                           <span className="text-muted small me-2">{Math.floor(percentage)}%</span>

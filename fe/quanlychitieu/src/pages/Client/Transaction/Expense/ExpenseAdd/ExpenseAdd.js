@@ -24,6 +24,7 @@ const ExpenseAdd = () => {
   const [expenses, setExpenses] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingCategoriesAndExpenses, setLoadingCategoriesAndExpenses] = useState(false);
 
   const userId = localStorage.getItem('userId');
   const today = new Date().toISOString().split('T')[0]; 
@@ -42,10 +43,10 @@ const ExpenseAdd = () => {
 
   useEffect(() => {
     const fetchCategoriesAndExpenses = async () => {
-      setLoading(true);
+      setLoadingCategoriesAndExpenses(true);
       try {
         const categoriesResponse = await getCategories('expense', userId);
-        console.log('Categories Response:', categoriesResponse);
+      
 
         if (Array.isArray(categoriesResponse)) {
           const filteredCategories = categoriesResponse.filter(category => category.type === 'expense');
@@ -62,7 +63,7 @@ const ExpenseAdd = () => {
         console.error('Error fetching data:', err.response ? err.response.data : err.message);
         setError('Failed to fetch data. Please try again later.');
       } finally {
-        setLoading(false);
+        setLoadingCategoriesAndExpenses(false);
       }
     };
 
@@ -83,14 +84,13 @@ const ExpenseAdd = () => {
         amount: unformatCurrency(data.amount),
         type: 'expense'
       };
-      console.log('Submitting payload:', payload);
 
       if (!payload.date || !payload.amount || !payload.categoryId) {
         throw new Error('Missing required fields');
       }
 
-      const response = await addTransaction(payload);
-      console.log('Response:', response);
+      await addTransaction(payload);
+      window.location.reload();
       setValue('date', today); 
       setValue('amount', '');
       setValue('description', '');
@@ -98,12 +98,13 @@ const ExpenseAdd = () => {
 
       const expensesResponse = await getAllTransactions('expense', userId);
       setExpenses(expensesResponse || []);
+      
     } catch (err) {
       console.error('Error adding expense:', err.response ? err.response.data : err.message);
       setError('Failed to add expense. Please try again later.');
     } finally {
       setLoading(false);
-    }
+  }
   };
 
   const formatCurrency = (value) => {
@@ -120,7 +121,7 @@ const ExpenseAdd = () => {
     setValue('amount', formatCurrency(value), { shouldValidate: true });
   };
 
-  if (loading) {
+  if (loadingCategoriesAndExpenses) {
     return (
       <div className="text-center mt-5">
         <i className="fa fa-spinner fa-spin fa-2x primary"></i>
@@ -158,10 +159,10 @@ const ExpenseAdd = () => {
                       type="date"
                       id="date"
                       name="date"
-                      className="form-control"
+                      className={`form-control ${errors.date ? 'is-invalid' : ''}`}
                       {...register('date', { required: 'Ngày là bắt buộc' })}
                     />
-                    {errors.date && <p className="text-danger">{errors.date.message}</p>}
+                    {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
                   </div>
                   <div className="form-group col">
                     <label htmlFor="amount">Số tiền</label>
@@ -169,11 +170,11 @@ const ExpenseAdd = () => {
                       type="text"
                       id="amount"
                       name="amount"
-                      className="form-control"
+                      className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
                       {...register('amount', { required: 'Số tiền là bắt buộc' })}
                       onInput={handleAmountChange}
                     />
-                    {errors.amount && <p className="text-danger">{errors.amount.message}</p>}
+                    {errors.amount && <div className="invalid-feedback">{errors.amount.message}</div>}
                   </div>
                 </div>
                 <div className="form-group">
@@ -182,14 +183,14 @@ const ExpenseAdd = () => {
                     type="text"
                     id="description"
                     name="description"
-                    className="form-control"
+                    className={`form-control ${errors.description ? 'is-invalid' : ''}`}
                     {...register('description', {
                       required: 'Ghi chú là bắt buộc',
                       validate: value =>
                         !containsForbiddenWords(value) || 'Ghi chú chứa từ cấm',
                     })}
                   />
-                  {errors.description && <p className="text-danger">{errors.description.message}</p>}
+                  {errors.description && <div className="invalid-feedback">{errors.description.message}</div>}
                 </div>
 
                 <div className="form-group">
@@ -232,7 +233,9 @@ const ExpenseAdd = () => {
                 </div>
 
                 <div className="col-md-auto col-12 d-flex justify-content-center">
-                  <button className="btn btn-primary w-100 text-center" type="submit">Thêm chi tiêu</button>
+                  <button className="btn btn-primary w-100 text-center" type="submit" disabled={loading}>
+                    {loading ? 'Đang thêm...' : 'Thêm chi tiêu'}
+                  </button>
                 </div>
               </form>
               {error && <div className="alert alert-danger mt-3">{error}</div>}
@@ -252,7 +255,6 @@ const ExpenseAdd = () => {
                         <img
                           src={expense.categoryId.image}
                           alt={expense.categoryId.name}
-                          className=""
                           width="50"
                           height="50"
                         />
@@ -262,7 +264,10 @@ const ExpenseAdd = () => {
                     </div>
                     <div className="text-center flex-grow-1">
                       <h6 className="mb-0">{expense.description}</h6>
-                      <p className="text-danger mb-0">- {Number(expense.amount).toLocaleString()}</p>
+                      <p className="text-danger mb-0">- {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(expense.amount)}</p>
                     </div>
                     <div className="text-end">
                       <p className="text-secondary mb-0">{new Date(expense.date).toLocaleDateString()}</p>
