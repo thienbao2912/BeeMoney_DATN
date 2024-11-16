@@ -15,7 +15,7 @@ const IncomeList = () => {
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
-    const [goalToDelete, setGoalToDelete] = useState(null);
+    const [toDelete, setToDelete] = useState(null);
     const [itemsPerPage] = useState(5);
     const [filterOption, setFilterOption] = useState("all");
     const userId = localStorage.getItem('userId');
@@ -84,7 +84,9 @@ const IncomeList = () => {
             await deleteTransaction(incomeId);
             setConfirmationModalOpen(false);
             const updatedIncomes = await getAllTransactions('income', userId);
-            const sortedIncomes = updatedIncomes.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const sortedIncomes = updatedIncomes.sort(
+                (a, b) => new Date(b.date) - new Date(a.date)
+            );
             setIncomes(sortedIncomes || []);
             window.location.reload();
         } catch (error) {
@@ -145,13 +147,13 @@ const IncomeList = () => {
         setSelectedMonth(e.target.value);
     };
 
-    const openConfirmationModal = (goalId) => {
-        setGoalToDelete(goalId);
+    const openConfirmationModal = (item) => {
+        setToDelete(item);
         setConfirmationModalOpen(true);
     };
 
     const closeConfirmationModal = () => {
-        setGoalToDelete(null);
+        setToDelete(null);
         setConfirmationModalOpen(false);
     }
     const indexOfLastIncome = currentPage * itemsPerPage;
@@ -278,7 +280,7 @@ const IncomeList = () => {
                                                 }).format(income.amount)}</span>
                                             </td>
                                             <td className="align-middle">
-                                                <span className="custom-date-style">{new Date(income.date).toLocaleDateString()}</span>
+                                                <span className="badge bg-info">{new Date(income.date).toLocaleDateString()}</span>
                                             </td>
                                             <td className="align-middle text-center">
                                                 <button className="btn btn-link p-0 text-danger">
@@ -288,7 +290,7 @@ const IncomeList = () => {
                                                 </button>
                                                 <button
                                                     className="btn btn-link p-0 text-danger"
-                                                    onClick={() => openConfirmationModal(income._id)}
+                                                    onClick={() => openConfirmationModal(income)}
                                                     aria-label="Delete"
                                                 >
                                                     <i className="fa fa-trash" />
@@ -310,31 +312,35 @@ const IncomeList = () => {
                 </div>
             </div>
 
-            <div className="pagination text-center mt-4">
+            <div className="pagination justify-content-center mt-3 flex-wrap">
+        {totalPages > 1 && (
+          <ul className="pagination">
+            {Array.from({ length: totalPages }, (_, index) => (
+              <li
+                key={index + 1}
+                className={`page-item ${
+                  currentPage === index + 1 ? "active" : ""
+                }`}
+              >
                 <button
-                    className="btn btn-secondary"
-                    onClick={() => paginate(currentPage - 1)}
-                    disabled={currentPage === 1}
+                  onClick={() => paginate(index + 1)}
+                  className="page-link"
                 >
-                    <i className="fa-solid fa-backward"></i>
+                  {index + 1}
                 </button>
-                <span className="mx-2">{currentPage} / {totalPages}</span>
-                <button
-                    className="btn btn-secondary"
-                    onClick={() => paginate(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                >
-                    <i className="fa-solid fa-forward"></i>
-                </button>
-            </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
             {isConfirmationModalOpen && (
                 <ConfirmationModal
                     isOpen={isConfirmationModalOpen}
                     onClose={closeConfirmationModal}
                     onConfirm={() => {
-                        if (goalToDelete) handleDelete(goalToDelete);
+                        if (toDelete) handleDelete(toDelete._id);
                     }}
-                    message="Bạn có chắc chắn muốn xóa mục tiêu này?"
+                    message={`Bạn có chắc chắn muốn xóa <span class="primary">${toDelete?.description}</span> ?`}
                 />
             )}
         </div>

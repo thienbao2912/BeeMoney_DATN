@@ -335,7 +335,7 @@ const ExpenseList = () => {
                       </td>
 
                       <td className="align-middle">
-                        <span className="custom-date-style">
+                        <span className="badge bg-info">
                           {new Date(expense.date).toLocaleDateString()}
                         </span>
                       </td>
