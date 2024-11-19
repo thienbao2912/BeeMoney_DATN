@@ -98,6 +98,7 @@ const ExpenseEdit = () => {
 
       await updateTransaction(id, payload);
       navigate("/expense/list"); 
+      window.location.reload();
     } catch (err) {
       setError("Failed to update transaction. Please try again later.");
     }

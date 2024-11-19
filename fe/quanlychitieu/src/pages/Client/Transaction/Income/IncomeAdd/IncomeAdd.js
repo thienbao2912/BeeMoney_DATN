@@ -25,6 +25,7 @@ const IncomeAdd = () => {
   const [incomes, setIncomes] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingCategoriesAndIncomes, setLoadingCategoriesAndIncomes] = useState(false);
 
   const userId = localStorage.getItem('userId');
   const today = new Date().toISOString().split('T')[0];
@@ -43,10 +44,9 @@ const IncomeAdd = () => {
 
   useEffect(() => {
     const fetchCategoriesAndIncomes = async () => {
-      setLoading(true);
+      setLoadingCategoriesAndIncomes(true)
       try {
         const categoriesResponse = await getCategories('income', userId);
-        console.log('Categories Response:', categoriesResponse);
 
         if (Array.isArray(categoriesResponse)) {
           const filteredCategories = categoriesResponse.filter(category => category.type === 'income');
@@ -57,13 +57,12 @@ const IncomeAdd = () => {
         }
 
         const incomesResponse = await getAllTransactions('income', userId);
-        console.log('Incomes Response:', incomesResponse);
         setIncomes(incomesResponse || []);
       } catch (err) {
         console.error('Error fetching data:', err.response ? err.response.data : err.message);
         setError('Failed to fetch data. Please try again later.');
       } finally {
-        setLoading(false);
+        setLoadingCategoriesAndIncomes(false)
       }
     };
 
@@ -77,7 +76,7 @@ const IncomeAdd = () => {
   }, [amount, clearErrors]);
 
   const onSubmit = async (data) => {
-    setLoading(true);
+    setLoading(true); 
     try {
         const payload = {
             ...data,
@@ -85,15 +84,13 @@ const IncomeAdd = () => {
             date: new Date(data.date).toISOString(),
             type: 'income'
         };
-        console.log('Submitting payload:', payload);
 
         if (!payload.date || !payload.amount || !payload.categoryId) {
             throw new Error('Missing required fields');
         }
 
-        const response = await addTransaction(payload);
-        console.log('Response:', response);
-
+       await addTransaction(payload);
+       window.location.reload();
         setValue('date', today); 
         setValue('amount', '');
         setValue('description', '');
@@ -101,12 +98,13 @@ const IncomeAdd = () => {
 
         const incomesResponse = await getAllTransactions('income', userId);
         setIncomes(incomesResponse || []);
+       
     } catch (err) {
         console.error('Error adding income:', err.response ? err.response.data : err.message);
         setError('Failed to add income. Please try again later.');
     } finally {
-        setLoading(false);
-    }
+      setLoading(false); 
+  }
 };
 
 
@@ -124,7 +122,7 @@ const IncomeAdd = () => {
     setValue('amount', formattedValue, { shouldValidate: true });
   };
 
-  if (loading) {
+  if (loadingCategoriesAndIncomes) {
     return (
       <div className="text-center mt-5">
         <i className="fa fa-spinner fa-spin fa-2x primary"></i>
@@ -133,7 +131,7 @@ const IncomeAdd = () => {
     );
   }
 
-  // Sort incomes by date (most recent first) and limit to top 5
+ 
   const sortedIncomes = [...incomes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
 
   return (
@@ -163,10 +161,10 @@ const IncomeAdd = () => {
                       type="date"
                       id="date"
                       name="date"
-                      className="form-control"
+                      className={`form-control ${errors.date ? 'is-invalid' : ''}`}
                       {...register('date', { required: 'Ngày là bắt buộc' })}
                     />
-                    {errors.date && <p className="text-danger">{errors.date.message}</p>}
+                    {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
                   </div>
                   <div className="form-group col">
                     <label htmlFor="amount">Số tiền</label>
@@ -174,11 +172,11 @@ const IncomeAdd = () => {
                       type="text"
                       id="amount"
                       name="amount"
-                      className="form-control"
+                      className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
                       {...register('amount', { required: 'Số tiền là bắt buộc' })}
                       onInput={handleAmountInput}
                     />
-                    {errors.amount && <p className="text-danger">{errors.amount.message}</p>}
+                    {errors.amount && <div className="invalid-feedback">{errors.amount.message}</div>}
                   </div>
                 </div>
                 <div className="form-group">
@@ -187,14 +185,14 @@ const IncomeAdd = () => {
                     type="text"
                     id="description"
                     name="description"
-                    className="form-control"
+                    className={`form-control ${errors.description ? 'is-invalid' : ''}`}
                     {...register('description', {
                       required: 'Ghi chú là bắt buộc',
                       validate: value => 
                         !containsForbiddenWords(value) || 'Ghi chú chứa từ cấm',
                     })}
                   />
-                  {errors.description && <p className="text-danger">{errors.description.message}</p>}
+                  {errors.description && <div className="invalid-feedback">{errors.description.message}</div>}
                 </div>
 
                 <div className="form-group">
@@ -236,7 +234,9 @@ const IncomeAdd = () => {
                 </div>
 
                 <div className="col-md-auto col-12 d-flex justify-content-center">
-                  <button className="btn btn-primary w-100 text-center" type="submit">Thêm thu nhập</button>
+                  <button className="btn btn-primary w-100 text-center" disabled={loading} type="submit">
+                  {loading ? 'Đang thêm...' : 'Thêm thu nhập'} 
+                  </button>
                 </div>
               </form>
               {error && <div className="alert alert-danger mt-3">{error}</div>}
@@ -256,7 +256,6 @@ const IncomeAdd = () => {
                         <img
                           src={income.categoryId.image}
                           alt={income.categoryId.name}
-                          className="category-image"
                           width="50"
                           height="50"
                         />
@@ -266,7 +265,10 @@ const IncomeAdd = () => {
                     </div>
                     <div className="text-center flex-grow-1">
                       <h6 className="mb-0">{income.description}</h6>
-                      <p className="text-success mb-0">+ {Number(income.amount).toLocaleString()}</p>
+                      <p className="text-success mb-0">+ {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(income.amount)}</p>
                     </div>
                     <div className="text-end">
                       <p className="text-secondary mb-0">{new Date(income.date).toLocaleDateString()}</p>
