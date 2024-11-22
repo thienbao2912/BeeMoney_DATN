@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { addTransaction } from '../../../../service/SavingGoal';
-
+import { toast } from 'react-toastify';
 const EditGoalModal = ({ goal, onClose, onUpdate }) => {
     const [additionalAmount, setAdditionalAmount] = useState('');
     const [note, setNote] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+ 
 
     const formatCurrency = (value) => {
         return Number(value).toLocaleString('vi-VN');
@@ -25,34 +25,42 @@ const EditGoalModal = ({ goal, onClose, onUpdate }) => {
             e.target.value = formatCurrency(value);
         }
     };
-
-const handleUpdate = async () => {
-    setLoading(true); 
-    const amountToAdd = parseFloat(additionalAmount);
-
-    if (isNaN(amountToAdd) || amountToAdd <= 0) {
-        setError('Số tiền không hợp lệ');
-        setLoading(false); 
-        return;
-    }
-
-    if (amountToAdd < 1000) {
-        setError('Số tiền ít nhất là 1,000 đồng');
-        setLoading(false);
-        return;
-    }
-
-    try {
-        await addTransaction(goal._id, { amount: amountToAdd, note });
-        window.location.reload();
-        onUpdate(amountToAdd, note);
-        onClose();
-    } catch (error) {
-        setError('Lỗi nạp tiền ' + error.message);
-    } finally {
-        setLoading(false); 
-    }
-};
+    const handleUpdate = async () => {
+        setLoading(true); 
+        const amountToAdd = parseFloat(additionalAmount);
+    
+        if (isNaN(amountToAdd) || amountToAdd <= 0) {
+            toast.warning('Vui lòng nhập số tiền');
+            setLoading(false); 
+            return;
+        }
+    
+        if (amountToAdd < 1000) {
+            toast.warning('Số tiền ít nhất là 1,000 đồng');
+            setLoading(false);
+            return;
+        }
+    
+    
+        const transactionNote = note || null;
+        try {
+            const response = await addTransaction(goal._id, { amount: amountToAdd, note: transactionNote });
+            onUpdate(amountToAdd, transactionNote);
+            onClose();
+            toast.success('Nạp tiền thành công')
+    
+        } catch (error) {
+            if (error.status === 400) {
+                toast.warning(error.message);   
+            } else {
+                toast.error('Lỗi nạp tiền: ' + (error.message || 'Unknown error')); 
+            }
+        } finally {
+            setLoading(false);  
+        }
+    };
+    
+    
 
     
 
@@ -65,16 +73,7 @@ const handleUpdate = async () => {
                         <button type="button" className="btn-close" onClick={onClose}></button>
                     </div>
                     <div className="modal-body">
-                        {error && (
-                            <div className="toast align-items-center text-white bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-                                <div className="d-flex">
-                                    <div className="toast-body">
-                                        {error}
-                                    </div>
-                                    <button type="button" className="btn-close btn-close-white me-2 m-auto" onClick={() => setError(null)}></button>
-                                </div>
-                            </div>
-                        )}
+                       
                         <div className="mb-3">
                             <label htmlFor="additionalAmount" className="form-label">Số tiền thêm vào</label>
                             <input 
@@ -99,7 +98,9 @@ const handleUpdate = async () => {
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" onClick={onClose}>Đóng</button>
-                        <button type="button" className="btn btn-primary" disabled={loading} onClick={handleUpdate}>Nạp tiền</button>
+                        <button type="button" className="btn btn-primary" disabled={loading} onClick={handleUpdate}> 
+                            {loading ? 'Đang nạp...' : 'Nạp tiền'}
+                             </button>
                     </div>
                 </div>
             </div>

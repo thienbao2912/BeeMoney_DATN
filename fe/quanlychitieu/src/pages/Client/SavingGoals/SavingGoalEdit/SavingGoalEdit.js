@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getCategories, getSavingsGoalById, updateSavingsGoal } from '../../../../service/SavingGoal';
 
@@ -102,6 +103,7 @@ const SavingGoalEdit = () => {
       console.log('Updated savings goal:', updatedGoal);
 
       navigate('/saving-goal/list');
+      toast.success('Cập nhật thành công!');
     } catch (error) {
       console.error('Error updating savings goal:', error);
     }

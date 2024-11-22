@@ -31,14 +31,24 @@ const IncomeChart = ({ data, onClick }) => {
                     '#FDB5B5',  
                     '#FFE2A1',  
                     '#B2DFDB', 
-                    '#C5E1A5'   
+                    '#C5E1A5',
+                    '#8A71B0',
+                    '#FFAB91',
+                    '#81D4FA',
+                    '#AED581',
+                    '#FFF176'   
                 ],
                 hoverBackgroundColor: [
                     '#A6CEE3',  
                     '#FDB5B5',  
                     '#FFE2A1',  
                     '#B2DFDB', 
-                    '#C5E1A5'
+                    '#C5E1A5',
+                    '#8A71B0',
+                    '#FFAB91',
+                    '#81D4FA',
+                    '#AED581',
+                    '#FFF176'   
                 ]
             }
         ]

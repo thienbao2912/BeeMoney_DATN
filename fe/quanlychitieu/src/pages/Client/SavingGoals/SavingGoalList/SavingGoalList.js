@@ -5,15 +5,13 @@ import {
 } from "../../../../service/SavingGoal";
 import "./SavingGoalList.css";
 import { Link } from "react-router-dom";
-import EditGoalModal from "../EditGoalModal/EditGoalModal";
+import { toast } from "react-toastify";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
 const ITEMS_PER_PAGE = 8;
 const SavingGoalList = () => {
   const [savingsGoals, setSavingsGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedGoal, setSelectedGoal] = useState(null);
-  const [isModalOpen, setModalOpen] = useState(false);
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,26 +50,19 @@ const SavingGoalList = () => {
     fetchSavingsGoals();
   }, []);
   const handleDelete = async (goalId) => {
+    setLoading(true)
     try {
-      window.location.reload();
       await deleteSavingsGoal(goalId);
       
       setSavingsGoals((prevGoals) =>
         prevGoals.filter((goal) => goal._id !== goalId)
       );
       setConfirmationModalOpen(false);
-     
+      toast.success('Xóa mục tiêu thành công')
+      setLoading(false)
     } catch (error) {
       setError("Error deleting saving goals: " + error.message);
     }
-  };
-  const openModal = (goal) => {
-    setSelectedGoal(goal);
-    setModalOpen(true);
-  };
-  const closeModal = () => {
-    setSelectedGoal(null);
-    setModalOpen(false);
   };
   const openConfirmationModal = (item) => {
     setGoalToDelete(item);
@@ -81,24 +72,7 @@ const SavingGoalList = () => {
     setGoalToDelete(null);
     setConfirmationModalOpen(false);
   };
-  const handleSaveTransaction = async () => {
-    try {
-      const userId = localStorage.getItem("userId");
-      let data = await getAllSavingsGoals(userId);
-      const currentDate = new Date();
-      data = data
-        .filter((goal) => new Date(goal.endDate) >= currentDate)
-        .map((goal) => ({
-          ...goal,
-          currentAmount: goal.currentAmount || 0,
-          targetAmount: goal.targetAmount || 0,
-        }));
-      data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      setSavingsGoals(data);
-    } catch (error) {
-      setError("Lỗi khi lấy danh sách mục tiêu tiết kiệm: " + error.message);
-    }
-  };
+
   const handleMonthChange = (event) => {
     setSelectedMonth(event.target.value);
     setCurrentPage(1);
@@ -259,21 +233,13 @@ const SavingGoalList = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
-                    {percentage < 100 && (
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => openModal(goal)}
-                      >
-                        Nạp tiền
-                      </button>
-                    )}
-                    <div className="d-flex align-items-center ms-auto">
+                
+                    <div className="text-center align-items-center">
                       <Link to={`/saving-goal/detail/${goal._id}`}
-                        className="btn btn-primary"
+                        className="text-primary"
                         aria-label="Detail">Xem chi tiết </Link>
                     </div>
-                  </div>
+                
                 </div>
               </div>
             </div>
@@ -300,13 +266,6 @@ const SavingGoalList = () => {
             ))}
           </ul>
         </div>
-      )}
-      {isModalOpen && selectedGoal && (
-        <EditGoalModal
-          goal={selectedGoal}
-          onClose={closeModal}
-          onUpdate={handleSaveTransaction}
-        />
       )}
       {isConfirmationModalOpen && (
         <ConfirmationModal
