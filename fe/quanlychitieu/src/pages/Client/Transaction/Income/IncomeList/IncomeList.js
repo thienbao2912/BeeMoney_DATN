@@ -4,7 +4,7 @@ import ConfirmationModal from '../../../SavingGoals/ConfirmationModal/Confirmati
 import { getCategories } from "../../../../../service/Category";
 import CustomDropdown from "../../CustomDropdown";
 import { Link } from 'react-router-dom';
-
+import { toast } from "react-toastify";
 const IncomeList = () => {
     const [incomes, setIncomes] = useState([]);
     const [filteredIncomes, setFilteredIncomes] = useState([]);
@@ -80,6 +80,7 @@ const IncomeList = () => {
     }, [incomes, filterOption, selectedCategory, selectedMonth]);
 
     const handleDelete = async (incomeId) => {
+        setLoading(true);
         try {
             await deleteTransaction(incomeId);
             setConfirmationModalOpen(false);
@@ -88,7 +89,8 @@ const IncomeList = () => {
                 (a, b) => new Date(b.date) - new Date(a.date)
             );
             setIncomes(sortedIncomes || []);
-            window.location.reload();
+            toast.success('Đã xóa thu nhập')
+            setLoading(false)
         } catch (error) {
             console.error('Error deleting income:', error.response ? error.response.data : error.message);
             setError('Failed to delete income. Please try again later.');

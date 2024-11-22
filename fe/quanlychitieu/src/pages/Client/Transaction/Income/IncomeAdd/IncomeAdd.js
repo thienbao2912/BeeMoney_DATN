@@ -3,6 +3,7 @@ import './IncomeAdd.css';
 import { getAllTransactions, addTransaction, getCategories } from '../../../../../service/Transaction';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 
 const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng'];
 
@@ -90,7 +91,7 @@ const IncomeAdd = () => {
         }
 
        await addTransaction(payload);
-       window.location.reload();
+       toast.success('Thêm thu nhập thành công')
         setValue('date', today); 
         setValue('amount', '');
         setValue('description', '');
@@ -101,7 +102,7 @@ const IncomeAdd = () => {
        
     } catch (err) {
         console.error('Error adding income:', err.response ? err.response.data : err.message);
-        setError('Failed to add income. Please try again later.');
+        toast.warning('Vui lòng chọn danh mục');
     } finally {
       setLoading(false); 
   }

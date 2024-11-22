@@ -1,12 +1,14 @@
 import React from 'react';
 import { ResponsiveBar } from '@nivo/bar';
 
-const TotalOverviewChart = ({ totalIncome, totalExpenses }) => {
-    const remainingAmount = totalIncome - totalExpenses;
+const TotalOverviewChart = ({ totalIncome, totalExpenses, totalSavings, totalUserContribution }) => {
+    const remainingAmount = totalIncome - (totalExpenses + totalSavings + totalUserContribution);
 
     const data = [
-        { id: 'Tổng Chi tiêu', value: totalExpenses },
-        { id: 'Tổng Thu nhập', value: totalIncome },
+        { id: 'Chi tiêu', value: totalExpenses },
+        { id: 'Thu nhập', value: totalIncome },
+        { id: 'Tiết kiệm', value: totalSavings },
+        { id: 'Đóng góp', value: totalUserContribution },
     ];
 
     if (remainingAmount >= 0) {
@@ -15,20 +17,22 @@ const TotalOverviewChart = ({ totalIncome, totalExpenses }) => {
 
     const formatCurrency = (value) => {
         if (value >= 1e9) {
-            return `${(value / 1e9).toFixed(1)} T`; 
+            return `${(value / 1e9).toFixed(1)} T`; // Hàng tỷ
         } else if (value >= 1e6) {
-            return `${(value / 1e6).toFixed(1)} M`; 
+            return `${(value / 1e6).toFixed(1)} M`; // Hàng triệu
+        } else if (value >= 1e3) {
+            return `${(value / 1e3).toFixed(1)} K`; // Hàng nghìn
         } else {
-            return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }); // Dưới 1,000
         }
     };
-
+    
     const colors = [
         'rgba(255, 99, 132, 0.8)',  
         'rgba(54, 162, 235, 0.8)', 
-        'rgba(255, 159, 64, 0.8)',  
-        'rgba(255, 206, 86, 0.8)', 
-        'rgba(75, 192, 192, 0.8)',  
+        'rgba(255, 159, 64, 0.8)', 
+        'rgba(140, 100, 192, 0.8)',  
+        'rgba(75, 206, 86, 0.8)', 
         'rgba(153, 102, 255, 0.8)', 
     ];
 
@@ -41,7 +45,7 @@ const TotalOverviewChart = ({ totalIncome, totalExpenses }) => {
     }
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div style={{ padding: '2px' }}>
             <div style={{ height: '25rem' }}>
                 <ResponsiveBar
                     data={data}
@@ -108,7 +112,7 @@ const TotalOverviewChart = ({ totalIncome, totalExpenses }) => {
                 <div style={{ 
                     marginTop: '20px', 
                     textAlign: 'center', 
-                    color: 'red',
+                    color: 'indigo',
                     padding: '10px',
                     backgroundColor: 'rgba(255, 255, 255, 0.8)',
                     borderRadius: '4px',

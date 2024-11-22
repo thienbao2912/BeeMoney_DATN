@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import './SavingGoalAdd.css';
 import { getCategories, addSavingsGoal, getAllSavingsGoals } from '../../../../service/SavingGoal';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu'];
 
 const removeAccents = (str) => {
@@ -19,7 +20,7 @@ const containsForbiddenWords = (value) => {
 };
 
 const SavingGoalAdd = () => {
-  const { register, handleSubmit, setValue, watch, setError, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, watch, setError, reset, formState: { errors } } = useForm({
     defaultValues: {
       name: '',
       targetAmount: '', 
@@ -29,7 +30,7 @@ const SavingGoalAdd = () => {
       categoryId: ''
     }
   });
-  const navigate = useNavigate();
+
   const [categories, setCategories] = useState([]);
   const [savingsGoals, setSavingsGoals] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -100,6 +101,12 @@ const SavingGoalAdd = () => {
   const onSubmit = async (formData) => {
     setLoading(true);
     try {
+      const selectedCategoryId = formData.categoryId;
+    if (!selectedCategoryId) {
+      toast.warning('Chưa chọn danh mục');
+      setLoading(false); 
+      return; // Ngăn việc tiếp tục gửi form
+    }
       const payload = {
         ...formData,
         targetAmount: unformatCurrency(formData.targetAmount),
@@ -107,7 +114,8 @@ const SavingGoalAdd = () => {
       };
       await addSavingsGoal(payload);
       // navigate('/saving-goal/list');
-      window.location.reload();
+     toast.success('Thêm mục tiêu tiết kiệm thành công')
+     reset();
       const updatedSavingsGoals = await getAllSavingsGoals(userId);
       setSavingsGoals(updatedSavingsGoals || []);
     
@@ -257,7 +265,7 @@ const SavingGoalAdd = () => {
           savingsGoals
           .filter(goal => new Date(goal.endDate) >= new Date()) 
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) 
-          .slice(0, 2)
+          .slice(0, 3)
           .map((goal) => {
                     return (
                       <div className="card mt-4" key={goal._id}>

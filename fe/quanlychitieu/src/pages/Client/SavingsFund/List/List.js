@@ -129,8 +129,8 @@ const SavingsGoalsList = ({ userId }) => {
                                         </Card.Text>
                                     </Col>
                                 </Row>
-                                <Button   onClick={() => handleViewDetails(goal._id)} 
-                      className="btn btn-info me-2" variant="primary" >
+                                <Button onClick={() => handleViewDetails(goal._id)} 
+                      className="btn btn-primary">
                                     Xem chi tiết
                                 </Button>
                             </Card.Body>

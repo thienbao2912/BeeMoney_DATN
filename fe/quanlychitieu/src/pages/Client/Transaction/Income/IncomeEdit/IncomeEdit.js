@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import './IncomeEdit.css';
 import { getCategories, updateTransaction, getTransactionById } from '../../../../../service/Transaction';
 import { Link, useParams, useNavigate } from 'react-router-dom';
@@ -72,6 +73,7 @@ const IncomeEdit = () => {
   };
 
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
       const payload = {
         ...data,
@@ -84,10 +86,12 @@ const IncomeEdit = () => {
 
       await updateTransaction(id, payload);
       navigate('/income/list');
-      window.location.reload();
+      toast.success('Cập nhật thu nhập thành công')
     } catch (err) {
       setError('Failed to update transaction. Please try again later.');
-    }
+    } finally {
+      setLoading(false);
+  }
   };
 
   const handleCategorySelect = (categoryId) => {

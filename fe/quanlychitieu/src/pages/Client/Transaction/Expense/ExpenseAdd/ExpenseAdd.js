@@ -3,6 +3,7 @@ import './ExpenseAdd.css';
 import { getAllTransactions, addTransaction, getCategories } from '../../../../../service/Transaction';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 
 const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu']; 
 
@@ -90,7 +91,7 @@ const ExpenseAdd = () => {
       }
 
       await addTransaction(payload);
-      window.location.reload();
+      toast.success('Thêm chi tiêu thành công')
       setValue('date', today); 
       setValue('amount', '');
       setValue('description', '');
@@ -101,7 +102,7 @@ const ExpenseAdd = () => {
       
     } catch (err) {
       console.error('Error adding expense:', err.response ? err.response.data : err.message);
-      setError('Failed to add expense. Please try again later.');
+      toast.warning('Vui lòng chọn danh mục');
     } finally {
       setLoading(false);
   }
