@@ -49,7 +49,7 @@ const addSavingsGoal = async (savingsGoal) => {
         return response.data;
       } else {
         throw new Error('Unexpected response format');
-      }
+      } 
     } catch (error) {
       console.error('Error adding savings goal:', error.response ? error.response.data : error.message);
       throw error;

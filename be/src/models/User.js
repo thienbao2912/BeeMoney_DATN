@@ -18,6 +18,7 @@ const UserSchema = new mongoose.Schema({
     resetPasswordExpires: Date,
     tokenLogin: String,
     wallet: { type: Number, default: 0 },
+    isFirstLogin: { type: Boolean, default: true },
 }, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {
@@ -39,7 +40,7 @@ UserSchema.methods.comparePassword = function (password) {
 UserSchema.methods.createPasswordChangedToken = function () {
     const resetToken = crypto.randomBytes(32).toString('hex');
     this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    this.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // Token hết hạn sau 15 phút
+    this.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
     return resetToken;
 };
 

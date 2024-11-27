@@ -61,7 +61,6 @@ const loginUser = async ({ email, password }) => {
         });
 
         if (res?.status === "locked") {
-            // eslint-disable-next-line no-throw-literal
             throw { response: { status: 403, message: "Tài khoản của bạn đã bị khóa." } };
           }
 

@@ -18,15 +18,15 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [capVal, setCapVal] = useState(null);
-  const [recaptchaError, setRecaptchaError] = useState(""); 
+  const [recaptchaError, setRecaptchaError] = useState("");
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const onSubmit = async (data) => {   
+  const onSubmit = async (data) => {
     if (!capVal) {
-      setRecaptchaError("Vui lòng xác nhận ReCAPTCHA."); 
+      setRecaptchaError("Vui lòng xác nhận ReCAPTCHA.");
       return;
     }
 
@@ -38,7 +38,11 @@ function Login() {
           message: "Tài khoản của bạn đã bị khóa.",
         });
       } else if (response?.accessToken) {
-        navigate("/");
+        if (response?.isFirstLogin) {
+          navigate("/hobbyCategory");
+        } else {
+          navigate("/");
+        }
       } else {
         setError("api", {
           type: "manual",
@@ -70,7 +74,7 @@ function Login() {
     clearErrors("password");
     clearErrors("api");
     clearErrors("recaptcha");
-    setRecaptchaError(""); 
+    setRecaptchaError("");
   };
 
   return (
@@ -160,7 +164,7 @@ function Login() {
             sitekey="6LcZwlAqAAAAAMWeZ1Bkzt-Kjnux1WLDYAJ776Jl"
             onChange={(val) => {
               setCapVal(val);
-              setRecaptchaError(""); 
+              setRecaptchaError("");
             }}
           />
           {recaptchaError && (

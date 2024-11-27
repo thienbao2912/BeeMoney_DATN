@@ -11,7 +11,6 @@ const crypto = require('crypto');
 
 const authController = {
 
-    // Đăng ký
     registerUser: async (req, res) => {
         try {
             const { email, password, name } = req.body;
@@ -30,41 +29,53 @@ const authController = {
         }
     },
 
-    // Đăng nhập
     loginUser: async (req, res) => {
         try {
             const user = await User.findOne({ email: req.body.email });
             if (!user) {
                 return res.status(400).json({ error: 'Thông tin đăng nhập không chính xác' });
             }
-
+    
             const validPassword = await bcrypt.compare(req.body.password, user.password);
             if (!validPassword) {
                 return res.status(400).json({ error: 'Thông tin đăng nhập không chính xác' });
             }
-
+    
             if (user.status === 'locked') {
                 return res.status(403).json({ error: 'Tài khoản đã bị khóa' });
             }
-
+    
             const payload = {
                 id: user.id,
                 role: user.role,
                 name: user.name,
             };
+    
             const jwtSecret = process.env.JWT_ACCESS_KEY;
             if (!jwtSecret) {
                 throw new Error('JWT_ACCESS_KEY is not defined');
             }
-
+    
             const token = jwt.sign(payload, jwtSecret, { expiresIn: '100h' });
+    
+            const isFirstLogin = user.isFirstLogin;
+    
+            if (isFirstLogin) {
+                await User.findByIdAndUpdate(user._id, { isFirstLogin: false });
+            }
+    
             await authController.updateLastLogin(user._id);
-            const { password, ...others } = user._doc
-            return res.status(200).json({ ...others, accessToken: token });
+            const { password, ...others } = user._doc;
+    
+            return res.status(200).json({ 
+                ...others, 
+                accessToken: token, 
+                isFirstLogin 
+            });
         } catch (err) {
             return res.status(500).json({ error: err.message });
         }
-    },
+    },    
 
     updateLastLogin: async (userId) => {
         try {

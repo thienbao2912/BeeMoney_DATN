@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { getAllCategories } from "../../../service/Category";
 
 const HobbyCategory = () => {
   const [categories, setCategories] = useState([]);
   const [isFetching, setIsFetching] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState([]); // State để lưu trữ danh mục đã chọn
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -27,10 +28,8 @@ const HobbyCategory = () => {
     fetchCategories();
   }, []);
 
-  // Hàm xử lý khi người dùng click chọn một danh mục
   const toggleCategorySelection = (categoryId) => {
     setSelectedCategories((prevSelected) => {
-      // Kiểm tra nếu danh mục đã được chọn, thì bỏ chọn, nếu chưa chọn thì thêm vào
       if (prevSelected.includes(categoryId)) {
         return prevSelected.filter((id) => id !== categoryId);
       } else {
@@ -39,20 +38,31 @@ const HobbyCategory = () => {
     });
   };
 
-  // Hàm xử lý khi bấm nút "Tiếp tục"
   const handleContinue = () => {
     if (selectedCategories.length > 0) {
       console.log("Selected categories:", selectedCategories);
-      // Thực hiện điều hướng hoặc xử lý khác khi bấm tiếp tục
-      // Ví dụ: điều hướng sang trang khác hoặc gửi dữ liệu lên server
     } else {
       alert("Vui lòng chọn ít nhất một danh mục!");
     }
   };
 
   return (
-    <div align="center" className="container">
-      <h4>Chọn những danh mục bạn muốn hướng đến</h4>
+    <div className="container">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <Link to="/" className="text-primary" style={{ cursor: "pointer", textDecoration:'none' }}>
+          bỏ qua
+        </Link>
+        <h4 className="text-center flex-grow-1 m-0">
+          Chọn những danh mục bạn muốn hướng đến
+        </h4>
+        <button
+          className="btn btn-primary"
+          onClick={handleContinue}
+          disabled={selectedCategories.length === 0}
+        >
+          Tiếp tục
+        </button>
+      </div>
       {isFetching ? (
         <p>Loading...</p>
       ) : (
@@ -62,7 +72,9 @@ const HobbyCategory = () => {
               <div key={category._id} className="col-md-3 mb-4">
                 <div
                   className={`card text-center ${
-                    selectedCategories.includes(category._id) ? "border-primary" : ""
+                    selectedCategories.includes(category._id)
+                      ? "border-primary"
+                      : ""
                   }`}
                   style={{
                     cursor: "pointer",
@@ -87,13 +99,6 @@ const HobbyCategory = () => {
               </div>
             ))}
           </div>
-          <button
-            className="btn btn-primary mt-3"
-            onClick={handleContinue}
-            disabled={selectedCategories.length === 0} // Vô hiệu hóa nút nếu không có danh mục nào được chọn
-          >
-            Tiếp tục
-          </button>
         </>
       )}
     </div>
