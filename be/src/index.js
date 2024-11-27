@@ -105,6 +105,7 @@ app.get("/auth/google/callback", passport.authenticate("google", {
       }
     if (req.user && req.user.token && req.user.user._id) {
         const { token, user } = req.user;
+        const isFirstLogin = user.isFirstLogin || false; // Thêm isFirstLogin
         res.redirect(`http://localhost:3000/login?token=${token}&userId=${user._id}&userName=${user.name}&role=${user.role}`);
     } else {
         res.redirect("http://localhost:3000/login?error=login_failed");

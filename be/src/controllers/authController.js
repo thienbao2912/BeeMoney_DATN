@@ -225,7 +225,6 @@ const authController = {
             res.status(500).json({ error: 'Server error while updating user' });
         }
     },
-
     getProfile: async (req, res) => {
         try {
             const id = req.params.id;
@@ -252,7 +251,64 @@ const authController = {
         } catch (error) {
             res.status(500).json({ error: 'Server error' });
         }
-    }
+    },
+    addHobbies : async (req, res) => {
+        try {
+            const { userId, hobbies } = req.body; // userId và hobbies sẽ được gửi từ frontend
+            const user = await User.findById(userId);
+    
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+    
+            // Thêm sở thích vào mảng hobbies của người dùng
+            user.hobbies.push(...hobbies); // hobbies là mảng sở thích
+            await user.save();
+    
+            return res.status(200).json({ success: true, message: 'Hobbies added successfully', user });
+        } catch (error) {
+            console.error("Error adding hobbies:", error);
+            return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        }
+      },
+      getUserHobbies: async (req, res) => {
+        try {
+            const { userId } = req.params;
+
+            // Tìm người dùng trong cơ sở dữ liệu
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            // Giả sử bạn đã có trường hobbies trong schema User
+            const hobbies = user.hobbies || [];  // Lấy danh sách sở thích của người dùng
+
+            res.status(200).json({ success: true, hobbies });
+        } catch (err) {
+            res.status(500).json({ success: false, message: err.message });
+        }
+    },
+    removeHobby: async (req, res) => {
+        try {
+            const { userId, hobbyId } = req.body;  // userId and hobbyId will be passed from the frontend
+            const user = await User.findById(userId);
+    
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+    
+            // Remove the hobby from the hobbies array
+            user.hobbies = user.hobbies.filter(hobby => hobby !== hobbyId); // hobbyId is used here for simplicity
+            await user.save();
+    
+            return res.status(200).json({ success: true, message: 'Hobby removed successfully', user });
+        } catch (error) {
+            console.error("Error removing hobby:", error);
+            return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        }
+    },
+    
 }
 
 cron.schedule('*/1 * * * *', async () => {
@@ -292,5 +348,7 @@ cron.schedule('*/1 * * * *', async () => {
     } catch (error) {
         console.error('Error locking inactive accounts:', error);
     }
+    
 });
+
 module.exports = authController;

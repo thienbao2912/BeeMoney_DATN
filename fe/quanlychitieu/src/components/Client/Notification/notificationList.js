@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getAllNotification, deleteNotification } from '../../../service/Notification';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
-const NotificationList = () => {
+const NotificationList = ({ setNotificationCount }) => {
     const [notifications, setNotifications] = useState([]);
 
     const fetchNotifications = async () => {
@@ -15,9 +15,12 @@ const NotificationList = () => {
             const response = await getAllNotification(userId);
             const sortedNotifications = Array.isArray(response) ? response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : [];
             setNotifications(sortedNotifications);
+            // Cập nhật số lượng thông báo
+            setNotificationCount(sortedNotifications.length);
         } catch (error) {
             console.error("Error fetching notifications:", error);
             setNotifications([]);
+            setNotificationCount(0);
         }
     };
 

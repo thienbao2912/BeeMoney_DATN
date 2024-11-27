@@ -5,7 +5,7 @@ import './Header.css';
 
 const Header = () => {
     const [notifications, setNotifications] = useState([]);
-    const notificationCount = notifications.length;
+    const [notificationCount, setNotificationCount] = useState(0);
 
     useEffect(() => {
         const userId = localStorage.getItem('userId');
@@ -15,13 +15,14 @@ const Header = () => {
                 try {
                     const response = await getAllNotification(userId);
                     setNotifications(response.data || []);
+                    // Cập nhật số lượng thông báo
+                    setNotificationCount(response.data ? response.data.length : 0);
                 } catch (error) {
                     console.error("Error fetching notifications:", error);
                 }
             }
         };
 
-       
         fetchNotifications();
       
     }, []);
@@ -57,7 +58,7 @@ const Header = () => {
                                     )}
                                 </button>
                                 <div className="dropdown-menu dropdown-menu-end" style={{ marginRight: "20px", marginTop: "5px" }}>
-                                    <NotificationList notifications={notifications} />
+                                    <NotificationList setNotificationCount={setNotificationCount} />
                                 </div>
                             </li>
                         </ul>

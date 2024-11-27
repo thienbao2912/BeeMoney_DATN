@@ -244,6 +244,61 @@ const googleLogin = async () => {
         throw error;
     }
 };
+const addHobbies = async (userId, hobbies) => {
+    try {
+        const res = await request({
+            method: 'POST',
+            path: '/api/auth/add-hobbies', // đường dẫn của API để thêm sở thích
+            data: { userId, hobbies } // Gửi userId và danh sách sở thích
+        });
+
+        if (res.success) {
+            return { success: true, message: res.message };
+        } else {
+            return { success: false, message: res.message };
+        }
+    } catch (error) {
+        console.error('Error adding hobbies:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+    
+};
+const getUserHobbies = async (userId) => {
+    try {
+        const res = await request({
+            method: 'GET',
+            path: `/api/auth/get-hobbies/${userId}`  // endpoint này sẽ trả về sở thích của người dùng
+        });
+
+        if (res.success) {
+            return { success: true, hobbies: res.hobbies };
+        } else {
+            return { success: false, message: res.message };
+        }
+    } catch (error) {
+        console.error('Error fetching hobbies:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+const removeHobby = async (userId, hobbyId) => {
+    try {
+        const res = await request({
+            method: 'POST',
+            path: '/api/auth/remove-hobby',  // Ensure this path matches the backend route
+            data: { userId, hobbyId }
+        });
+
+        if (res.success) {
+            return { success: true, message: res.msg };
+        } else {
+            return { success: false, message: res.msg };
+        }
+    } catch (error) {
+        console.error('Error removing hobby:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+};
+
 
 export {
     getUser,
@@ -259,5 +314,8 @@ export {
     sendResetPasswordEmail,
     updateUserStatus,
     updateLastLogin,
-    googleLogin
+    googleLogin,
+    addHobbies,
+    getUserHobbies,
+    removeHobby
 };

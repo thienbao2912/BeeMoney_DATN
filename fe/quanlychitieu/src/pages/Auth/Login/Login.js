@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
-import { loginUser,updateLastLogin } from "../../../service/Auth";
+import { loginUser, updateLastLogin } from "../../../service/Auth";
 import cookies from 'js-cookie';
 import styles from "./Login.module.css";
 
@@ -47,13 +47,12 @@ function Login() {
         }
         const userId = response?.userId;
         if (userId) {
-            await updateLastLogin(userId);
+          await updateLastLogin(userId);
         }
-        navigate("/");
       } else {
         setError("api", {
           type: "manual",
-          message: "Login failed, no access token received.",
+          message: "Đăng nhập thất bại, không nhận được token truy cập.",
         });
       }
     } catch (err) {
@@ -91,25 +90,50 @@ function Login() {
     const userName = params.get("userName");
     const role = params.get("role");
     const error = params.get("error");
-
+  
     if (error === "account_locked") {
       setLockedError("Tài khoản của bạn đã bị khóa.");
     }
-
+  
     if (token && userId) {
       localStorage.setItem("userId", userId);
       localStorage.setItem("userName", userName);
       localStorage.setItem("userRole", role);
-
+  
       cookies.set("token", token, {
         path: "/",
         secure: true,
         httpOnly: false,
         sameSite: "Lax",
       });
-      navigate("/"); 
+  
+      // Gửi yêu cầu API kiểm tra xem người dùng có phải lần đăng nhập đầu tiên không
+      const checkFirstLogin = async () => {
+        try {
+          const response = await fetch("http://localhost:4000/api/check-first-login", {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+          });
+          const data = await response.json();
+  
+          // Nếu là lần đăng nhập đầu tiên, chuyển hướng đến hobbyCategory
+          if (data.isFirstLogin) {
+            navigate("/hobbyCategory");
+          } else {
+            navigate("/");
+          }
+        } catch (err) {
+          console.error("Lỗi khi kiểm tra lần đăng nhập đầu tiên:", err);
+          navigate("/"); // Nếu có lỗi, chuyển hướng về trang chủ
+        }
+      };
+  
+      checkFirstLogin(); // Kiểm tra nếu đây là lần đăng nhập đầu tiên
     } 
   }, [navigate]);
+  
 
   const loginwithgoogle = ()=>{
     window.open("http://localhost:4000/auth/google/callback","_self")
@@ -214,7 +238,7 @@ function Login() {
           </button>
         </form>
         <button className={styles.logingoogle} onClick={loginwithgoogle}>
-                    Sign In With Google
+                    Đăng nhập với Google
         </button>
       </div>
     </div>

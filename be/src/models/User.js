@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
+const HobbySchema = new mongoose.Schema({
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+    name: { type: String },
+    addedAt: { type: Date, default: Date.now },
+});
 const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String },
@@ -20,6 +25,7 @@ const UserSchema = new mongoose.Schema({
     tokenLogin: String,
     wallet: { type: Number, default: 0 },
     isFirstLogin: { type: Boolean, default: true },
+    hobbies: [HobbySchema],
 }, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {
