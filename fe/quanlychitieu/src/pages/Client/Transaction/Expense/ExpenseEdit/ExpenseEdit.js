@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from 'react-toastify';
 import "./ExpenseEdit.css";
 import {
   getCategories,
@@ -86,6 +87,7 @@ const ExpenseEdit = () => {
   };
 
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
       const payload = {
         ...data,
@@ -98,9 +100,12 @@ const ExpenseEdit = () => {
 
       await updateTransaction(id, payload);
       navigate("/expense/list"); 
+      toast.success('Cập nhật chi tiêu thành công')
     } catch (err) {
       setError("Failed to update transaction. Please try again later.");
-    }
+    } finally {
+      setLoading(false);
+  }
   };
 
   const handleCategorySelect = (categoryId) => {

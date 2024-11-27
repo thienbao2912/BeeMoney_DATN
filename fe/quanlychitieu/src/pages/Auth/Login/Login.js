@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
-import { loginUser } from "../../../service/Auth";
+import { loginUser,updateLastLogin } from "../../../service/Auth";
+import cookies from 'js-cookie';
 import styles from "./Login.module.css";
 
 function Login() {
@@ -18,7 +19,8 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [capVal, setCapVal] = useState(null);
-  const [recaptchaError, setRecaptchaError] = useState("");
+  const [recaptchaError, setRecaptchaError] = useState(""); 
+  const [lockedError, setLockedError] = useState("");
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -43,6 +45,11 @@ function Login() {
         } else {
           navigate("/");
         }
+        const userId = response?.userId;
+        if (userId) {
+            await updateLastLogin(userId);
+        }
+        navigate("/");
       } else {
         setError("api", {
           type: "manual",
@@ -75,6 +82,37 @@ function Login() {
     clearErrors("api");
     clearErrors("recaptcha");
     setRecaptchaError("");
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const userId = params.get("userId");
+    const userName = params.get("userName");
+    const role = params.get("role");
+    const error = params.get("error");
+
+    if (error === "account_locked") {
+      setLockedError("Tài khoản của bạn đã bị khóa.");
+    }
+
+    if (token && userId) {
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("userName", userName);
+      localStorage.setItem("userRole", role);
+
+      cookies.set("token", token, {
+        path: "/",
+        secure: true,
+        httpOnly: false,
+        sameSite: "Lax",
+      });
+      navigate("/"); 
+    } 
+  }, [navigate]);
+
+  const loginwithgoogle = ()=>{
+    window.open("http://localhost:4000/auth/google/callback","_self")
   };
 
   return (
@@ -144,6 +182,7 @@ function Login() {
             )}
           </div>
           {errors.api && <p className={styles.error}>{errors.api.message}</p>}
+          {lockedError && <p className={styles.error}>{lockedError}</p>}
           <div className="d-flex justify-content-between align-items-center mt-2 mb-3">
             <a
               href="/forget-password"
@@ -174,6 +213,9 @@ function Login() {
             Đăng nhập
           </button>
         </form>
+        <button className={styles.logingoogle} onClick={loginwithgoogle}>
+                    Sign In With Google
+        </button>
       </div>
     </div>
   );

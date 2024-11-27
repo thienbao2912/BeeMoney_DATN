@@ -210,6 +210,41 @@ const updateUserStatus = async (userId, { status }) => {
     }
 };
 
+const googleLogin = async () => {
+    try {
+        const res = await request({
+            method: 'GET',
+            path: '/login/success' // endpoint này sẽ trả về thông tin người dùng sau khi Google xác thực thành công
+        });
+
+        if (res?.accessToken) {
+            localStorage.setItem('userId', res._id);
+            localStorage.setItem('userName', res.name);
+            localStorage.setItem('userRole', res.role);
+
+            cookies.set('token', res.accessToken, {
+                path: '/',
+                secure: true,
+                httpOnly: false,
+                sameSite: 'Lax'
+            });
+            cookies.set('role', res.role, {
+                path: '/',
+                secure: true,
+                httpOnly: false,
+                sameSite: 'Lax'
+            });
+        } else {
+            throw new Error('No access token in response');
+        }
+
+        return res;
+    } catch (error) {
+        console.error('Google login error:', error.response || error.message);
+        throw error;
+    }
+};
+
 export {
     getUser,
     registerUser,
@@ -223,5 +258,6 @@ export {
     verifyOldPassword,
     sendResetPasswordEmail,
     updateUserStatus,
-    updateLastLogin
+    updateLastLogin,
+    googleLogin
 };

@@ -31,7 +31,7 @@ const TransactionList = ({ fundId }) => {
                                     <tr key={transaction._id}>
                                         <th>
                                             <img
-                                                src={transaction.userId?.avatar || '/images/chicken.png'}
+                                                src={transaction.userId?.avatar || '/images/sad.png'}
                                                 width="40"
                                                 height="40"
                                                 alt="Thành viên"
@@ -40,7 +40,7 @@ const TransactionList = ({ fundId }) => {
                                             />
                                         </th>
                                         <td>
-                                            <h6 className="text-secondary mb-0">{transaction.userId?.name || "Người nạp"}</h6>
+                                            <h6 className="text-secondary mb-0">{transaction.userId?.name || "Người dùng không còn tồn tại"}</h6>
                                             <span className="text-muted small">{transaction.note} </span>
                                         </td>
                                         <td className="text-end">

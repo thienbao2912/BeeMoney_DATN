@@ -5,23 +5,18 @@ import {
 } from "../../../../service/SavingGoal";
 import "./SavingGoalList.css";
 import { Link } from "react-router-dom";
-import EditGoalModal from "../EditGoalModal/EditGoalModal";
+import { toast } from "react-toastify";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal";
-
 const ITEMS_PER_PAGE = 8;
-
 const SavingGoalList = () => {
   const [savingsGoals, setSavingsGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedGoal, setSelectedGoal] = useState(null);
-  const [isModalOpen, setModalOpen] = useState(false);
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
   const [selectedMonth, setSelectedMonth] = useState("all");
-
   useEffect(() => {
     const fetchSavingsGoals = async () => {
       try {
@@ -30,7 +25,6 @@ const SavingGoalList = () => {
           throw new Error("User ID not found in localStorage");
         }
         let data = await getAllSavingsGoals(userId);
-
         const currentDate = new Date();
         currentDate.setHours(0, 0, 0, 0);
         data = data
@@ -41,7 +35,7 @@ const SavingGoalList = () => {
           }))
           .filter((goal) => {
             const endDate = new Date(goal.endDate);
-            endDate.setHours(0, 0, 0, 0); 
+            endDate.setHours(0, 0, 0, 0);
             return endDate >= currentDate;
           });
 
@@ -53,68 +47,36 @@ const SavingGoalList = () => {
         setLoading(false);
       }
     };
-
     fetchSavingsGoals();
   }, []);
-
   const handleDelete = async (goalId) => {
+    setLoading(true)
     try {
       await deleteSavingsGoal(goalId);
+      
       setSavingsGoals((prevGoals) =>
         prevGoals.filter((goal) => goal._id !== goalId)
       );
       setConfirmationModalOpen(false);
+      toast.success('Xóa mục tiêu thành công')
+      setLoading(false)
     } catch (error) {
       setError("Error deleting saving goals: " + error.message);
     }
   };
-
-  const openModal = (goal) => {
-    setSelectedGoal(goal);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setSelectedGoal(null);
-    setModalOpen(false);
-  };
-
   const openConfirmationModal = (item) => {
     setGoalToDelete(item);
     setConfirmationModalOpen(true);
   };
-
   const closeConfirmationModal = () => {
     setGoalToDelete(null);
     setConfirmationModalOpen(false);
-  };
-
-  const handleSaveTransaction = async () => {
-    try {
-      const userId = localStorage.getItem("userId");
-      let data = await getAllSavingsGoals(userId);
-
-      const currentDate = new Date();
-      data = data
-        .filter((goal) => new Date(goal.endDate) >= currentDate)
-        .map((goal) => ({
-          ...goal,
-          currentAmount: goal.currentAmount || 0,
-          targetAmount: goal.targetAmount || 0,
-        }));
-
-      data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      setSavingsGoals(data);
-    } catch (error) {
-      setError("Lỗi khi lấy danh sách mục tiêu tiết kiệm: " + error.message);
-    }
   };
 
   const handleMonthChange = (event) => {
     setSelectedMonth(event.target.value);
     setCurrentPage(1);
   };
-
   const filterGoalsByMonth = (goals) => {
     if (selectedMonth === "all") {
       return goals;
@@ -128,14 +90,12 @@ const SavingGoalList = () => {
       );
     });
   };
-
   const filteredGoals = filterGoalsByMonth(savingsGoals);
   const totalPages = Math.ceil(filteredGoals.length / ITEMS_PER_PAGE);
   const paginatedGoals = filteredGoals.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
-
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -147,11 +107,9 @@ const SavingGoalList = () => {
       </div>
     );
   }
-
   if (error) {
     return <div className="alert alert-danger mt-3">{error}</div>;
   }
-
   return (
     <div className="categories-overview mb-5">
       <nav aria-label="breadcrumb">
@@ -225,21 +183,19 @@ const SavingGoalList = () => {
                         <i className="fa-solid fa-sack-dollar me-2"></i>
                         {goal.currentAmount != null
                           ? (goal.currentAmount.toString().length > 9
-                            ? `${goal.currentAmount.toLocaleString().slice(0, 9)}...`
-                            : goal.currentAmount.toLocaleString())
-                          : "0"}
+                            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount).slice(0, 9)}...`
+                            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount))
+                          : "0 đ"} /
 
-                        đ -{" "}
                         {goal.targetAmount != null
                           ? (goal.targetAmount.toString().length > 9
-                            ? `${goal.targetAmount.toLocaleString().slice(0, 9)}...`
-                            : goal.targetAmount.toLocaleString())
-                          : "0"}
-                        đ
+                            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount).slice(0, 9)}...`
+                            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount))
+                          : "0 đ"}
+
                       </div>
                     </div>
                   </div>
-
                   <div className="progress-wrapper d-flex align-items-center mt-2">
                     <span className="text-muted small me-2">{Math.round(percentage)}%</span>
                     <div className="progress flex-grow-1">
@@ -274,25 +230,16 @@ const SavingGoalList = () => {
                           className="bi bi-trash-fill"
                           onClick={() => openConfirmationModal(goal)}
                         />
-
                       </div>
                     </div>
                   </div>
-                  <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
-                    {percentage < 100 && (
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => openModal(goal)}
-                      >
-                        Nạp tiền
-                      </button>
-                    )}
-                    <div className="d-flex align-items-center ms-auto">
+                
+                    <div className="text-center align-items-center">
                       <Link to={`/saving-goal/detail/${goal._id}`}
-                        className="btn btn-primary"
+                        className="text-primary"
                         aria-label="Detail">Xem chi tiết </Link>
                     </div>
-                  </div>
+                
                 </div>
               </div>
             </div>
@@ -320,13 +267,6 @@ const SavingGoalList = () => {
           </ul>
         </div>
       )}
-      {isModalOpen && selectedGoal && (
-        <EditGoalModal
-          goal={selectedGoal}
-          onClose={closeModal}
-          onUpdate={handleSaveTransaction}
-        />
-      )}
       {isConfirmationModalOpen && (
         <ConfirmationModal
           isOpen={isConfirmationModalOpen}
@@ -340,5 +280,4 @@ const SavingGoalList = () => {
     </div>
   );
 };
-
 export default SavingGoalList;

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { getAllUsers, updateUserStatus } from "../../../service/Auth";
 import { RingLoader } from "react-spinners";
 import ConfirmDeleteModal from "../../../components/Admin/ConfirmDeleteModal";
+import { Alert } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import "./User.css";
@@ -17,6 +18,8 @@ const User = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [roleFilter, setRoleFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+const [errorMessage, setErrorMessage] = useState("");
   const usersPerPage = 5;
 
   useEffect(() => {
@@ -62,7 +65,7 @@ const User = () => {
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
       setUsers(sortedUsers);
-      alert('Mở khóa tài khoản thành công');
+      setSuccessMessage("Khóa tài khoản thành công.");
       setShowConfirmModal(false);
       } catch (error) {
         console.error("Lỗi khi khóa người dùng:", error);
@@ -81,7 +84,7 @@ const User = () => {
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
       setUsers(sortedUsers);
-      alert('Mở khóa tài khoản thành công');
+      setSuccessMessage("Mở khóa tài khoản thành công.");
       setShowConfirmModal(false);
     } catch (error) {
       console.error("Lỗi khi mở khóa người dùng:", error);
@@ -134,6 +137,8 @@ const User = () => {
             </Link>
           </div>
           <div className="card-body">
+          {successMessage && <Alert variant="success">{successMessage}</Alert>}
+          {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
           <div className="row mb-4 mt-2">
   <div className="col-md-6 mb-3">
     <label htmlFor="search" className="form-label">Tìm kiếm người dùng</label>

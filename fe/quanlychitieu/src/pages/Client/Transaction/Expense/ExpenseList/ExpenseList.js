@@ -8,6 +8,7 @@ import ConfirmationModal from "../../../SavingGoals/ConfirmationModal/Confirmati
 import CustomDropdown from "../../CustomDropdown";
 import "./ExpenseList.css";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
@@ -50,6 +51,7 @@ const ExpenseList = () => {
           );
           setExpenses(sortedExpenses);
           setFilteredExpenses(sortedExpenses);
+          
         } else {
           throw new Error("Unexpected data format");
         }
@@ -75,7 +77,6 @@ const ExpenseList = () => {
         console.error("Error fetching categories:", error);
       }
     };
-
     fetchExpenses();
     fetchCategories();
   }, [userId]);
@@ -85,6 +86,7 @@ const ExpenseList = () => {
   }, [filterOption, selectedCategory, selectedMonth, expenses]);
 
   const handleDelete = async (expenseId) => {
+    setLoading(true);
     try {
       await deleteTransaction(expenseId);
       setConfirmationModalOpen(false);
@@ -93,6 +95,8 @@ const ExpenseList = () => {
         (a, b) => new Date(b.date) - new Date(a.date)
       );
       setExpenses(sortedExpenses || []);
+      toast.success('Đã xóa chi tiêu')
+      setLoading(false)
     } catch (error) {
       console.error(
         "Error deleting expense:",
@@ -326,15 +330,15 @@ const ExpenseList = () => {
                         </span>
                       </td>
                       <td className="align-middle">
-                        <span className="text-danger">
-                          {Number(expense.amount) < 0
-                            ? `${Number(expense.amount).toLocaleString()} đ`
-                            : `- ${Number(expense.amount).toLocaleString()} đ`}
+                        <span className="text-danger">- {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(expense.amount)}
                         </span>
                       </td>
 
                       <td className="align-middle">
-                        <span className="custom-date-style">
+                        <span className="badge bg-info">
                           {new Date(expense.date).toLocaleDateString()}
                         </span>
                       </td>

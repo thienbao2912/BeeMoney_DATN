@@ -1,4 +1,6 @@
 import React from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
@@ -96,8 +98,10 @@ function App() {
   );
 
   return (
-    
-      <RouterProvider router={router} />
+    <>
+    <ToastContainer position="top-right" autoClose={2000} />
+    <RouterProvider router={router} />
+  </>
     
   );
 }

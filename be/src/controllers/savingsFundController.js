@@ -89,14 +89,13 @@ class SavingsFundController {
             }
             user.wallet -= amount;
             await user.save();
+            
             fund.currentAmount += parseFloat(amount);  
-            if (!Array.isArray(fund.members)) {
-                fund.members = [];
-            }
             fund.transactions.push({
                 userId,
                 amount,
-                note
+                note,
+                date: new Date()
             });
             const memberIndex = fund.members.findIndex(member => member.userId.toString() === userId);
             if (memberIndex !== -1) {
@@ -107,8 +106,11 @@ class SavingsFundController {
                     contribution: parseFloat(amount)
                 });
             }
-            await fund.save();
-            res.status(200).json({ message: 'Transaction and contribution updated successfully', fund });
+           const data = await fund.save();
+            res.status(200).json({ 
+                message: 'Transaction and contribution updated successfully',
+                data: data
+            });
         } catch (error) {
             console.error("Error adding transaction:", error); // Detailed error logging
             res.status(500).json({ message: 'Server error', error: error.message });

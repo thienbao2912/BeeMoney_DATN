@@ -64,31 +64,42 @@ class SavingsFundController {
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-
+    
         const { email, fundId } = req.body;
-
+    
         try {
+            // Tìm người dùng theo email
             const user = await User.findOne({ email });
             if (!user) {
                 return res.status(404).json({ message: 'Email này không sử dụng BeeMoney' });
             }
-
+    
+            // Tìm quỹ tiết kiệm theo ID
             const savingsFund = await SavingsFund.findById(fundId);
             if (!savingsFund) {
                 return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
             }
-
+    
+            // Kiểm tra xem email đã tham gia quỹ chưa
+            const isMember = savingsFund.members.some(member => member.userId.equals(user._id));
+            if (isMember) {
+                return res.status(400).json({ message: 'Email này đã tham gia quỹ' });
+            }
+    
+            // Tạo mã xác nhận
             const code = generateConfirmationCode();
             await saveConfirmationCode(fundId, code);
-
+    
+            // Gửi email xác nhận
             await sendConfirmationEmail(email, code);
-
+    
             res.json({ message: 'Mã xác nhận đã được gửi đến email' });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Lỗi máy chủ');
         }
     }
+    
 
 
     static async acceptInviteByCode(req, res) {

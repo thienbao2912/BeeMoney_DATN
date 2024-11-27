@@ -4,10 +4,11 @@ const crypto = require('crypto');
 
 const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String },
     name: { type: String, required: true },
     status: { type: String, enum: ['active', 'locked'], default: 'active' },
     lastLogin: { type: Date, default: Date.now },
+    emailSent: { type: Boolean, default: false },
     socialLogin: {
         googleId: String,
         facebookId: String

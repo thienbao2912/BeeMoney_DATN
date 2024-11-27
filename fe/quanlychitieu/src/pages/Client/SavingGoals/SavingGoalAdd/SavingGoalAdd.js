@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import './SavingGoalAdd.css';
 import { getCategories, addSavingsGoal, getAllSavingsGoals } from '../../../../service/SavingGoal';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu'];
 
 const removeAccents = (str) => {
@@ -19,7 +20,7 @@ const containsForbiddenWords = (value) => {
 };
 
 const SavingGoalAdd = () => {
-  const { register, handleSubmit, setValue, watch, setError, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, watch, setError, reset, formState: { errors } } = useForm({
     defaultValues: {
       name: '',
       targetAmount: '', 
@@ -29,10 +30,11 @@ const SavingGoalAdd = () => {
       categoryId: ''
     }
   });
-  const navigate = useNavigate();
+
   const [categories, setCategories] = useState([]);
   const [savingsGoals, setSavingsGoals] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingSavingsGoals, setLoadingSavingsGoals] = useState(false);
   const [error, setErrorMessage] = useState(null);
   const [globalError, setGlobalError] = useState(null);
 
@@ -44,7 +46,7 @@ const SavingGoalAdd = () => {
 
   useEffect(() => {
     const fetchCategoriesAndSavingsGoals = async () => {
-      setLoading(true);
+      setLoadingSavingsGoals(true)
       try {
         const categoriesData = await getCategories();
         setCategories(categoriesData);
@@ -55,7 +57,7 @@ const SavingGoalAdd = () => {
         setErrorMessage('Lỗi hiển thị danh mục');
         console.error('Lỗi hiển thị danh mục', error);
       } finally {
-        setLoading(false);
+        setLoadingSavingsGoals(false)
       }
     };
 
@@ -99,13 +101,21 @@ const SavingGoalAdd = () => {
   const onSubmit = async (formData) => {
     setLoading(true);
     try {
+      const selectedCategoryId = formData.categoryId;
+    if (!selectedCategoryId) {
+      toast.warning('Chưa chọn danh mục');
+      setLoading(false); 
+      return; // Ngăn việc tiếp tục gửi form
+    }
       const payload = {
         ...formData,
         targetAmount: unformatCurrency(formData.targetAmount),
         currentAmount: unformatCurrency(formData.currentAmount) || '0',
       };
       await addSavingsGoal(payload);
-      navigate('/saving-goal/list');
+      // navigate('/saving-goal/list');
+     toast.success('Thêm mục tiêu tiết kiệm thành công')
+     reset();
       const updatedSavingsGoals = await getAllSavingsGoals(userId);
       setSavingsGoals(updatedSavingsGoals || []);
     
@@ -114,12 +124,12 @@ const SavingGoalAdd = () => {
       console.error('Lỗi thêm mục tiêu tiết kiệm:', error);
     } finally {
       setLoading(false);
-    }
+  }
   };
   
 
 
-  if (loading) {
+  if (loadingSavingsGoals) {
     return (
       <div className="text-center mt-5">
         <i className="fa fa-spinner fa-spin fa-2x primary"></i>
@@ -150,10 +160,10 @@ const SavingGoalAdd = () => {
                       type="date"
                       id="startDate"
                       name="startDate"
-                      className="form-control"
+                      className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
                       {...register('startDate', { required: 'Ngày bắt đầu là bắt buộc' })}
                     />
-                    {errors.startDate && <p className="text-danger">{errors.startDate.message}</p>}
+                    {errors.startDate && <div className="invalid-feedback">{errors.startDate.message}</div>}
                   </div>
                   <div className="form-group col">
                     <label htmlFor="endDate">Ngày kết thúc</label>
@@ -161,10 +171,10 @@ const SavingGoalAdd = () => {
                       type="date"
                       id="endDate"
                       name="endDate"
-                      className="form-control"
+                      className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
                       {...register('endDate', { required: 'Ngày kết thúc là bắt buộc' })}
                     />
-                    {errors.endDate && <p className="text-danger">{errors.endDate.message}</p>}
+                    {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
                   </div>
                 </div>
                 <div className="form-group">
@@ -173,14 +183,14 @@ const SavingGoalAdd = () => {
                     type="text"
                     id="name"
                     name="name"
-                    className="form-control"
+                    className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                     {...register('name', {
                       required: 'Tên mục tiêu là bắt buộc',
                       validate: value =>
                         !containsForbiddenWords(value) || 'Tên mục tiêu chứa từ cấm',
                     })}
                   />
-                  {errors.name && <p className="text-danger">{errors.name.message}</p>}
+                  {errors.name && <div className="invalid-feedback">{errors.name.message}</div>}
                 </div>
                 <div className="form-row">
                   <div className="form-group col">
@@ -189,13 +199,13 @@ const SavingGoalAdd = () => {
                       type="text"
                       id="targetAmount"
                       name="targetAmount"
-                      className="form-control"
+                      className={`form-control ${errors.targetAmount ? 'is-invalid' : ''}`}
                       {...register('targetAmount', { 
                         required: 'Số tiền mục tiêu là bắt buộc' 
                       })}
-                      onChange={handleAmountChange}
+                      onInput={handleAmountChange}
                     />
-                    {errors.targetAmount && <p className="text-danger">{errors.targetAmount.message}</p>}
+                    {errors.targetAmount && <div className="invalid-feedback">{errors.targetAmount.message}</div>}
                   </div>
                   <div className="form-group col">
                     <label htmlFor="currentAmount">Số tiền tiết kiệm</label>
@@ -203,11 +213,11 @@ const SavingGoalAdd = () => {
                       type="text"
                       id="currentAmount"
                       name="currentAmount"
-                      className="form-control"
+                      className={`form-control ${errors.currentAmount ? 'is-invalid' : ''}`}
                       {...register('currentAmount', { required: 'Số tiền nạp là bắt buộc' })}
                       onChange={handleAmountChange}
                     />
-                    {errors.currentAmount && <p className="text-danger">{errors.currentAmount.message}</p>}
+                    {errors.currentAmount && <div className="invalid-feedback">{errors.currentAmount.message}</div>}
                   </div>
                 </div>
                 <div className="form-group">
@@ -237,7 +247,7 @@ const SavingGoalAdd = () => {
                 </div>
                 <div className="col-md-auto col-12 d-flex justify-content-center">
                 <button className="btn btn-primary w-100 text-center" type="submit" disabled={loading}>
-  {loading ? <i className="fa fa-spinner fa-spin"></i> : 'Thêm mục tiêu'}
+                {loading ? 'Đang thêm...' : 'Thêm mục tiêu'}
 </button>
 
                 </div>
@@ -255,7 +265,7 @@ const SavingGoalAdd = () => {
           savingsGoals
           .filter(goal => new Date(goal.endDate) >= new Date()) 
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) 
-          .slice(0, 2)
+          .slice(0, 3)
           .map((goal) => {
                     return (
                       <div className="card mt-4" key={goal._id}>
@@ -270,7 +280,10 @@ const SavingGoalAdd = () => {
                           </div>
                           <div className="money text-secondary mb-3">
                             <i className="fa-solid fa-sack-dollar me-2"></i>
-                           Số tiền mục tiêu: {goal.targetAmount != null ? goal.targetAmount.toLocaleString() : '0'}đ
+                           Số tiền mục tiêu: {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(goal.targetAmount)}
                           </div>
                         </div>
                       </div>

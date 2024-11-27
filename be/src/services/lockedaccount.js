@@ -11,7 +11,11 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: 'laravelp9@gmail.com',
         pass: 'axiadnjxzrlzthnz'
+    },
+    tls: {
+        rejectUnauthorized: false
     }
+    
 });
 
 module.exports.lockedAccount = async (email) => {
@@ -19,7 +23,7 @@ module.exports.lockedAccount = async (email) => {
         const emailTemplate = await ejs.renderFile(path.join(__dirname, '..', 'views', 'lockedAccount.ejs'));
 
         const info = await transporter.sendMail({
-            from: "BeMoney <bemoney@gmail.com>",
+            from: "BeeMoney <bemoney@gmail.com>",
             to: email,
             subject: "Tài khoản của bạn đã bị khóa",
             html: emailTemplate
@@ -37,7 +41,7 @@ module.exports.inactive = async (email) => {
         const emailTemplate = await ejs.renderFile(path.join(__dirname, '..', 'views', 'inactive.ejs'));
 
         const info = await transporter.sendMail({
-            from: "BeMoney <bemoney@gmail.com>",
+            from: "BeeMoney <bemoney@gmail.com>",
             to: email,
             subject: "Tài khoản của bạn đã bị khóa do liên tục không hoạt động 365 ngày",
             html: emailTemplate
