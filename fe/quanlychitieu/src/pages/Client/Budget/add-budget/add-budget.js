@@ -4,6 +4,8 @@ import { Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import "./add-budget.css";
+import { toast, ToastContainer } from 'react-toastify'; // Import Toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import Toastify styles
 
 const AddBudget = () => {
     const [categories, setCategories] = useState([]);
@@ -12,6 +14,9 @@ const AddBudget = () => {
     const [loadingBudgets, setLoadingBudgets] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [toastMessage, setToastMessage] = useState('');
+const [toastType, setToastType] = useState('success'); // success or error
+
 
     const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         defaultValues: {
@@ -102,10 +107,14 @@ const AddBudget = () => {
 
         try {
             await createBudget(budgetData);
-            window.location.reload(); 
+            toast.success("Ngân sách đã được thêm thành công!"); // Display success toast
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
         } catch (err) {
             setError('Có lỗi xảy ra khi thêm ngân sách');
             console.error('Error creating budget:', err);
+            toast.error("Có lỗi xảy ra khi thêm ngân sách"); // Display error toast
         } finally {
             setLoading(false);
         }
@@ -277,6 +286,8 @@ const AddBudget = () => {
                     </div>
                 </div>
             </div>
+                        <ToastContainer /> {/* Add ToastContainer to display toasts */}
+
         </div>
     );
 };

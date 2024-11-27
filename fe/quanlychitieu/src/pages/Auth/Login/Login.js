@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import { loginUser, updateLastLogin } from "../../../service/Auth";
 import cookies from 'js-cookie';
+import { toast } from 'react-toastify'; // Thêm import toast
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS của react-toastify
 import styles from "./Login.module.css";
 
 function Login() {
@@ -40,6 +42,9 @@ function Login() {
           message: "Tài khoản của bạn đã bị khóa.",
         });
       } else if (response?.accessToken) {
+        // Hiển thị thông báo toast khi đăng nhập thành công
+        toast.success("Đăng nhập thành công!");
+
         if (response?.isFirstLogin) {
           navigate("/hobbyCategory");
         } else {
@@ -135,8 +140,8 @@ function Login() {
   }, [navigate]);
   
 
-  const loginwithgoogle = ()=>{
-    window.open("http://localhost:4000/auth/google/callback","_self")
+  const loginwithgoogle = ()=> {
+    window.open("http://localhost:4000/auth/google/callback", "_self");
   };
 
   return (
@@ -238,7 +243,7 @@ function Login() {
           </button>
         </form>
         <button className={styles.logingoogle} onClick={loginwithgoogle}>
-                    Đăng nhập với Google
+          Đăng nhập với Google
         </button>
       </div>
     </div>

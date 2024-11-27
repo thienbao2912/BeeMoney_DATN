@@ -4,6 +4,8 @@ import { Offcanvas, Button } from "react-bootstrap";
 import { getUserProfile } from "../../../service/Auth";
 import "bootstrap-icons/font/bootstrap-icons.min.css"; 
 import "./SidebarClient.css";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Sidebar = () => {
   const [user, setUser] = useState({
@@ -35,18 +37,20 @@ const Sidebar = () => {
     window.open("http://localhost:4000/logout","_self")
 }
 
-  const handleLogout = () => {
+const handleLogout = () => {
   try {
     localStorage.removeItem("userId");
     localStorage.removeItem("userName");
     localStorage.removeItem("userRole");
     sessionStorage.clear();
     clearCookies();
-    logout(); 
+    toast.success("Đăng xuất thành công!", { position: "top-right" }); // Thêm thông báo
+    logout();
   } catch (error) {
     console.error("Logout error:", error);
   }
 };
+
 
   const clearCookies = () => {
     document.cookie.split(";").forEach((c) => {
