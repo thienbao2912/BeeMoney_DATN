@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
-import { loginUser } from "../../../service/Auth";
+import { loginUser,updateLastLogin } from "../../../service/Auth";
 import cookies from 'js-cookie';
 import styles from "./Login.module.css";
 
@@ -20,6 +20,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const [capVal, setCapVal] = useState(null);
   const [recaptchaError, setRecaptchaError] = useState(""); 
+  const [lockedError, setLockedError] = useState("");
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -39,6 +40,10 @@ function Login() {
           message: "Tài khoản của bạn đã bị khóa.",
         });
       } else if (response?.accessToken) {
+        const userId = response?.userId;
+        if (userId) {
+            await updateLastLogin(userId);
+        }
         navigate("/");
       } else {
         setError("api", {
@@ -80,6 +85,11 @@ function Login() {
     const userId = params.get("userId");
     const userName = params.get("userName");
     const role = params.get("role");
+    const error = params.get("error");
+
+    if (error === "account_locked") {
+      setLockedError("Tài khoản của bạn đã bị khóa.");
+    }
 
     if (token && userId) {
       localStorage.setItem("userId", userId);
@@ -167,6 +177,7 @@ function Login() {
             )}
           </div>
           {errors.api && <p className={styles.error}>{errors.api.message}</p>}
+          {lockedError && <p className={styles.error}>{lockedError}</p>}
           <div className="d-flex justify-content-between align-items-center mt-2 mb-3">
             <a
               href="/forget-password"

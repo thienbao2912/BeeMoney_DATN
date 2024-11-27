@@ -256,5 +256,30 @@ cron.schedule('*/1 * * * *', async () => {
     }
 });
 
+cron.schedule('*/1 * * * *', async () => { 
+    try {
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
+        const result = await User.updateMany(
+            { lastLogin: { $lte: oneYearAgo }, status: { $ne: 'locked' } }, 
+            { $set: { status: 'locked' } }
+        );
+
+        const lockedUsers = await User.find({ lastLogin: { $lte: oneYearAgo }, status: 'locked', emailSent: false  });
+
+        for (const user of lockedUsers) {
+            try {
+                await inactive(user.email, user._id);
+                console.log(`Sent email to ${user.email}`);
+                await User.findByIdAndUpdate(user._id, { emailSent: true });
+            } catch (error) {
+                console.error(`Error sending email to ${user.email}:`, error);
+            }
+        }
+
+    } catch (error) {
+        console.error('Error locking inactive accounts:', error);
+    }
+});
 module.exports = authController;

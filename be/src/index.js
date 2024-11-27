@@ -98,6 +98,9 @@ app.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]
 app.get("/auth/google/callback", passport.authenticate("google", {
     failureRedirect: "http://localhost:3000/login?error=google_auth_failed",
 }), (req, res) => {
+    if (req.user?.user?.status === "locked") {
+        return res.redirect("http://localhost:3000/login?error=account_locked");
+      }
     if (req.user && req.user.token && req.user.user._id) {
         const { token, user } = req.user;
         res.redirect(`http://localhost:3000/login?token=${token}&userId=${user._id}&userName=${user.name}&role=${user.role}`);

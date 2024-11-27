@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
     name: { type: String, required: true },
     status: { type: String, enum: ['active', 'locked'], default: 'active' },
     lastLogin: { type: Date, default: Date.now },
+    emailSent: { type: Boolean, default: false },
     socialLogin: {
         googleId: String,
         facebookId: String
