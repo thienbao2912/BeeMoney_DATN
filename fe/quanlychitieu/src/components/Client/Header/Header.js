@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import NotificationList from '../Notification/notificationList';
-import { getUserProfile } from '../../../service/Auth';
 import { getAllNotification } from '../../../service/Notification';
 import './Header.css';
 
 const Header = () => {
-    const [user, setUser] = useState({ wallet: 0 });
     const [notifications, setNotifications] = useState([]);
     const notificationCount = notifications.length;
 
@@ -23,19 +21,9 @@ const Header = () => {
             }
         };
 
-        const fetchUserProfile = async () => {
-            try {
-                const profile = await getUserProfile();
-                setUser({
-                    wallet: profile.wallet || 0,
-                });
-            } catch (error) {
-                console.error("Error fetching user profile:", error);
-            }
-        };
-
+       
         fetchNotifications();
-        fetchUserProfile();
+      
     }, []);
 
     return (
@@ -49,10 +37,6 @@ const Header = () => {
 
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                     <div className="ms-auto d-flex align-items-center p-2">
-                        <b className="primary">
-                            <i className="bi bi-wallet-fill me-2"></i>
-                            {user.wallet.toLocaleString()} đ
-                        </b>
                         <ul className="navbar-nav">
                             <li className="nav-item dropdown notification_dropdown">
                                 <button

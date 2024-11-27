@@ -97,46 +97,49 @@ class SavingsGoalController {
         }
     }
 
-
-
-
     static async addTransaction(req, res) {
         try {
             const _id = req.params.id;
             const userId = req.user.id;
-            const { amount } = req.body; // Số tiền người dùng muốn nạp vào mục tiêu
-            const { note } = req.body;
-
+            const { amount, note } = req.body;
+    
             // Tìm kiếm mục tiêu tiết kiệm của người dùng
             const savingsGoal = await SavingsGoal.findOne({ userId, _id });
             if (!savingsGoal) {
-                return res.status(404).json({ message: 'Mục tiêu tiết kiệm không tồn tại' });
+                return res.status(404).json({ message: 'Mục tiêu tiết kiệm không được tìm thấy.' });
             }
-
+    
             // Kiểm tra số dư ví người dùng
             const user = await User.findById(userId);
-            if (!user || user.wallet < amount) { // Kiểm tra xem ví có đủ số tiền để nạp không
-                return res.status(400).json({ message: 'Số dư trong ví không đủ để thực hiện giao dịch' });
+            if (!user) {
+                return res.status(404).json({ message: 'Người dùng không tồn tại.' });
             }
-
+    
+            if (user.wallet < amount) { 
+                return res.status(400).json({ message: 'Số dư ví của bạn không đủ để thực hiện giao dịch này.' });
+            }
+    
             // Trừ tiền từ ví của người dùng bằng số tiền nạp vào
-            user.wallet -= amount; // Trừ từ ví bằng số tiền nạp vào
+            user.wallet -= amount;
             await user.save();
-
+    
             // Cập nhật số tiền hiện tại và thêm vào lịch sử nạp tiền
-            savingsGoal.currentAmount += amount; // Cập nhật currentAmount với số tiền nạp vào
+            savingsGoal.currentAmount += amount;
             savingsGoal.transactionHistory.push({ amount, note, date: new Date() });
             const updatedGoal = await savingsGoal.save();
-
-            res.status(200).json({
-                message: 'Cập nhật mục tiêu tiết kiệm thành công',
+    
+            return res.status(200).json({
+                message: 'Giao dịch thành công!',
                 data: updatedGoal
             });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Lỗi server' });
+            return res.status(500).json({ message: 'Đã xảy ra lỗi máy chủ. Vui lòng thử lại sau.' });
         }
     }
+    
+    
+    
 
 
     static async updateAllFields(req, res) {

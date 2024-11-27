@@ -8,6 +8,7 @@ import ConfirmationModal from "../../../SavingGoals/ConfirmationModal/Confirmati
 import CustomDropdown from "../../CustomDropdown";
 import "./ExpenseList.css";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
@@ -85,6 +86,7 @@ const ExpenseList = () => {
   }, [filterOption, selectedCategory, selectedMonth, expenses]);
 
   const handleDelete = async (expenseId) => {
+    setLoading(true);
     try {
       await deleteTransaction(expenseId);
       setConfirmationModalOpen(false);
@@ -93,7 +95,8 @@ const ExpenseList = () => {
         (a, b) => new Date(b.date) - new Date(a.date)
       );
       setExpenses(sortedExpenses || []);
-       window.location.reload();
+      toast.success('Đã xóa chi tiêu')
+      setLoading(false)
     } catch (error) {
       console.error(
         "Error deleting expense:",
@@ -335,7 +338,7 @@ const ExpenseList = () => {
                       </td>
 
                       <td className="align-middle">
-                        <span className="custom-date-style">
+                        <span className="badge bg-info">
                           {new Date(expense.date).toLocaleDateString()}
                         </span>
                       </td>
