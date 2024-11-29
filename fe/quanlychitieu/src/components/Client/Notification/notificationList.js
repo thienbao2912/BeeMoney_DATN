@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { getAllNotification, deleteNotification } from '../../../service/Notification';
+import { useNotification } from '../Header/NotificationContext'; // Import hook context
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const NotificationList = () => {
+    const { setNotificationCount } = useNotification(); // Lấy setNotificationCount từ context
     const [notifications, setNotifications] = useState([]);
 
     const fetchNotifications = async () => {
@@ -15,9 +17,11 @@ const NotificationList = () => {
             const response = await getAllNotification(userId);
             const sortedNotifications = Array.isArray(response) ? response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : [];
             setNotifications(sortedNotifications);
+            setNotificationCount(sortedNotifications.length);
         } catch (error) {
             console.error("Error fetching notifications:", error);
             setNotifications([]);
+            setNotificationCount(0);
         }
     };
 
@@ -33,6 +37,8 @@ const NotificationList = () => {
             setNotifications((prevNotifications) =>
                 prevNotifications.filter((notification) => notification._id !== id)
             );
+            setNotificationCount((prevCount) => prevCount - 1);
+
         } catch (error) {
             console.error('Error deleting notification:', error);
         }
@@ -69,7 +75,7 @@ const NotificationList = () => {
                                     <h6 className="mb-1" style={{ fontSize: "14px", paddingLeft: "10px" }}>
                                         {notification.content}
                                     </h6>
-                                    <small style={{ fontSize: "12px", paddingLeft: "10px" }}>
+                                    <small style={{ fontSize: "12px", paddingLeft: "10px" }} >
                                         {notification.createdAt ? new Date(notification.createdAt).toLocaleString() : "Ngày không hợp lệ"}
                                     </small>
                                 </div>

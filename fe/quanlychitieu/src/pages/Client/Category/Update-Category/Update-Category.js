@@ -5,12 +5,15 @@ import { editCategory, getCategoryById } from '../../../../service/Category';
 import { useParams } from 'react-router-dom';
 import { storage, ref, getDownloadURL } from '../../../../config/firebase';
 import { useForm } from 'react-hook-form';
+import { toast, ToastContainer } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const EditCategory = () => {
     const { id } = useParams();
     const [isFetching, setIsFetching] = useState(false);
     const [response, setResponse] = useState(null);
     const [userId, setUserId] = useState('');
+    const navigate = useNavigate();
 
     const {
         register,
@@ -74,13 +77,17 @@ const EditCategory = () => {
                 image: data.categoryImage,
             };
             await editCategory(userId, id, categoryData);
-            setResponse({ status: 'success', message: 'Danh mục đã được cập nhật thành công!' });
+    
+            toast.success('Danh mục đã được cập nhật thành công!');
+            setTimeout(() => navigate('/categories'), 2000);
+
         } catch (error) {
-            setResponse({ status: 'error', message: 'Cập nhật danh mục thất bại.' });
+            toast.error('Cập nhật danh mục thất bại.');
         } finally {
             setIsFetching(false);
         }
     };
+    
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -123,9 +130,9 @@ const EditCategory = () => {
                                     id="categoryName"
                                     {...register('categoryName', { required: 'Tên danh mục không được để trống' })}
                                 />
-                                {isSubmitted && errors.categoryName && (
+                                {/* {isSubmitted && errors.categoryName && (
                                     <span className="text-danger">{errors.categoryName.message}</span>
-                                )}
+                                )} */}
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="categoryImage" className="form-label">Hình ảnh</label>

@@ -3,6 +3,8 @@ import { getAllBudgets, deleteBudget } from "../../../service/Budget";
 import ConfirmationModal from "../SavingGoals/ConfirmationModal/ConfirmationModal";
 import EditBudgetModal from "../Budget/edit-budget/edit-budget";
 import "./budget.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Budget = () => {
   const [budgets, setBudgets] = useState([]);
@@ -71,11 +73,16 @@ const Budget = () => {
       await deleteBudget(budgetId);
       setConfirmationModalOpen(false);
       setBudgets((prev) => prev.filter((budget) => budget._id !== budgetId));
+      // Show success toast
+      toast.success('Ngân sách đã được xóa thành công!');
     } catch (err) {
       setError("Error deleting budget");
       console.error("Error deleting budget:", err);
+      // Show error toast
+      toast.error('Lỗi khi xóa ngân sách!');
     }
   };
+  
 
   const openEditModal = (budget) => {
     setBudgetToEdit(budget);
@@ -291,6 +298,8 @@ const Budget = () => {
                   </div>
                 </div>
               </div>
+              <ToastContainer /> {/* Add ToastContainer to display toasts */}
+
             </div>
           ))}
         </div>

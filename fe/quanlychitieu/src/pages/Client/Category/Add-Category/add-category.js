@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { addCategory, getAllCategories } from '../../../../service/Category';
 import { storage } from '../../../../config/firebase'; 
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng']; 
 
@@ -21,7 +23,6 @@ const containsForbiddenWords = (value) => {
   const normalizedValue = normalizeText(value);
   return forbiddenWords.some(word => normalizedValue.includes(normalizeText(word)));
 };
-
 
 const AddCategory = () => {
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm();
@@ -95,10 +96,22 @@ const AddCategory = () => {
             };
             
             await addCategory(categoryData);
-            navigate('/categories'); 
+
+            // Thông báo thành công và điều hướng
+            toast.success('Danh mục đã được thêm thành công!', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+
+            setTimeout(() => navigate('/categories'), 3000); 
         } catch (error) {
             console.error('Error adding category:', error);
-            alert('Đã xảy ra lỗi khi thêm danh mục');
+            toast.error('Đã xảy ra lỗi khi thêm danh mục.');
         } finally {
             setLoading(false);
         }
@@ -106,6 +119,7 @@ const AddCategory = () => {
 
     return (
         <div className="container mt-4">
+            <ToastContainer />
             <nav aria-label="breadcrumb">
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item"><a href="/categories" className='text-dark'>Danh mục</a></li>
