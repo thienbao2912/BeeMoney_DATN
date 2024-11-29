@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 import { verifyOldPassword, updateUser } from "../../../service/Auth";
+import { useNavigate } from "react-router-dom";
 
 const ChangePasswordModal = ({ show, handleClose, userId, profile }) => {
   const [oldPassword, setOldPassword] = useState("");
@@ -10,6 +11,8 @@ const ChangePasswordModal = ({ show, handleClose, userId, profile }) => {
   const [oldPasswordError, setOldPasswordError] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  
+  const navigate = useNavigate();
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
@@ -50,8 +53,11 @@ const ChangePasswordModal = ({ show, handleClose, userId, profile }) => {
     try {
       await updateUser(userId, updateData);
       setSuccess("Cập nhật mật khẩu thành công");
-      handleClose();
-      window.location.reload();
+
+      localStorage.removeItem("userId");
+      localStorage.removeItem("token");
+
+      navigate("/login?password_changed=true");
     } catch (error) {
       setError("Cập nhật mật khẩu thất bại");
       console.error("Password update error:", error);

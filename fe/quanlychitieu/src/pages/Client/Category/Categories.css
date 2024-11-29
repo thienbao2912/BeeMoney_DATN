@@ -9,7 +9,10 @@
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
 }
-
+.btn-lg {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
 .page-btn:hover {
     background-color: #e9ecef;
 }

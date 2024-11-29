@@ -13,6 +13,7 @@ const Sidebar = () => {
     role: "user",
     avatar: "/images/default-avatar.jpg",
   });
+  
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
 
@@ -33,23 +34,30 @@ const Sidebar = () => {
     fetchUserProfile();
   }, []);
 
-  const logout = ()=>{
-    window.open("http://localhost:4000/logout","_self")
-}
+  const logout = () => {
+    navigate("/login"); // Điều hướng về trang login
+  };
+  
 
-const handleLogout = () => {
-  try {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userRole");
-    sessionStorage.clear();
-    clearCookies();
-    toast.success("Đăng xuất thành công!", { position: "top-right" }); // Thêm thông báo
-    logout();
-  } catch (error) {
-    console.error("Logout error:", error);
-  }
-};
+  const handleLogout = () => {
+    try {
+      // Xóa thông tin người dùng
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userRole");
+      sessionStorage.clear();
+      clearCookies();
+  
+      // Thêm trạng thái vào sessionStorage
+      sessionStorage.setItem("logoutMessage", "Đăng xuất thành công!");
+  
+      // Chuyển hướng đến trang login
+      logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+  
 
 
   const clearCookies = () => {

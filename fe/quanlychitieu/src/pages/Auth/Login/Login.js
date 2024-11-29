@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import { loginUser, updateLastLogin } from "../../../service/Auth";
 import cookies from 'js-cookie';
-import { toast } from 'react-toastify'; // Thêm import toast
-import 'react-toastify/dist/ReactToastify.css'; // Import CSS của react-toastify
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import styles from "./Login.module.css";
 
 function Login() {
@@ -42,7 +42,6 @@ function Login() {
           message: "Tài khoản của bạn đã bị khóa.",
         });
       } else if (response?.accessToken) {
-        // Hiển thị thông báo toast khi đăng nhập thành công
         toast.success("Đăng nhập thành công!");
 
         if (response?.isFirstLogin) {
@@ -87,7 +86,14 @@ function Login() {
     clearErrors("recaptcha");
     setRecaptchaError("");
   };
-
+  useEffect(() => {
+    const logoutMessage = sessionStorage.getItem("logoutMessage");
+    if (logoutMessage) {
+      toast.success(logoutMessage, { position: "top-right" });
+      sessionStorage.removeItem("logoutMessage");
+    }
+  }, []);
+  
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
@@ -95,7 +101,14 @@ function Login() {
     const userName = params.get("userName");
     const role = params.get("role");
     const error = params.get("error");
-  
+    const passwordChanged = params.get("password_changed");
+
+    if (passwordChanged === "true") {
+      toast.success("Mật khẩu của bạn đã được thay đổi thành công!");
+      const url = new URL(window.location);
+      url.searchParams.delete("password_changed");
+      window.history.replaceState(null, "", url);
+    }
     if (error === "account_locked") {
       setLockedError("Tài khoản của bạn đã bị khóa.");
     }
@@ -112,7 +125,6 @@ function Login() {
         sameSite: "Lax",
       });
   
-      // Gửi yêu cầu API kiểm tra xem người dùng có phải lần đăng nhập đầu tiên không
       const checkFirstLogin = async () => {
         try {
           const response = await fetch("http://localhost:4000/api/check-first-login", {
@@ -123,7 +135,6 @@ function Login() {
           });
           const data = await response.json();
   
-          // Nếu là lần đăng nhập đầu tiên, chuyển hướng đến hobbyCategory
           if (data.isFirstLogin) {
             navigate("/hobbyCategory");
           } else {
@@ -131,11 +142,11 @@ function Login() {
           }
         } catch (err) {
           console.error("Lỗi khi kiểm tra lần đăng nhập đầu tiên:", err);
-          navigate("/"); // Nếu có lỗi, chuyển hướng về trang chủ
+          navigate("/");
         }
       };
   
-      checkFirstLogin(); // Kiểm tra nếu đây là lần đăng nhập đầu tiên
+      checkFirstLogin();
     } 
   }, [navigate]);
   
