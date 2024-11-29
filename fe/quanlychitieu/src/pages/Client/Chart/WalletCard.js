@@ -274,18 +274,21 @@ const WalletCard = () => {
 
           <hr className="my-2" />
           <div className="d-flex justify-content-between align-items-center mt-2">
-          <img
+          <div>
+          {/* <img
                 src={latestSavingsFund?.categoryId?.image || "/images/rabbit.png"}
                 alt={latestSavingsFund?.categoryId?.name || "Không tồn tại"}
                 width="15px"
 
-              />
-          <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsFund ? ` ${latestSavingsFund.categoryId.name}` : 'Không có'}</span>
+              /> */}
+          {/* <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsFund ? ` ${latestSavingsFund.categoryId.name}` : 'Không có'}</span> */}
+          </div>
             <Link to="/savings-fund/list"> <i
               className="bi bi-arrow-90deg-right text-secondary"
               style={{ fontSize: "15px", cursor: "pointer" }}
             ></i>
             </Link>
+           
           </div>
         </div>
       </div>
