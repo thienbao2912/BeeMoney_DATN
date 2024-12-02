@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getUserProfile } from '../../../service/SavingsFund';
 import { getAllBudgets } from '../../../service/Budget';
 import { getAllSavingsGoals } from '../../../service/SavingGoal';
+import { getUserSavingsGoals } from '../../../service/SavingsFund';
 import { toast } from 'react-toastify';
 
 const WalletCard = () => {
@@ -10,6 +11,8 @@ const WalletCard = () => {
   const [budget, setBudget] = useState([]);
   const [latestBudget, setLatestBudget] = useState(null);
   const [savingsGoal, setSavingsGoal] = useState([]);
+  const [savingsFund, setSavingsFund] = useState([]);
+  const [latestSavingsFund, setLatestSavingsFund] = useState(null);
   const [latestSavingsGoal, setLatestSavingsGoal] = useState(null);
   const [loading, setLoading] = useState(false);
   const userId = localStorage.getItem("userId");
@@ -50,9 +53,23 @@ const WalletCard = () => {
         console.error("Error fetching savingsGoal:", error);
       }
     }
+    const fetchSavingsFund = async () => {
+      try {
+        const savingsFund = await getUserSavingsGoals(userId);
+        const sortedSavingsFund = savingsFund.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        setSavingsFund(savingsFund)
+        setLatestSavingsGoal(sortedSavingsFund[0] || null)
+      } catch (error) {
+        console.error("Error fetching savingsGoal:", error);
+      }
+    }
     fetchUserProfile();
     fetchBudget();
     fetchSavingsGoal();
+    fetchSavingsFund()
   }, [])
 
 
@@ -210,7 +227,7 @@ const WalletCard = () => {
 
               />
 
-              <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsGoal ? ` ${latestSavingsGoal.categoryId.name}` : 'Không có ngân sách gần nhất'}</span>
+              <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsGoal ? ` ${latestSavingsGoal.categoryId.name}` : 'Không có'}</span>
             </div>
             <Link to="/saving-goal/list"> <i
               className="bi bi-arrow-90deg-right text-secondary"
@@ -249,7 +266,7 @@ const WalletCard = () => {
                   margin: 0,
                 }}
               >
-                4
+                 {savingsFund?.length || 0}
               </h2>
             </div>
           </div>
@@ -257,15 +274,21 @@ const WalletCard = () => {
 
           <hr className="my-2" />
           <div className="d-flex justify-content-between align-items-center mt-2">
-            <i
-              className="bi bi-clipboard text-secondary"
-              style={{ fontSize: "15px", cursor: "pointer" }}
-            ></i>
+          <div>
+          {/* <img
+                src={latestSavingsFund?.categoryId?.image || "/images/rabbit.png"}
+                alt={latestSavingsFund?.categoryId?.name || "Không tồn tại"}
+                width="15px"
+
+              /> */}
+          {/* <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsFund ? ` ${latestSavingsFund.categoryId.name}` : 'Không có'}</span> */}
+          </div>
             <Link to="/savings-fund/list"> <i
               className="bi bi-arrow-90deg-right text-secondary"
               style={{ fontSize: "15px", cursor: "pointer" }}
             ></i>
             </Link>
+           
           </div>
         </div>
       </div>

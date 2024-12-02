@@ -22,6 +22,8 @@ const User = require('./models/User');
 // const expenseRoutes= require("./routes/expenseRoutes");
 const income = require("./routes/income");
 const budgetRoutes = require("./routes/budget")
+const hobbyRoutes = require("./routes/Hobby")
+const hobbyCategoryRoutes = require("./routes/HobbyCategory")
 const app = express();
 app.use(express.json());
 app.use(cors({
@@ -98,8 +100,12 @@ app.get("/auth/google",passport.authenticate("google",{scope:["profile","email"]
 app.get("/auth/google/callback", passport.authenticate("google", {
     failureRedirect: "http://localhost:3000/login?error=google_auth_failed",
 }), (req, res) => {
+    if (req.user?.user?.status === "locked") {
+        return res.redirect("http://localhost:3000/login?error=account_locked");
+      }
     if (req.user && req.user.token && req.user.user._id) {
         const { token, user } = req.user;
+        const isFirstLogin = user.isFirstLogin || false; // Thêm isFirstLogin
         res.redirect(`http://localhost:3000/login?token=${token}&userId=${user._id}&userName=${user.name}&role=${user.role}`);
     } else {
         res.redirect("http://localhost:3000/login?error=login_failed");
@@ -145,6 +151,8 @@ connectDB();
 // app.use('/api/expenses', expenseRoutes);
 app.use('/api/incomes', income);
 app.use('/api/budgets', budgetRoutes);
+app.use('/api/hobbys', hobbyRoutes);
+app.use('/api/hobbyCategoies', hobbyCategoryRoutes);
 
 // Start server
 const PORT = process.env.PORT || 4000;

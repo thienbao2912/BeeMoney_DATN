@@ -39,4 +39,10 @@ router.get("/", middlewareController.verifyToken, authController.getAllUser);
 // Xóa người dùng
 router.delete("/:id", middlewareController.verifyTokenAdminAuth, authController.deleteUser);
 
+router.post('/add-hobbies', authController.addHobbies);
+
+router.get('/get-hobbies/:userId', authController.getUserHobbies);
+router.post('/remove-hobby', authController.removeHobby);
+
+
 module.exports = router;

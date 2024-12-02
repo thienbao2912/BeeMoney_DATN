@@ -5,6 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { storage } from "../../../config/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import ChangePasswordModal from "./ChangePasswordModal"; 
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import "./Profile.css";
 
 const ProfileForm = () => {
@@ -19,6 +20,7 @@ const ProfileForm = () => {
   const [userName, setUserName] = useState(""); 
 
   const userId = localStorage.getItem("userId");
+  const navigate = useNavigate(); // Khởi tạo useNavigate
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -28,9 +30,9 @@ const ProfileForm = () => {
         setUserName(data.name); 
         setLoading(false);
       } catch (error) {
-        setError("Failed to fetch profile");
+        setError("Không thể lấy thông tin hồ sơ");
         setLoading(false);
-        console.error("Profile fetch error:", error);
+        console.error("Lỗi khi lấy hồ sơ:", error);
       }
     };
 
@@ -68,12 +70,11 @@ const ProfileForm = () => {
 
     try {
       await updateUser(userId, updateData);
-      // setSuccess("Thông tin cập nhật thành công");
       setEditMode(false); 
       window.location.reload();
     } catch (error) {
       setError("Có lỗi khi cập nhật thông tin");
-      console.error("Profile update error:", error);
+      console.error("Lỗi khi cập nhật hồ sơ:", error);
     }
   };
 
@@ -91,6 +92,11 @@ const ProfileForm = () => {
     }
   };
 
+  // Hàm để chuyển hướng đến trang hobbyCategory sử dụng navigate
+  const handleGoToHobbyCategory = () => {
+    navigate('/hobbyCategory'); // Chuyển hướng tới trang hobbyCategory
+  };
+
   return (
     <div className="border border-black p-2 border-opacity-10 rounded shadow-none p-4 mb-5 bg-light">
       <div className="page-header">
@@ -100,8 +106,16 @@ const ProfileForm = () => {
           </li>
           <li className="breadcrumb-item active">Thông tin tài khoản</li>
         </ul>
-        <div className="d-flex justify-content-between">
+        <div className="d-flex justify-content-between align-items-center">
           <h4>Hồ Sơ Của Tôi</h4>
+          <Button 
+            variant="link" 
+            className="btn-change-hobby" 
+            onClick={handleGoToHobbyCategory}
+            style={{ textDecoration: 'none', fontSize: '16px' }}
+          >
+            Thay đổi sở thích
+          </Button>
         </div>
 
         {loading && (

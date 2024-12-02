@@ -1,30 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import NotificationList from '../Notification/notificationList';
-import { getAllNotification } from '../../../service/Notification';
+import React, { useEffect } from 'react';
 import './Header.css';
+import { useNotification } from './NotificationContext';
+import NotificationList from '../Notification/notificationList';
 
 const Header = () => {
-    const [notifications, setNotifications] = useState([]);
-    const notificationCount = notifications.length;
+    const { notificationCount, fetchNotificationCount } = useNotification();
 
     useEffect(() => {
-        const userId = localStorage.getItem('userId');
-        
-        const fetchNotifications = async () => {
-            if (userId) {
-                try {
-                    const response = await getAllNotification(userId);
-                    setNotifications(response.data || []);
-                } catch (error) {
-                    console.error("Error fetching notifications:", error);
-                }
-            }
-        };
-
-       
-        fetchNotifications();
-      
-    }, []);
+        fetchNotificationCount();
+    }, [fetchNotificationCount]);
 
     return (
         <nav className="navbar navbar-expand-lg shadow-sm">
@@ -40,7 +24,7 @@ const Header = () => {
                         <ul className="navbar-nav">
                             <li className="nav-item dropdown notification_dropdown">
                                 <button
-                                    className="btn"
+                                    className="btn position-relative"
                                     type="button"
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false"
@@ -51,13 +35,13 @@ const Header = () => {
                                         <path opacity="0.3" d="M14.5 18C14.5 16.8954 13.6046 16 12.5 16C11.3954 16 10.5 16.8954 10.5 18C10.5 19.1046 11.3954 20 12.5 20C13.6046 20 14.5 19.1046 14.5 18Z" fill="#222B40" />
                                     </svg>
                                     {notificationCount > 0 && (
-                                        <span className="badge light text-white bg-primary rounded-circle">
+                                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger">
                                             {notificationCount}
                                         </span>
                                     )}
                                 </button>
                                 <div className="dropdown-menu dropdown-menu-end" style={{ marginRight: "20px", marginTop: "5px" }}>
-                                    <NotificationList notifications={notifications} />
+                                    <NotificationList />
                                 </div>
                             </li>
                         </ul>
