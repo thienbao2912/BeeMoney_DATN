@@ -3,7 +3,7 @@ import Layout from "../../../layouts/AdminLayout";
 import { Link } from "react-router-dom";
 import { getAllUsers, updateUserStatus } from "../../../service/Auth";
 import { RingLoader } from "react-spinners";
-import ConfirmDeleteModal from "../../../components/Admin/ConfirmDeleteModal";
+import LockedModal from "../../../components/Admin/LockedModal";
 import { Alert } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
@@ -306,7 +306,7 @@ const [errorMessage, setErrorMessage] = useState("");
           </div>
         </div>
       </div>
-      <ConfirmDeleteModal
+      <LockedModal
         show={showConfirmModal}
         onClose={closeDeleteModal}
         onConfirm={handleDeleteUser}
