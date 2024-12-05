@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ConfirmDeleteModal = ({ show, onClose, onConfirm, categoryName, name, errorMessage }) => {
+const LockedModal = ({ show, onClose, onConfirm, categoryName, name, errorMessage }) => {
     if (!show) return null;
 
     return (
@@ -18,15 +18,15 @@ const ConfirmDeleteModal = ({ show, onClose, onConfirm, categoryName, name, erro
                             </div>
                         )}
                         {categoryName && (
-                            <p>Bạn có chắc chắn muốn xóa danh mục <strong>{categoryName}</strong> không?</p>
+                            <p>Bạn có chắc chắn muốn khóa danh mục <strong>{categoryName}</strong> không?</p>
                         )}
                         {name && (
-                            <p>Bạn có chắc chắn muốn xóa người dùng <strong>{name}</strong> không?</p>
+                            <p>Bạn có chắc chắn muốn khóa người dùng <strong>{name}</strong> không?</p>
                         )}
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" onClick={onClose}>Hủy</button>
-                        <button type="button" className="btn btn-danger" onClick={onConfirm}>Xóa</button>
+                        <button type="button" className="btn btn-danger" onClick={onConfirm}>Khóa</button>
                     </div>
                 </div>
             </div>
@@ -34,7 +34,7 @@ const ConfirmDeleteModal = ({ show, onClose, onConfirm, categoryName, name, erro
     );
 };
 
-export const ConfirmBlockModal = ({ show, onClose, onConfirm, categoryName, name, errorMessage }) => {
+export const ConfirmLockModal = ({ show, onClose, onConfirm, categoryName, name, errorMessage }) => {
     if (!show) return null;
 
     return (
@@ -52,15 +52,15 @@ export const ConfirmBlockModal = ({ show, onClose, onConfirm, categoryName, name
                             </div>
                         )}
                         {categoryName && (
-                            <p>Bạn có chắc chắn muốn xóa danh mục <strong>{categoryName}</strong> không?</p>
+                            <p>Bạn có chắc chắn muốn khóa danh mục <strong>{categoryName}</strong> không?</p>
                         )}
                         {name && (
-                            <p>Bạn có chắc chắn muốn xóa người dùng <strong>{name}</strong> không?</p>
+                            <p>Bạn có chắc chắn muốn khóa người dùng <strong>{name}</strong> không?</p>
                         )}
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" onClick={onClose}>Hủy</button>
-                        <button type="button" className="btn btn-danger" onClick={onConfirm}>xóa</button>
+                        <button type="button" className="btn btn-danger" onClick={onConfirm}>Khóa</button>
                     </div>
                 </div>
             </div>
@@ -68,4 +68,4 @@ export const ConfirmBlockModal = ({ show, onClose, onConfirm, categoryName, name
     );
 };
 
-export default ConfirmDeleteModal;
+export default LockedModal;

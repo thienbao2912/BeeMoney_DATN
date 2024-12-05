@@ -289,6 +289,7 @@ const WalletCard = () => {
               style={{ fontSize: "15px", cursor: "pointer" }}
             ></i>
             </Link>
+           
           </div>
         </div>
       </div>
