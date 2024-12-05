@@ -276,7 +276,9 @@ const SavingGoalAdd = () => {
                               alt={goal.categoryId?.name || 'No Image'}
                               width="50px"
                             />
-                            <h5>{goal.name}</h5>
+                            <h5 className="ms-3"> 
+                              {goal.name.length > 13 ? `${goal.name.substring(0, 13)}...` : goal.name}
+                            </h5>
                           </div>
                           <div className="money text-secondary mb-3">
                             <i className="fa-solid fa-sack-dollar me-2"></i>
