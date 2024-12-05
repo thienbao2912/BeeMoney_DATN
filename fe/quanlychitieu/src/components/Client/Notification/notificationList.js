@@ -79,14 +79,18 @@ const NotificationList = () => {
                                         {notification.createdAt ? new Date(notification.createdAt).toLocaleString() : "Ngày không hợp lệ"}
                                     </small>
                                 </div>
-                                <button
-                                    style={{ marginRight: "10px" }}
-                                    onClick={() => handleDeleteNotification(notification._id)}
-                                    className="btn btn-sm btn-outline-danger ms-3"
-                                    aria-label="Delete notification"
-                                >
-                                    <i className="bi bi-trash"></i>
-                                </button>
+                               <button
+    style={{
+        marginRight: "10px",
+        border: "none",  // Loại bỏ viền của nút
+    }}
+    onClick={() => handleDeleteNotification(notification._id)}
+    className="btn btn-sm btn-outline-danger ms-3"
+    aria-label="Delete notification"
+>
+    <i className="bi bi-x-circle"></i>
+</button>
+
                             </li>
                         ))
                     ) : (
