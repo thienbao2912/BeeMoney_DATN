@@ -11,7 +11,7 @@ const removeAccents = (str) => {
 };
 
 const normalizeText = (text) => {
-  return removeAccents(text).toLowerCase().replace(/\s+/g, ''); 
+  return removeAccents(text).toLowerCase().replace(/\s+/g, '');
 };
 
 const containsForbiddenWords = (value) => {
@@ -23,8 +23,8 @@ const SavingGoalAdd = () => {
   const { register, handleSubmit, setValue, watch, setError, reset, formState: { errors } } = useForm({
     defaultValues: {
       name: '',
-      targetAmount: '', 
-      currentAmount: 0, 
+      targetAmount: '',
+      currentAmount: 0,
       startDate: '',
       endDate: '',
       categoryId: ''
@@ -67,13 +67,13 @@ const SavingGoalAdd = () => {
   const validateEndDate = (value) => {
     return new Date(startDate) <= new Date(value) || 'Ngày kết thúc phải sau ngày bắt đầu';
   };
-  
+
   <input
     type="date"
     id="endDate"
     {...register('endDate', { required: 'Ngày kết thúc là bắt buộc', validate: validateEndDate })}
   />
-  
+
 
   const formatCurrency = (value) => {
     return Number(value).toLocaleString('vi-VN');
@@ -83,7 +83,7 @@ const SavingGoalAdd = () => {
     if (typeof value === 'string') {
       return value.replace(/[^\d]/g, '');
     }
-    return ''; 
+    return '';
   };
 
   const handleAmountChange = (e) => {
@@ -91,7 +91,7 @@ const SavingGoalAdd = () => {
     if (typeof value === 'string') {
       value = unformatCurrency(value);
       if (Number(value) < 0) {
-        e.target.value = formatCurrency(0); 
+        e.target.value = formatCurrency(0);
       } else {
         e.target.value = formatCurrency(value);
       }
@@ -102,10 +102,16 @@ const SavingGoalAdd = () => {
     setLoading(true);
     try {
       const selectedCategoryId = formData.categoryId;
-    if (!selectedCategoryId) {
-      toast.warning('Chưa chọn danh mục');
-      setLoading(false); 
-      return; // Ngăn việc tiếp tục gửi form
+      if (!selectedCategoryId) {
+        toast.warning('Chưa chọn danh mục');
+        setLoading(false);
+        return;
+      }
+      const currentAmount = unformatCurrency(formData.currentAmount) || '0';
+      if (Number(currentAmount) < 1000) {
+        toast.warning('Số tiền ít nhất là 1,000 đ');
+        setLoading(false);
+        return;
     }
       const payload = {
         ...formData,
@@ -114,19 +120,19 @@ const SavingGoalAdd = () => {
       };
       await addSavingsGoal(payload);
       // navigate('/saving-goal/list');
-     toast.success('Thêm mục tiêu tiết kiệm thành công')
-     reset();
+      toast.success('Thêm mục tiêu tiết kiệm thành công')
+      reset();
       const updatedSavingsGoals = await getAllSavingsGoals(userId);
       setSavingsGoals(updatedSavingsGoals || []);
-    
+
     } catch (error) {
       setGlobalError('Lỗi thêm mục tiêu tiết kiệm');
       console.error('Lỗi thêm mục tiêu tiết kiệm:', error);
     } finally {
       setLoading(false);
-  }
+    }
   };
-  
+
 
 
   if (loadingSavingsGoals) {
@@ -200,8 +206,8 @@ const SavingGoalAdd = () => {
                       id="targetAmount"
                       name="targetAmount"
                       className={`form-control ${errors.targetAmount ? 'is-invalid' : ''}`}
-                      {...register('targetAmount', { 
-                        required: 'Số tiền mục tiêu là bắt buộc' 
+                      {...register('targetAmount', {
+                        required: 'Số tiền mục tiêu là bắt buộc'
                       })}
                       onInput={handleAmountChange}
                     />
@@ -223,32 +229,32 @@ const SavingGoalAdd = () => {
                 <div className="form-group">
                   <label htmlFor="category">Danh mục</label>
                   <div className="category-buttons">
-                  {categories.length > 0 ? (
-  categories.map((category) => (
-    category.image ? (
-      <button
-        className={`btn btn-secondary ${category._id === categoryId ? 'active' : ''}`}
-        type="button"
-        key={category._id}
-        onClick={() => setValue('categoryId', category._id)}
-      >
-        <img src={category.image} alt={category.name} />
-        <p>{category.name}</p>
-      </button>
-    ) : (
-      <p key={category._id}>Không thể tải danh mục</p>
-    )
-  ))
-) : (
-  <i className="fa-solid fa-circle-exclamation fa-2x"></i>
-)}
+                    {categories.length > 0 ? (
+                      categories.map((category) => (
+                        category.image ? (
+                          <button
+                            className={`btn btn-secondary ${category._id === categoryId ? 'active' : ''}`}
+                            type="button"
+                            key={category._id}
+                            onClick={() => setValue('categoryId', category._id)}
+                          >
+                            <img src={category.image} alt={category.name} />
+                            <p>{category.name}</p>
+                          </button>
+                        ) : (
+                          <p key={category._id}>Không thể tải danh mục</p>
+                        )
+                      ))
+                    ) : (
+                      <i className="fa-solid fa-circle-exclamation fa-2x"></i>
+                    )}
 
                   </div>
                 </div>
                 <div className="col-md-auto col-12 d-flex justify-content-center">
-                <button className="btn btn-primary w-100 text-center" type="submit" disabled={loading}>
-                {loading ? 'Đang thêm...' : 'Thêm mục tiêu'}
-</button>
+                  <button className="btn btn-primary w-100 text-center" type="submit" disabled={loading}>
+                    {loading ? 'Đang thêm...' : 'Thêm mục tiêu'}
+                  </button>
 
                 </div>
               </form>
@@ -262,11 +268,11 @@ const SavingGoalAdd = () => {
             <div className="card-body">
               <Link to="/saving-goal/list" className="text-secondary">Xem tất cả mục tiêu</Link>
               {savingsGoals.length > 0 ? (
-          savingsGoals
-          .filter(goal => new Date(goal.endDate) >= new Date()) 
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) 
-          .slice(0, 3)
-          .map((goal) => {
+                savingsGoals
+                  .filter(goal => new Date(goal.endDate) >= new Date())
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                  .slice(0, 3)
+                  .map((goal) => {
                     return (
                       <div className="card mt-4" key={goal._id}>
                         <div className="card-body">
@@ -276,14 +282,16 @@ const SavingGoalAdd = () => {
                               alt={goal.categoryId?.name || 'No Image'}
                               width="50px"
                             />
-                            <h5>{goal.name}</h5>
+                            <h5 className="ms-3"> 
+                              {goal.name.length > 13 ? `${goal.name.substring(0, 13)}...` : goal.name}
+                            </h5>
                           </div>
                           <div className="money text-secondary mb-3">
                             <i className="fa-solid fa-sack-dollar me-2"></i>
-                           Số tiền mục tiêu: {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(goal.targetAmount)}
+                            Số tiền mục tiêu: {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(goal.targetAmount)}
                           </div>
                         </div>
                       </div>

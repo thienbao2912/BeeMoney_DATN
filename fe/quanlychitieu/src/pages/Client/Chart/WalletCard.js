@@ -9,11 +9,11 @@ import { toast } from 'react-toastify';
 const WalletCard = () => {
   const [user, setUser] = useState(0);
   const [budget, setBudget] = useState([]);
-  const [latestBudget, setLatestBudget] = useState(null);
   const [savingsGoal, setSavingsGoal] = useState([]);
   const [savingsFund, setSavingsFund] = useState([]);
-  const [latestSavingsFund, setLatestSavingsFund] = useState(null);
+  const [latestBudget, setLatestBudget] = useState(null);
   const [latestSavingsGoal, setLatestSavingsGoal] = useState(null);
+  const [latestSavingsFund, setLatestSavingsFund] = useState(null);
   const [loading, setLoading] = useState(false);
   const userId = localStorage.getItem("userId");
   useEffect(() => {
@@ -61,9 +61,9 @@ const WalletCard = () => {
         );
 
         setSavingsFund(savingsFund)
-        setLatestSavingsGoal(sortedSavingsFund[0] || null)
+        setLatestSavingsFund(sortedSavingsFund[0] || null)
       } catch (error) {
-        console.error("Error fetching savingsGoal:", error);
+        console.error("Error fetching savingsFund:", error);
       }
     }
     fetchUserProfile();
@@ -274,15 +274,16 @@ const WalletCard = () => {
 
           <hr className="my-2" />
           <div className="d-flex justify-content-between align-items-center mt-2">
-          <div>
-          {/* <img
+            <div>
+              <img
                 src={latestSavingsFund?.categoryId?.image || "/images/rabbit.png"}
                 alt={latestSavingsFund?.categoryId?.name || "Không tồn tại"}
                 width="15px"
 
-              /> */}
-          {/* <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsFund ? ` ${latestSavingsFund.categoryId.name}` : 'Không có'}</span> */}
-          </div>
+              />
+
+              <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsFund ? ` ${latestSavingsFund.name}` : 'Không có'}</span>
+            </div>
             <Link to="/savings-fund/list"> <i
               className="bi bi-arrow-90deg-right text-secondary"
               style={{ fontSize: "15px", cursor: "pointer" }}

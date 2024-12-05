@@ -14,10 +14,8 @@ const FundDetail = () => {
   const [categoryImage, setCategoryImage] = useState('');
   const [loading, setLoading] = useState(true);
   const [loadingSend, setLoadingSend] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
   const [showContributeModal, setShowContributeModal] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false);  // Control invite modal
+  const [showInviteModal, setShowInviteModal] = useState(false); 
   const [contributionAmount, setContributionAmount] = useState('');
   const [note, setNote] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
@@ -30,7 +28,7 @@ const FundDetail = () => {
       setCategories(data);
     } catch (error) {
       console.error('Lỗi hiển thị categories', error);
-      setError('Lỗi hiển thị categories');
+      toast.error('Lỗi hiển thị categories');
     }
   };
 
@@ -45,7 +43,7 @@ const FundDetail = () => {
       }
     } catch (error) {
       console.error('Lỗi hiển thị chi tiết quỹ tiết kiệm:', error);
-      setError('Lỗi hiển thị chi tiết quỹ tiết kiệm');
+      toast.error('Lỗi hiển thị chi tiết quỹ tiết kiệm')
     } finally {
       setLoading(false);
     }
@@ -95,7 +93,6 @@ const handleAmountChange = (e) => {
 
   const handleContribute = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
   
     const amountToContribute = parseFloat(contributionAmount);
@@ -121,7 +118,7 @@ const handleAmountChange = (e) => {
   
      
       setTransactionUsers((prev) => [...prev, currentUser]);
-  
+
   
       setContributionAmount('');
       setNote('');
@@ -168,8 +165,8 @@ const handleAmountChange = (e) => {
       );
   
       toast.success('Đã gửi đến thành công');
-      setError(null);
       setInviteEmail('');
+      setShowInviteModal(false)
     } catch (error) {
       if (error.response && error.response.status === 404) {
         toast.warning('Email này không dùng BeeMoney');
@@ -291,25 +288,11 @@ const handleAmountChange = (e) => {
         />
       </div>
 
-      {/* Loading indicator */}
+   
       {loadingSend && (
         <div className="text-center mt-3">
           <i className="fa fa-spinner fa-spin fa-2x primary"></i>
           <p className="mt-2">Đang gửi lời mời...</p>
-        </div>
-      )}
-
-      {/* Success message */}
-      {success && (
-        <div className="custom-alert-success mt-3">
-          <i className="fa fa-check-circle"></i> {success}
-        </div>
-      )}
-
-      {/* Error message */}
-      {error && (
-        <div className="alert alert-danger mt-3">
-          <i className="fa fa-exclamation-circle"></i> {error}
         </div>
       )}
 

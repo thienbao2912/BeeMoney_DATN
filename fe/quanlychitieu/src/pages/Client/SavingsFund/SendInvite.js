@@ -6,10 +6,10 @@ const SendInvite = () => {
   const [email, setEmail] = useState('');
   const [fundId, setFundId] = useState('');
   const cookies = new Cookies();
-  const token = cookies.get('token'); // Read token from cookies
+  const token = cookies.get('token'); 
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault(); 
 
     try {
       const response = await axios.post(
@@ -17,7 +17,7 @@ const SendInvite = () => {
         { email, fundId },
         {
           headers: {
-            'x-auth-token': token, // Send token as x-auth-token
+            'x-auth-token': token, 
           },
         }
       );

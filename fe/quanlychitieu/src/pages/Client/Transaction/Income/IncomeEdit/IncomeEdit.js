@@ -60,7 +60,7 @@ const IncomeEdit = () => {
   };
 
   const unformatCurrency = (value) => value.replace(/[^\d]/g, '');
-
+  const today = new Date().toISOString().split('T')[0];
   const handleAmountInput = (e) => {
     const rawValue = e.target.value.replace(/[^\d]/g, '');
     if (!rawValue) {
@@ -134,6 +134,7 @@ const IncomeEdit = () => {
                   name="date"
                   className="form-control"
                   {...register('date', { required: 'Bắt buộc nhập ngày' })}
+                  max={today}
                 />
                 {errors.date && <span className="text-danger">{errors.date.message}</span>}
               </div>
