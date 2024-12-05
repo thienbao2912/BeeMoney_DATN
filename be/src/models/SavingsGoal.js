@@ -29,7 +29,7 @@ const SavingsGoalSchema = new Schema({
     },
     categoryId: {
         type: Schema.Types.ObjectId,
-        ref: 'categories',
+        ref: 'Category',
         required: true
     },
     transactionHistory: [
