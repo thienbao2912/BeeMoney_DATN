@@ -105,8 +105,8 @@ const SavingsGoalsList = ({ userId }) => {
                                 <Row>
                                     <Col xs={3} className="d-flex flex-column align-items-start">
                                         <img
-                                            src={categoryMap[goal.categoryId] || 'default-image-url'}
-                                            alt={goal.name || 'Ảnh mục tiêu'}
+                                            src={goal.categoryId.image|| '/images/chicken.png'}
+                                            alt={goal.categoryId.name || 'Ảnh mục tiêu'}
                                             className="img-fluid rounded mb-4"
                                             style={{
                                                 width: "60px",

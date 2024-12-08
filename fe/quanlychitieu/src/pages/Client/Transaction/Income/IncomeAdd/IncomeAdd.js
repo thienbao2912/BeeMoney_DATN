@@ -164,6 +164,7 @@ const IncomeAdd = () => {
                       name="date"
                       className={`form-control ${errors.date ? 'is-invalid' : ''}`}
                       {...register('date', { required: 'Ngày là bắt buộc' })}
+                      max={today}
                     />
                     {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
                   </div>

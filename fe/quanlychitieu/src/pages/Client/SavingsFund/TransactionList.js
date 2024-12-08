@@ -7,7 +7,11 @@ const TransactionList = ({ fundId }) => {
         const fetchTransactionsData = async () => {
             try {
                 const transactionsData = await getFundTransactions(fundId);
-                setTransactions(transactionsData);
+                const sortedTransactions = transactionsData.sort(
+                    (a, b) => new Date(b.date) - new Date(a.date)
+                );
+                setTransactions(sortedTransactions);
+              
             } catch (error) {
                 setError('Error fetching transactions.');
             }
