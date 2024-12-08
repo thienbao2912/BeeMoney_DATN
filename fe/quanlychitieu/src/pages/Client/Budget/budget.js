@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const Budget = () => {
   const [budgets, setBudgets] = useState([]);
+  const [filteredBudgets, setFilteredBudgets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,6 +18,8 @@ const Budget = () => {
   const [selectedMonth, setSelectedMonth] = useState("all");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [budgetToEdit, setBudgetToEdit] = useState(null);
+  const [filterOption, setFilterOption] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("");
   useEffect(() => {
     const fetchBudgets = async () => {
       try {
@@ -57,6 +60,7 @@ const Budget = () => {
           });
         }
         setBudgets(response);
+        setFilteredBudgets(response);
       } catch (err) {
         setError(err.message);
         console.error("Lỗi khi lấy tất cả ngân sách:", err);
@@ -67,6 +71,35 @@ const Budget = () => {
 
     fetchBudgets();
   }, [selectedMonth]);
+
+  useEffect(() => {
+    let filtered = [...budgets];
+
+    if (filterOption === "top5") {
+      filtered = filtered.sort((a, b) => b.amount - a.amount).slice(0, 5);
+    } else if (filterOption === "bottom5") {
+      filtered = filtered.sort((a, b) => a.amount - b.amount).slice(0, 5);
+    } else if (filterOption === "month" && selectedMonth !== "all") {
+      const selectedMonthNumber = parseInt(selectedMonth, 10);
+      filtered = filtered.filter((budget) => {
+        const startMonth = new Date(budget.startDate).getMonth() + 1;
+        const endMonth = new Date(budget.endDate).getMonth() + 1;
+        return startMonth === selectedMonthNumber || endMonth === selectedMonthNumber;
+      });
+    }
+
+    setFilteredBudgets(filtered);
+    setCurrentPage(1); 
+  }, [filterOption, selectedMonth, budgets]);
+
+  const handleFilterChange = (e) => {
+    setFilterOption(e.target.value);
+    if (e.target.value !== "month") setSelectedMonth("all");
+  };
+
+  const handleMonthChange = (event) => {
+    setSelectedMonth(event.target.value);
+  };
 
   const handleDelete = async (budgetId) => {
     try {
@@ -109,10 +142,6 @@ const Budget = () => {
     return ((remaining / totalAmount) * 100).toFixed(0);
   };
 
-  const handleMonthChange = (event) => {
-    setSelectedMonth(event.target.value);
-    setCurrentPage(1);
-  };
   const indexOfLastBudget = currentPage * itemsPerPage;
   const indexOfFirstBudget = indexOfLastBudget - itemsPerPage;
   const currentBudgets = budgets.slice(indexOfFirstBudget, indexOfLastBudget);
@@ -138,29 +167,36 @@ const Budget = () => {
         </ol>
       </nav>
       <div className="row align-items-center">
-        <div className="col-md-3">
+        <div className="col-lg-6 col-md-3 col-sm-12 d-flex align-items-center mb-2">
           <select
-            className="form-select"
-            value={selectedMonth}
-            onChange={handleMonthChange}
+            value={filterOption}
+            onChange={handleFilterChange}
+            className="form-select me-2"
+            style={{ width: "200px" }}
           >
-            <option value="all">Hiển thị tất cả</option>
-            <option value="1">Tháng 1</option>
-            <option value="2">Tháng 2</option>
-            <option value="3">Tháng 3</option>
-            <option value="4">Tháng 4</option>
-            <option value="5">Tháng 5</option>
-            <option value="6">Tháng 6</option>
-            <option value="7">Tháng 7</option>
-            <option value="8">Tháng 8</option>
-            <option value="9">Tháng 9</option>
-            <option value="10">Tháng 10</option>
-            <option value="11">Tháng 11</option>
-            <option value="12">Tháng 12</option>
+            <option value="all">Tất cả</option>
+            <option value="top5">5 ngân sách lớn nhất</option>
+            <option value="bottom5">5 ngân sách nhỏ nhất</option>
+            <option value="month">Lọc theo tháng</option>
           </select>
+          {filterOption === "month" && (
+            <select
+              value={selectedMonth}
+              onChange={handleMonthChange}
+              className="form-select"
+              style={{ width: "200px" }}
+            >
+              <option value="all">Tất cả</option>
+              {[...Array(12).keys()].map((i) => (
+                <option key={i + 1} value={i + 1}>
+                  Tháng {i + 1}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
-        <div className="col-md-9 text-md-end mt-3 mt-md-0">
+        <div className="col-md-12 d-flex justify-content-end mt-3 mt-md-0">
           <a href="/past-budget" className="btn btn-secondary">
             Ngân sách đã qua
           </a>

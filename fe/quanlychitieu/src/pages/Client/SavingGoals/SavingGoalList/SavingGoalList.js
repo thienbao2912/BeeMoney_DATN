@@ -17,6 +17,7 @@ const SavingGoalList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
   const [selectedMonth, setSelectedMonth] = useState("all");
+  const [filterOption, setFilterOption] = useState("all");
   useEffect(() => {
     const fetchSavingsGoals = async () => {
       try {
@@ -49,6 +50,31 @@ const SavingGoalList = () => {
     };
     fetchSavingsGoals();
   }, []);
+
+  const filteredGoals = savingsGoals
+  .filter((goal) => {
+    if (filterOption === "month" && selectedMonth !== "all") {
+      const month = parseInt(selectedMonth);
+      const startDate = new Date(goal.startDate);
+      const endDate = new Date(goal.endDate);
+      return (
+        startDate.getMonth() + 1 === month ||
+        endDate.getMonth() + 1 === month
+      );
+    }
+    return true;
+  })
+  .sort((a, b) => {
+    if (filterOption === "top5") {
+      return b.targetAmount - a.targetAmount; // Lớn nhất đến nhỏ nhất
+    }
+    if (filterOption === "bottom5") {
+      return a.targetAmount - b.targetAmount; // Nhỏ nhất đến lớn nhất
+    }
+    return 0; // Không sắp xếp
+  })
+  .slice(0, filterOption === "top5" || filterOption === "bottom5" ? 5 : undefined);
+  
   const handleDelete = async (goalId) => {
     setLoading(true)
     try {
@@ -90,7 +116,6 @@ const SavingGoalList = () => {
       );
     });
   };
-  const filteredGoals = filterGoalsByMonth(savingsGoals);
   const totalPages = Math.ceil(filteredGoals.length / ITEMS_PER_PAGE);
   const paginatedGoals = filteredGoals.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -125,29 +150,38 @@ const SavingGoalList = () => {
         </ol>
       </nav>
       <div className="row align-items-center">
-        <div className="col-md-3">
-          <select
-            className="form-select"
-            value={selectedMonth}
-            onChange={handleMonthChange}
-          >
-            <option value="all">Hiển thị tất cả</option>
-            <option value="1">Tháng 1</option>
-            <option value="2">Tháng 2</option>
-            <option value="3">Tháng 3</option>
-            <option value="4">Tháng 4</option>
-            <option value="5">Tháng 5</option>
-            <option value="6">Tháng 6</option>
-            <option value="7">Tháng 7</option>
-            <option value="8">Tháng 8</option>
-            <option value="9">Tháng 9</option>
-            <option value="10">Tháng 10</option>
-            <option value="11">Tháng 11</option>
-            <option value="12">Tháng 12</option>
-          </select>
-        </div>
+        <div className="row align-items-center mb-3">
+            <div className="col-md-3">
+              <select
+                className="form-select me-2"
+                value={filterOption}
+                onChange={(e) => setFilterOption(e.target.value)}
+              >
+                <option value="all">Hiển thị tất cả</option>
+                <option value="top5">5 mục tiêu lớn nhất</option>
+                <option value="bottom5">5 mục tiêu nhỏ nhất</option>
+                <option value="month">Lọc theo tháng</option>
+              </select>
+            </div>
+            {filterOption === "month" && (
+              <div className="col-md-3">
+                <select
+                  className="form-select"
+                  value={selectedMonth}
+                  onChange={handleMonthChange}
+                >
+                  <option value="all">Hiển thị tất cả</option>
+                  {[...Array(12).keys()].map((i) => (
+                    <option key={i + 1} value={i + 1}>
+                      Tháng {i + 1}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
 
-        <div className="col-md-9 text-md-end mt-3 mt-md-0">
+        <div className="col-md-12 d-flex justify-content-end mt-3 mt-md-0">
           <a href="/saving-goal/past" className="btn btn-secondary">
             Mục tiêu đã qua
           </a>
