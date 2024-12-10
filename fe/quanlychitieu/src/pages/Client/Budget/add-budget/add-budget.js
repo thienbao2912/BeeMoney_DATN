@@ -15,13 +15,15 @@ const AddBudget = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [toastMessage, setToastMessage] = useState('');
-    const [toastType, setToastType] = useState('success'); // success or error
-
+    const [toastType, setToastType] = useState('success'); 
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
     const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         defaultValues: {
-            startDate: '',
-            endDate: '',
+            startDate: today.toISOString().split('T')[0], 
+            endDate: tomorrow.toISOString().split('T')[0],
             amount: '',
             categoryId: ''
         }
@@ -50,9 +52,9 @@ const AddBudget = () => {
 
                     const currentDate = new Date();
                     const validBudgets = updatedBudgets
-                        .filter(budget => new Date(budget.endDate) >= currentDate)
-                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                        .slice(0, 5);
+                    .filter(budget => new Date(budget.endDate) >= currentDate)
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .slice(0, 4);
 
                     setBudgets(validBudgets);
                     setLoadingBudgets(false);
@@ -107,14 +109,14 @@ const AddBudget = () => {
 
         try {
             await createBudget(budgetData);
-            toast.success("Ngân sách đã được thêm thành công!"); // Display success toast
+            toast.success("Ngân sách đã được thêm thành công!");
             setTimeout(() => {
                 window.location.reload();
-            }, 3000);
+            }, 2000);
         } catch (err) {
-            setError('Có lỗi xảy ra khi thêm ngân sách');
+            // setError('Có lỗi xảy ra khi thêm ngân sách');
             console.error('Error creating budget:', err);
-            toast.error("Có lỗi xảy ra khi thêm ngân sách"); // Display error toast
+            toast.error("Có lỗi xảy ra khi thêm ngân sách");
         } finally {
             setLoading(false);
         }
@@ -161,6 +163,7 @@ const AddBudget = () => {
                                             id="startDate"
                                             className="form-control"
                                             {...register('startDate', { required: 'Ngày bắt đầu là bắt buộc' })}
+                                            min={today.toISOString().split('T')[0]}
                                         />
                                         {errors.startDate && <p className="text-danger">{errors.startDate.message}</p>}
                                     </div>
@@ -171,7 +174,8 @@ const AddBudget = () => {
                                             id="endDate"
                                             className="form-control"
                                             {...register('endDate', { required: 'Ngày kết thúc là bắt buộc' })}
-                                        />
+                                            min={today.toISOString().split('T')[0]}
+                                            />
                                         {errors.endDate && <p className="text-danger">{errors.endDate.message}</p>}
                                     </div>
                                 </div>
@@ -286,7 +290,7 @@ const AddBudget = () => {
                     </div>
                 </div>
             </div>
-            <ToastContainer /> {/* Add ToastContainer to display toasts */}
+                        <ToastContainer /> 
 
         </div>
     );

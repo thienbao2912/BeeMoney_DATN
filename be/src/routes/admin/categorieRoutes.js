@@ -21,4 +21,16 @@ router.patch("/soft-delete/:id", middlewareController.verifyTokenAuthorization,s
 router.patch("/restore/:id", middlewareController.verifyTokenAuthorization,restore);
 router.get("/deleted", middlewareController.verifyTokenAuthorization,deletedList);
 
+router.get("/user/:userId/categories", middlewareController.verifyTokenAuthorization, async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        const categories = await modelCategorie.find({ userId, status: { $ne: 'disable' } });
+
+        return res.status(200).json(categories);
+    } catch (error) {
+        return res.status(500).json({ message: "Server error", error });
+    }
+});
+
 module.exports = router;
