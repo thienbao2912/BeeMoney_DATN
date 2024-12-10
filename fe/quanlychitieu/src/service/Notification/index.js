@@ -14,7 +14,7 @@ const getAllNotification = async (userId) => {
 };
 
 // Thêm một thông báo mới
-const addNotification = async (userId, content) => {
+const addNotification = async (userId, content, categoryId) => {
     try {
         const response = await request({
             path: `/api/notification/add`,
@@ -22,6 +22,7 @@ const addNotification = async (userId, content) => {
             data: {
                 userId,
                 content,
+                categoryId, // Truyền categoryId vào body của request
             },
         });
         return response;

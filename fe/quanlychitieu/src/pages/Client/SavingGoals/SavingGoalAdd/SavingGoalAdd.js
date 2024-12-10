@@ -9,7 +9,9 @@ const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu'];
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 };
-
+const truncateText = (text, maxLength) => {
+  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+};
 const normalizeText = (text) => {
   return removeAccents(text).toLowerCase().replace(/\s+/g, '');
 };
@@ -20,13 +22,17 @@ const containsForbiddenWords = (value) => {
 };
 
 const SavingGoalAdd = () => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
   const { register, handleSubmit, setValue, watch, setError, reset, formState: { errors } } = useForm({
     defaultValues: {
       name: '',
-      targetAmount: '',
+      targetAmount: 0,
       currentAmount: 0,
-      startDate: '',
-      endDate: '',
+      startDate: today.toISOString().split('T')[0], 
+      endDate: tomorrow.toISOString().split('T')[0],
       categoryId: ''
     }
   });
@@ -101,6 +107,20 @@ const SavingGoalAdd = () => {
   const onSubmit = async (formData) => {
     setLoading(true);
     try {
+      const targetAmount = unformatCurrency(formData.targetAmount);
+    // Kiểm tra số tiền mục tiêu phải ít nhất 10,000đ
+    if (targetAmount < 10000) {
+      toast.warning('Số tiền mục tiêu phải ít nhất 10,000đ');
+      setLoading(false);
+      return;
+    }
+    const name = formData.name.trim();
+    const nameRegex = /[a-zA-Z]/; // Biểu thức chính quy kiểm tra chữ cái
+    if (!name || name.length < 3 || !nameRegex.test(name)) {
+      toast.warning('Tên mục tiêu phải có ít nhất 3 ký tự và chứa ít nhất một chữ cái');
+      setLoading(false);
+      return;
+    }
       const selectedCategoryId = formData.categoryId;
       if (!selectedCategoryId) {
         toast.warning('Chưa chọn danh mục');
@@ -108,18 +128,12 @@ const SavingGoalAdd = () => {
         return;
       }
       const currentAmount = unformatCurrency(formData.currentAmount) || '0';
-      if (Number(currentAmount) < 1000) {
-        toast.warning('Số tiền ít nhất là 1,000 đ');
-        setLoading(false);
-        return;
-    }
       const payload = {
         ...formData,
         targetAmount: unformatCurrency(formData.targetAmount),
         currentAmount: unformatCurrency(formData.currentAmount) || '0',
       };
       await addSavingsGoal(payload);
-      // navigate('/saving-goal/list');
       toast.success('Thêm mục tiêu tiết kiệm thành công')
       reset();
       const updatedSavingsGoals = await getAllSavingsGoals(userId);
@@ -168,6 +182,7 @@ const SavingGoalAdd = () => {
                       name="startDate"
                       className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
                       {...register('startDate', { required: 'Ngày bắt đầu là bắt buộc' })}
+                      min={today.toISOString().split('T')[0]}
                     />
                     {errors.startDate && <div className="invalid-feedback">{errors.startDate.message}</div>}
                   </div>
@@ -179,6 +194,7 @@ const SavingGoalAdd = () => {
                       name="endDate"
                       className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
                       {...register('endDate', { required: 'Ngày kết thúc là bắt buộc' })}
+                      min={today.toISOString().split('T')[0]}
                     />
                     {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
                   </div>
@@ -264,48 +280,67 @@ const SavingGoalAdd = () => {
           </div>
         </div>
         <div className="col-md-6 mb-3">
-          <div className="card">
-            <div className="card-body">
-              <Link to="/saving-goal/list" className="text-secondary">Xem tất cả mục tiêu</Link>
-              {savingsGoals.length > 0 ? (
-                savingsGoals
-                  .filter(goal => new Date(goal.endDate) >= new Date())
-                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                  .slice(0, 3)
-                  .map((goal) => {
-                    return (
-                      <div className="card mt-4" key={goal._id}>
-                        <div className="card-body">
-                          <div className="category-target d-flex align-items-center mb-3">
-                            <img
-                              src={goal.categoryId?.image || '/images/no.png'}
-                              alt={goal.categoryId?.name || 'No Image'}
-                              width="50px"
-                            />
-                            <h5 className="ms-3"> 
-                              {goal.name.length > 13 ? `${goal.name.substring(0, 13)}...` : goal.name}
-                            </h5>
-                          </div>
-                          <div className="money text-secondary mb-3">
-                            <i className="fa-solid fa-sack-dollar me-2"></i>
-                            Số tiền mục tiêu: {new Intl.NumberFormat("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            }).format(goal.targetAmount)}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-              ) : (
-                <div className="text-center primary mt-4">
-                  <i className="fa-solid fa-circle-exclamation fa-2x"></i>
-                  <p>Chưa có mục tiêu</p>
+    <div className="income-overview card">
+        <div className="card-body">
+            <h5 className="mb-4">Danh sách mục tiêu tiết kiệm</h5>
+            {loadingSavingsGoals ? (
+                <div className="text-center mt-5">
+                    <i className="fa fa-spinner fa-spin fa-2x primary"></i>
+                    <p className="mt-2 primary">Loading...</p>
                 </div>
-              )}
-            </div>
-          </div>
+            ) : savingsGoals.length > 0 ? (
+                <div className="row mt-3">
+                    {savingsGoals
+                        .filter(goal => new Date(goal.endDate) >= new Date()) // lọc mục tiêu chưa hết hạn
+                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // sắp xếp theo ngày tạo
+                        .slice(0, 4) // hiển thị 3 mục tiêu mới nhất
+                        .map(goal => (
+                            <div key={goal._id} className="col-md-12 mb-3">
+                                <div className="budget-card card">
+                                    <div className="card-body d-flex align-items-center justify-content-between">
+                                        <div className="d-flex align-items-center">
+                                            {goal.categoryId && goal.categoryId.image ? (
+                                                <img
+                                                    src={goal.categoryId.image}
+                                                    alt={goal.categoryId.name}
+                                                    className="category-image"
+                                                />
+                                            ) : (
+                                                <div className="placeholder-image" />
+                                            )}
+                                            <div className="ml-3">
+                                                <h6 className="mb-0">{truncateText(goal.name || 'Danh mục mục tiêu', 20)}</h6>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-success mb-0">
+                                                {new Intl.NumberFormat("vi-VN", {
+                                                    style: "currency",
+                                                    currency: "VND",
+                                                }).format(goal.targetAmount)}
+                                            </p>
+                                            <p className="text-secondary mb-0">
+                                                {new Date(goal.startDate).toLocaleDateString()} - {new Date(goal.endDate).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    <div className="text-right mt-3">
+                        <Link to="/saving-goal/list" className="btn btn-link">Xem tất cả mục tiêu</Link>
+                    </div>
+                </div>
+            ) : (
+                <div className="text-center primary mt-4">
+                    <i className="fa-solid fa-circle-exclamation fa-2x"></i>
+                    <p>Chưa có mục tiêu tiết kiệm</p>
+                </div>
+            )}
         </div>
+    </div>
+</div>
+
       </div>
     </div>
   );

@@ -49,7 +49,7 @@ const Header = () => {
     )}
 </button>
 
-                                <div className="dropdown-menu dropdown-menu-end" style={{ marginRight: "20px", marginTop: "5px" }}>
+                                <div className="dropdown-menu dropdown-menu-end" style={{ marginRight: "20px", marginTop: "5px", width:"500px" }}>
                                     <NotificationList />
                                 </div>
                             </li>

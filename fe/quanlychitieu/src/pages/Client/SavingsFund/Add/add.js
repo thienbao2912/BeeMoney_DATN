@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Button, Card, Row, Col, ListGroup } from "react-bootstrap";
 import { createSavingsFund, getCategories, getUserSavingsGoals } from '../../../../service/SavingsFund';
+import { toast } from 'react-toastify';
 
 const SavingsFundAdd = () => {
     const [categories, setCategories] = useState([]);
@@ -10,13 +11,16 @@ const SavingsFundAdd = () => {
     const [isLoadingCategories, setIsLoadingCategories] = useState(true);
     const [isLoadingFunds, setIsLoadingFunds] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
     const { register, handleSubmit, formState: { errors }, setValue, reset, watch } = useForm({
         defaultValues: {
             name: '',
-            targetAmount: '',
+            targetAmount: '0',
             categoryId: '',
-            startDate: '',
-            endDate: ''
+            startDate: today.toISOString().split('T')[0], 
+            endDate: tomorrow.toISOString().split('T')[0],
         }
     });
 
@@ -49,10 +53,22 @@ const SavingsFundAdd = () => {
 
         fetchUserSavingsGoals();
     }, []);
-
+    const unformatCurrency = (value) => {
+        if (typeof value === 'string') {
+          return value.replace(/[^\d]/g, '');
+        }
+        return '';
+      };
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
+            const targetAmount = unformatCurrency(data.targetAmount);
+            // Kiểm tra số tiền mục tiêu phải ít nhất 10,000đ
+            if (targetAmount < 10000) {
+              toast.warning('Số tiền mục tiêu phải ít nhất 10,000đ');
+              setIsLoadingFunds(false);
+              return;
+            }
             const payload = {
                 ...data,
                 targetAmount: Number(data.targetAmount.replace(/,/g, ''))
@@ -135,6 +151,8 @@ const SavingsFundAdd = () => {
                                             id="startDate"
                                             {...register('startDate', { required: 'Ngày bắt đầu là bắt buộc' })}
                                             className={`form-control ${errors.startDate ? 'is-invalid' : ''}`}
+                                            min={today.toISOString().split('T')[0]}
+
                                         />
                                         {errors.startDate && <div className="invalid-feedback">{errors.startDate.message}</div>}
                                     </div>
@@ -150,6 +168,8 @@ const SavingsFundAdd = () => {
                                                 validate: (value) => validateDateRange(watch('startDate'), value)
                                             })}
                                             className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
+                                            min={today.toISOString().split('T')[0]}
+
                                         />
                                         {errors.endDate && (
                                             <div className="invalid-feedback" style={{ width: '100%' }}>

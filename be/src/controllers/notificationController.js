@@ -4,11 +4,11 @@ const SavingsGoal = require("../models/SavingsGoal");
 const Budget = require('../models/Budget');
 const cron = require('node-cron');
 
-class NotifiController  {
+class NotifiController {
 
     static async getAll (req, res) {
         try {
-            const id = req.params.id;; 
+            const id = req.params.id;
             if (!id) {
                 return res.status(400).json({ message: "User ID không xác định" });
             }
@@ -23,7 +23,7 @@ class NotifiController  {
 
     static async addNotification(req, res) {
         try {
-            const { userId, content, customId } = req.body;
+            const { userId, content, customId, categoryId } = req.body; // Thêm categoryId vào
 
             if (!userId || !content) {
                 return res.status(400).json({ message: "Thiếu thông tin người dùng hoặc nội dung thông báo" });
@@ -33,13 +33,14 @@ class NotifiController  {
                 userId,
                 content,
                 customId,
+                categoryId, // Lưu categoryId nếu có
             });
 
             await newNotification.save();
             res.status(201).json({ message: "Thông báo đã được thêm thành công", data: newNotification });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: "Server error" });
+            res.status(500).json({ message: "Lỗi máy chủ" });
         }
     }
 
@@ -64,6 +65,7 @@ class NotifiController  {
     }
 };
 
+// Cron job cho thông báo khi mục tiêu tiết kiệm hết hạn
 cron.schedule('*/1 * * * *', async () => { 
     try {
         const today = new Date();
@@ -81,11 +83,11 @@ cron.schedule('*/1 * * * *', async () => {
                 const existingNotification = await Notification.findOne({ customId: goal._id });
 
                 if (!existingNotification) {
-                   
                     await Notification.create({
                         userId: user._id,
                         content: content,
-                        customId: goal._id 
+                        customId: goal._id,
+                        categoryId: goal.categoryId // Lấy categoryId từ SavingsGoal
                     });
                 }
             }
@@ -96,44 +98,8 @@ cron.schedule('*/1 * * * *', async () => {
     }
 });
 
+// Cron job cho thông báo khi ngân sách hết hạn
 cron.schedule('*/1 * * * *', async () => { 
-    try {
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0); 
-        const todayEnd = new Date();
-        todayEnd.setHours(23, 59, 59, 999); 
-        
-        const dueTodayGoals = await SavingsGoal.find({ endDate: { $gte: todayStart, $lte: todayEnd } });
-
-        dueTodayGoals.forEach(async (goal) => {
-            const user = await User.findById(goal.userId);
-
-            if (user) {
-                const content = `Mục tiêu "${goal.name}" của bạn đã đến hạn.`;
-
-                const existingNotification = await Notification.findOne({
-                    userId: user._id,
-                    customId: goal._id,
-                    content: content
-                });
-
-                if (!existingNotification) {
-                   
-                    await Notification.create({
-                        userId: user._id,
-                        content: content,
-                        customId: goal._id 
-                    });
-                }
-            }
-        });
-
-    } catch (error) {
-        console.error("Lỗi khi chạy cron job:", error);
-    }
-});
-
-cron.schedule('*/1 * * * *', async () => {
     try {
         const today = new Date();
         const tomorrow = new Date(today);
@@ -146,7 +112,12 @@ cron.schedule('*/1 * * * *', async () => {
                 const content = `Ngân sách của bạn cho danh mục "${budget.categoryId.name}" chỉ còn 1 ngày là đến hạn.`;
                 const existingNotification = await Notification.findOne({ customId: budget._id });
                 if (!existingNotification) {
-                    await Notification.create({ userId: user._id, content, customId: budget._id });
+                    await Notification.create({
+                        userId: user._id,
+                        content,
+                        customId: budget._id,
+                        categoryId: budget.categoryId._id // Lưu categoryId từ Budget
+                    });
                 }
             }
         });
@@ -155,14 +126,14 @@ cron.schedule('*/1 * * * *', async () => {
     }
 });
 
-
+// Cron job cho thông báo khi ngân sách đến hạn
 cron.schedule('*/1 * * * *', async () => {
     try {
         const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
+        todayStart.setHours(0, 0, 0, 0); 
         const todayEnd = new Date();
-        todayEnd.setHours(23, 59, 59, 999);
-
+        todayEnd.setHours(23, 59, 59, 999); 
+        
         const dueTodayBudgets = await Budget.find({ endDate: { $gte: todayStart, $lte: todayEnd } }).populate('categoryId');
         dueTodayBudgets.forEach(async (budget) => {
             const user = await User.findById(budget.userId);
@@ -174,7 +145,12 @@ cron.schedule('*/1 * * * *', async () => {
                     content: content
                 });
                 if (!existingNotification) {
-                    await Notification.create({ userId: user._id, content, customId: budget._id });
+                    await Notification.create({
+                        userId: user._id,
+                        content,
+                        customId: budget._id,
+                        categoryId: budget.categoryId._id // Lưu categoryId từ Budget
+                    });
                 }
             }
         });
@@ -182,4 +158,5 @@ cron.schedule('*/1 * * * *', async () => {
         console.error("Lỗi khi chạy cron job:", error);
     }
 });
+
 module.exports = NotifiController;
