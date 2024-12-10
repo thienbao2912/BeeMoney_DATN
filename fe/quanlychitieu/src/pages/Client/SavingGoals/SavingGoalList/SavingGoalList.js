@@ -66,12 +66,12 @@ const SavingGoalList = () => {
   })
   .sort((a, b) => {
     if (filterOption === "top5") {
-      return b.targetAmount - a.targetAmount; // Lớn nhất đến nhỏ nhất
+      return b.targetAmount - a.targetAmount; 
     }
     if (filterOption === "bottom5") {
-      return a.targetAmount - b.targetAmount; // Nhỏ nhất đến lớn nhất
+      return a.targetAmount - b.targetAmount; 
     }
-    return 0; // Không sắp xếp
+    return 0; 
   })
   .slice(0, filterOption === "top5" || filterOption === "bottom5" ? 5 : undefined);
   

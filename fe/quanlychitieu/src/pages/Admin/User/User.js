@@ -274,6 +274,14 @@ const [errorMessage, setErrorMessage] = useState("");
                                         </button>
                                       )}
                                     </li>
+                                    <li>
+                                      <Link
+                                        to={`/admin/users/details/${user._id}`}
+                                        className="dropdown-item"
+                                      >
+                                        Xem Chi Tiết
+                                      </Link>
+                                    </li>
                                 </ul>
                               </div>
                             </td>

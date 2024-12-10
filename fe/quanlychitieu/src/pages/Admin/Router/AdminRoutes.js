@@ -9,6 +9,7 @@ import AddUser from '../../../pages/Admin/User/AddUser';
 import UpdateUser from '../../../pages/Admin/User/UpdateUser'; 
 import Profile from '../../../pages/Admin/Profile/Profile';
 import EditCategory from '../../../pages/Admin/Category/EditCategory';
+import UserDetails from '../DetailUser/UserDetails';
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -22,6 +23,7 @@ const AdminRoutes = () => {
       <Route path="profile" element={<Profile />} />
       <Route path="/" element={<Navigate to="/admin/dashboard" />} />
       <Route path="categories/edit/:id" element={<EditCategory />} />
+      <Route path="users/details/:id" element={<UserDetails />} />
     </Routes>
   );
 };
