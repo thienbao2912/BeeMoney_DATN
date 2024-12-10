@@ -5,14 +5,14 @@ import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
-const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu']; 
+const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng', 'Buôn lậu'];
 
 const removeAccents = (str) => {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 };
 
 const normalizeText = (text) => {
-  return removeAccents(text).toLowerCase().replace(/\s+/g, ''); 
+  return removeAccents(text).toLowerCase().replace(/\s+/g, '');
 };
 
 const containsForbiddenWords = (value) => {
@@ -28,7 +28,7 @@ const ExpenseAdd = () => {
   const [loadingCategoriesAndExpenses, setLoadingCategoriesAndExpenses] = useState(false);
 
   const userId = localStorage.getItem('userId');
-  const today = new Date().toISOString().split('T')[0]; 
+  const today = new Date().toISOString().split('T')[0];
 
   const { register, handleSubmit, setValue, watch, formState: { errors }, clearErrors } = useForm({
     defaultValues: {
@@ -47,8 +47,6 @@ const ExpenseAdd = () => {
       setLoadingCategoriesAndExpenses(true);
       try {
         const categoriesResponse = await getCategories('expense', userId);
-      
-
         if (Array.isArray(categoriesResponse)) {
           const filteredCategories = categoriesResponse.filter(category => category.type === 'expense');
           console.log('Filtered Categories:', filteredCategories);
@@ -92,20 +90,20 @@ const ExpenseAdd = () => {
 
       await addTransaction(payload);
       toast.success('Thêm chi tiêu thành công')
-      setValue('date', today); 
+      setValue('date', today);
       setValue('amount', '');
       setValue('description', '');
       setValue('categoryId', '');
 
       const expensesResponse = await getAllTransactions('expense', userId);
       setExpenses(expensesResponse || []);
-      
+
     } catch (err) {
       console.error('Error adding expense:', err.response ? err.response.data : err.message);
       toast.warning('Vui lòng chọn danh mục');
     } finally {
       setLoading(false);
-  }
+    }
   };
 
   const formatCurrency = (value) => {
@@ -117,7 +115,7 @@ const ExpenseAdd = () => {
   };
 
   const handleAmountChange = (e) => {
-   
+
     const value = e.target.value.replace(/[^\d]/g, '');
     setValue('amount', formatCurrency(value), { shouldValidate: true });
   };
@@ -149,8 +147,8 @@ const ExpenseAdd = () => {
           <div className="expense-overview card">
             <div className="card-body">
               <div className="col-md-auto col-12 d-flex justify-content-center d-flex gap-2">
-                <Link className="btn btn-primary" style={{width: '6rem'}} to='/expense/add'>Chi tiêu</Link>
-                <Link className="btn btn-outline-primary" style={{width: '6rem'}} to='/income/add'>Thu nhập</Link>
+                <Link className="btn btn-primary" style={{ width: '6rem' }} to='/expense/add'>Chi tiêu</Link>
+                <Link className="btn btn-outline-primary" style={{ width: '6rem' }} to='/income/add'>Thu nhập</Link>
               </div>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="form-row">
@@ -162,6 +160,7 @@ const ExpenseAdd = () => {
                       name="date"
                       className={`form-control ${errors.date ? 'is-invalid' : ''}`}
                       {...register('date', { required: 'Ngày là bắt buộc' })}
+                      max={today}
                     />
                     {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
                   </div>
@@ -196,40 +195,39 @@ const ExpenseAdd = () => {
 
                 <div className="form-group">
                   <label htmlFor="category">Danh mục</label>
-                  <div className="category-buttons">
+                  <div className="custom-category-grid">
                     {categories.length > 0 ? (
-                      categories.map((category) => (
+                      categories.map((category) =>
                         category && category.image ? (
                           <button
-                            className={`btn btn-secondary ${category._id === categoryId ? 'active' : ''}`}
+                            className={`custom-category-btn ${category._id === categoryId ? 'active' : ''}`}
                             type="button"
                             key={category._id}
                             onClick={() => setValue('categoryId', category._id)}
                           >
                             <img src={category.image} alt={category.name} />
-                            <p>{category.name}</p>
+                            <p>
+                              {category.name.length > 17
+                                ? `${category.name.substring(0, 17)}...`
+                                : category.name}
+                            </p>
+
                           </button>
                         ) : (
-                          <p key={category._id}>Dữ liệu bị thiếu</p>
+                          <p key={category._id}>Không thể tải danh mục</p>
                         )
-                      ))
+                      )
                     ) : (
                       <i className="fa-solid fa-circle-exclamation fa-2x"></i>
                     )}
-                    <button
-                      className="category-btn category-button"
-                      type="button"
-                    >
-                      <Link
-                        className="text-dark d-flex align-items-center justify-content-center"
-                        to="/add-category"
-                        style={{ textDecoration: 'none' }}
-                      >
-                        <img src='../images/add.png' alt="Add" style={{ marginRight: '5px' }} />
-                        Thêm
-                      </Link>
-                    </button>
+                    <Link className="custom-category-btn text-dark" type="button" to="/add-category" style={{ textDecoration: 'none' }}>
+
+                      <img src="../images/add.png" alt="Add" />
+                      <p>Thêm</p>
+
+                    </Link>
                   </div>
+
 
                 </div>
 
@@ -264,11 +262,16 @@ const ExpenseAdd = () => {
                       )}
                     </div>
                     <div className="text-center flex-grow-1">
-                      <h6 className="mb-0">{expense.description}</h6>
+                      <h6 className="mb-0">
+                        {expense.description.length > 25
+                          ? `${expense.description.substring(0, 25)}...`
+                          : expense.description}
+                      </h6>
+
                       <p className="text-danger mb-0">- {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(expense.amount)}</p>
+                        style: "currency",
+                        currency: "VND",
+                      }).format(expense.amount)}</p>
                     </div>
                     <div className="text-end">
                       <p className="text-secondary mb-0">{new Date(expense.date).toLocaleDateString()}</p>

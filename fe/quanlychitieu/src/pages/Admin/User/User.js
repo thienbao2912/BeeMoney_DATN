@@ -3,7 +3,7 @@ import Layout from "../../../layouts/AdminLayout";
 import { Link } from "react-router-dom";
 import { getAllUsers, updateUserStatus } from "../../../service/Auth";
 import { RingLoader } from "react-spinners";
-import ConfirmDeleteModal from "../../../components/Admin/ConfirmDeleteModal";
+import LockedModal from "../../../components/Admin/LockedModal";
 import { Alert } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
@@ -258,22 +258,30 @@ const User = () => {
                                     </Link>
                                   </li>
                                   <li>
-                                    {user.status === "locked" ? (
-                                      <button
-                                        onClick={() => openUnlockModal(user)}
-                                        className="dropdown-item text-success"
+                                      {user.status === "locked" ? (
+                                        <button
+                                          onClick={() => openUnlockModal(user)}
+                                          className="dropdown-item text-success"
+                                        >
+                                          Mở khóa
+                                        </button>
+                                      ) : (
+                                        <button
+                                          onClick={() => openDeleteModal(user)} 
+                                          className="dropdown-item text-danger"
+                                        >
+                                          Khóa
+                                        </button>
+                                      )}
+                                    </li>
+                                    <li>
+                                      <Link
+                                        to={`/admin/users/details/${user._id}`}
+                                        className="dropdown-item"
                                       >
-                                        Mở khóa
-                                      </button>
-                                    ) : (
-                                      <button
-                                        onClick={() => openDeleteModal(user)}
-                                        className="dropdown-item text-danger"
-                                      >
-                                        Khóa
-                                      </button>
-                                    )}
-                                  </li>
+                                        Xem Chi Tiết
+                                      </Link>
+                                    </li>
                                 </ul>
                               </div>
                             </td>
@@ -305,7 +313,7 @@ const User = () => {
           </div>
         </div>
       </div>
-      <ConfirmDeleteModal
+      <LockedModal
         show={showConfirmModal}
         onClose={closeDeleteModal}
         onConfirm={handleDeleteUser}

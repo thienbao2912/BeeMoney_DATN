@@ -1,39 +1,215 @@
 import React, { useState, useEffect } from 'react';
-import { getSavingsFundById, updateSavingsFund } from '../../../../service/SavingFund';
+import { toast } from 'react-toastify';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getCategories, getSavingsFundById, editSavingsFund } from '../../../../service/SavingsFund';
 
-const EditSavingsFund = ({ fundId, onFundUpdated }) => {
-  const [fund, setFund] = useState(null);
+const EditSavingsFund = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [userId] = useState(localStorage.getItem('userId'));
+  const [categories, setCategories] = useState([]);
+  const [formData, setFormData] = useState({
+    name: '',
+    targetAmount: '',
+    currentAmount: '',
+    startDate: '',
+    endDate: '',
+    categoryId: '',
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchFund = async () => {
+    const fetchCategoriesAndSavingFund = async () => {
       try {
-        const data = await getSavingsFundById(fundId);
-        setFund(data);
+        if (!userId) {
+          console.error('User ID is not found in local storage');
+          setLoading(false);
+          return;
+        }
+
+        setLoading(true);
+
+        const categoriesResponse = await getCategories(userId);
+        setCategories(categoriesResponse);
+
+        const savingFundResponse = await getSavingsFundById(id);
+
+        const formatDate = (dateStr) => {
+          if (!dateStr) return '';
+          const date = new Date(dateStr);
+          return date.toISOString().split('T')[0];
+        };
+
+        setFormData({
+          name: savingFundResponse.name,
+          targetAmount: formatCurrency(savingFundResponse.targetAmount),
+          currentAmount: formatCurrency(savingFundResponse.currentAmount || 0),
+          startDate: formatDate(savingFundResponse.startDate),
+          endDate: formatDate(savingFundResponse.endDate),
+          categoryId: savingFundResponse.categoryId,
+        });
       } catch (error) {
-        console.error("Error fetching fund:", error);
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchFund();
-  }, [fundId]);
 
-  const handleUpdate = async () => {
+    fetchCategoriesAndSavingFund();
+  }, [id, userId]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleCategorySelect = (categoryId) => {
+    setFormData({ ...formData, categoryId });
+  };
+
+  const handleAmountInput = (e) => {
+    const { name, value } = e.target;
+    const rawValue = value.replace(/[^\d]/g, '');
+    const formattedValue = formatCurrency(rawValue);
+    setFormData({ ...formData, [name]: formattedValue });
+  };
+
+  const formatCurrency = (value) => {
+    if (value === '' || value === null || value === undefined) return '';
+    return Number(value).toLocaleString('vi-VN');
+  };
+
+  const unformatCurrency = (value) => value.replace(/[^\d]/g, '');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      await updateSavingsFund(fundId, fund);
-      onFundUpdated();
+      const payload = {
+        ...formData,
+        currentAmount: unformatCurrency(formData.currentAmount),
+        targetAmount: unformatCurrency(formData.targetAmount),
+      };
+      if (!id) {
+        throw new Error('Fund ID is undefined');
+      }
+
+      await editSavingsFund(id, payload);
+      toast.success('Cập nhật thành công!');
+      navigate('/saving-fund/list');
     } catch (error) {
-      console.error("Error updating fund:", error);
+      console.error('Error updating saving fund:', error);
+      toast.error('Cập nhật thất bại, vui lòng thử lại!');
     }
   };
 
-  if (!fund) return <p>Loading...</p>;
+  if (loading) {
+    return (
+      <div className="text-center mt-5">
+        <i className="fa fa-spinner fa-spin fa-2x primary"></i>
+        <p className="mt-2 primary">Loading...</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h2>Edit Fund</h2>
-      <input type="text" value={fund.name} onChange={(e) => setFund({ ...fund, name: e.target.value })} />
-      <input type="number" value={fund.targetAmount} onChange={(e) => setFund({ ...fund, targetAmount: e.target.value })} />
-      {/* Add other fields and input elements */}
-      <button onClick={handleUpdate}>Update</button>
+    <div className="container">
+      <nav aria-label="breadcrumb">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item"><a className="text-secondary" href="/saving-fund/list">Quỹ tiết kiệm</a></li>
+          <li className="breadcrumb-item active" aria-current="page">Sửa quỹ tiết kiệm</li>
+        </ol>
+      </nav>
+
+      <div className="card">
+        <div className="card-body">
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="name" className="form-label">Tên quỹ</label>
+              <input
+                type="text"
+                id="name"
+                className="form-control"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="form-row">
+              <div className="form-group col">
+                <label htmlFor="targetAmount" className="form-label">Số tiền mục tiêu</label>
+                <input
+                  type="text"
+                  id="targetAmount"
+                  className="form-control"
+                  name="targetAmount"
+                  value={formData.targetAmount}
+                  onChange={handleAmountInput}
+                />
+              </div>
+              <div className="form-group col">
+                <label htmlFor="currentAmount" className="form-label">Số tiền hiện tại</label>
+                <input
+                  type="text"
+                  id="currentAmount"
+                  className="form-control"
+                  name="currentAmount"
+                  value={formData.currentAmount}
+                  onChange={handleAmountInput}
+                  disabled
+                />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group col">
+                <label htmlFor="startDate" className="form-label">Ngày bắt đầu</label>
+                <input
+                  type="date"
+                  id="startDate"
+                  className="form-control"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="form-group col">
+                <label htmlFor="endDate" className="form-label">Ngày kết thúc</label>
+                <input
+                  type="date"
+                  id="endDate"
+                  className="form-control"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label htmlFor="category">Danh mục</label>
+              <div className="category-buttons">
+                {categories.length > 0 ? (
+                  categories.map((category) => (
+                    <button
+                      key={category._id}
+                      className={`btn btn-secondary ${category._id === formData.categoryId ? 'active' : ''}`}
+                      type="button"
+                      onClick={() => handleCategorySelect(category._id)}
+                    >
+                      <img src={category.image} alt={category.name} />
+                      <p>{category.name}</p>
+                    </button>
+                  ))
+                ) : (
+                  <p>Không có danh mục nào</p>
+                )}
+              </div>
+            </div>
+
+            <div className="col-12 text-center">
+              <button className="btn btn-primary" type="submit">Cập nhật</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

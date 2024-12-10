@@ -47,7 +47,7 @@ class SavingsFundController {
         try {
             const savingsFunds = await SavingsFund.find({
                 'members.userId': userId
-            }).populate('category');
+            }).populate('categoryId');
 
             res.json(savingsFunds || []);
         } catch (err) {
@@ -56,19 +56,34 @@ class SavingsFundController {
         }
     }
 
-    static async getById(req, res) {
-        try {
-            const id = req.params.id;
-            const data = await SavingsFund.findById(id)
-                .populate('userId') 
-                .populate('members.userId')  
-                .populate('transactions.participantId');  
-            if (!data) return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
-            res.status(200).json({ data });
-        } catch (error) {
-            res.status(500).json({ message: 'Server error' });
+   static async getById(req, res) {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id; 
+
+        const data = await SavingsFund.findById(id)
+            .populate('userId')
+            .populate('members.userId')
+            .populate('transactions.participantId');
+
+        if (!data) {
+            return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
         }
+
+        // Kiểm tra xem userId có trong danh sách members không
+        const isMember = data.members.some(member => member.userId && member.userId._id.toString() === userId);
+
+        if (!isMember) {
+            return res.status(403).json({ message: 'Bạn không có quyền truy cập chi tiết quỹ tiết kiệm này' });
+        }
+
+        res.status(200).json({ data });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
+}
+
 
     // Thêm giao dịch nạp tiền riêng lẻ 
     static async addTransaction(req, res) {
@@ -147,6 +162,48 @@ class SavingsFundController {
             res.status(500).json({ message: 'Server error', error });
         }
     }
+    static async editSavingsFund(req, res) {
+        const { id } = req.params; 
+        const userId = req.user.id; 
+        const { name, targetAmount, categoryId, startDate, endDate } = req.body; 
+    
+        try {
+            if (new Date(startDate) >= new Date(endDate)) {
+                return res.status(400).json({ message: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc' });
+            }
+    
+            const fund = await SavingsFund.findById(id);
+            if (!fund) {
+                return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
+            }
+    
+            const isOwner = fund.userId.toString() === userId;
+            if (!isOwner) {
+                return res.status(403).json({ message: 'Bạn không có quyền chỉnh sửa quỹ tiết kiệm này' });
+            }
+    
+            if (categoryId) {
+                const category = await Category.findById(categoryId);
+                if (!category) {
+                    return res.status(404).json({ message: 'Danh mục không tồn tại' });
+                }
+            }
+    
+            if (name) fund.name = name;
+            if (targetAmount) fund.targetAmount = targetAmount;
+            if (categoryId) fund.categoryId = categoryId;
+            if (startDate) fund.startDate = new Date(startDate);
+            if (endDate) fund.endDate = new Date(endDate);
+    
+            const updatedFund = await fund.save();
+    
+            res.status(200).json({ message: 'Cập nhật quỹ tiết kiệm thành công', updatedFund });
+        } catch (error) {
+            console.error("Error updating savings fund:", error); 
+            res.status(500).json({ message: 'Server error', error: error.message });
+        }
+    }
+    
 
 }
 

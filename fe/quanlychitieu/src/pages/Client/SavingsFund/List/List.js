@@ -104,7 +104,7 @@ const SavingsGoalsList = ({ userId }) => {
                         height: "40px",
                         padding: "0",
                     }}
-                    className="d-flex justify-content-center align-items-center">
+                  >
                     <FaPlus style={{ margin: "0", fontSize: "20px" }} />
                 </Button>
             </div>
@@ -127,8 +127,8 @@ const SavingsGoalsList = ({ userId }) => {
                                             }}
                                         >
                                             <img
-                                                src={categoryMap[goal.categoryId] || "default-image-url"}
-                                                alt={goal.name || "Ảnh mục tiêu"}
+                                               src={goal.categoryId.image|| '/images/chicken.png'}
+                                               alt={goal.categoryId.name || 'Ảnh mục tiêu'}
                                                 className="img-fluid rounded"
                                                 style={{
                                                     width: "40px",

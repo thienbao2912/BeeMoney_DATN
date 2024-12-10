@@ -8,13 +8,14 @@ import { getUserSavingsGoals } from '../../../service/SavingsFund';
 const WalletCard = () => {
   const [user, setUser] = useState({ wallet: 0 });
   const [budget, setBudget] = useState([]);
-  const [latestBudget, setLatestBudget] = useState(null);
   const [savingsGoal, setSavingsGoal] = useState([]);
   const [savingsFund, setSavingsFund] = useState([]);
-  const [latestSavingsGoal, setLatestSavingsGoal] = useState(null);
   const [isWalletVisible, setWalletVisible] = useState(true);
-  const userId = localStorage.getItem('userId');
-
+  const [latestBudget, setLatestBudget] = useState(null);
+  const [latestSavingsGoal, setLatestSavingsGoal] = useState(null);
+  const [latestSavingsFund, setLatestSavingsFund] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const userId = localStorage.getItem("userId");
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -49,11 +50,15 @@ const WalletCard = () => {
 
     const fetchSavingsFund = async () => {
       try {
-        const funds = await getUserSavingsGoals(userId);
-        const sortedFunds = funds.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        setSavingsFund(funds);
+        const savingsFund = await getUserSavingsGoals(userId);
+        const sortedSavingsFund = savingsFund.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        setSavingsFund(savingsFund)
+        setLatestSavingsFund(sortedSavingsFund[0] || null)
       } catch (error) {
-        console.error('Error fetching savings funds:', error);
+        console.error("Error fetching savingsFund:", error);
       }
     };
 
@@ -98,12 +103,12 @@ const WalletCard = () => {
                   margin: 0,
                 }}
               >
-                {isWalletVisible
-                  ? new Intl.NumberFormat('vi-VN', {
-                      style: 'currency',
-                      currency: 'VND',
-                    }).format(user.wallet)
-                  : '******đ'}
+
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(user.wallet ?? 0)}
+
               </h2>
             </div>
           </div>
@@ -159,9 +164,14 @@ const WalletCard = () => {
                 alt={latestBudget?.categoryId?.name || 'Không tồn tại'}
                 width="15px"
               />
-              <span className="text-secondary" style={{ fontSize: '15px' }}>
-                {latestBudget ? ` ${latestBudget.categoryId.name}` : 'Không có'}
+
+              <span className="text-secondary" style={{ fontSize: "15px" }}>
+                {latestBudget
+                  ? ` ${latestBudget.categoryId.name.substring(0, 15)}${latestBudget.categoryId.name.length > 15 ? "..." : ""
+                  }`
+                  : "Không có"}
               </span>
+
             </div>
             <Link to="/budget">
               <i
@@ -216,8 +226,13 @@ const WalletCard = () => {
                 width="15px"
 
               />
+              <span className="text-secondary" style={{ fontSize: "15px" }}>
+                {latestSavingsGoal
+                  ? ` ${latestSavingsGoal.name.substring(0, 15)}${latestSavingsGoal.name.length > 15 ? "..." : ""
+                  }`
+                  : "Không có"}
+              </span>
 
-              <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsGoal ? ` ${latestSavingsGoal.categoryId.name}` : 'Không có'}</span>
             </div>
             <Link to="/saving-goal/list"> <i
               className="bi bi-arrow-90deg-right text-secondary"
@@ -265,13 +280,18 @@ const WalletCard = () => {
           <hr className="my-2" />
           <div className="d-flex justify-content-between align-items-center mt-2">
             <div>
-              {/* <img
+              <img
                 src={latestSavingsFund?.categoryId?.image || "/images/rabbit.png"}
                 alt={latestSavingsFund?.categoryId?.name || "Không tồn tại"}
                 width="15px"
 
-              /> */}
-              {/* <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsFund ? ` ${latestSavingsFund.categoryId.name}` : 'Không có'}</span> */}
+              />
+              <span className="text-secondary" style={{ fontSize: "15px" }}>
+                {latestSavingsFund
+                  ? ` ${latestSavingsFund.name.substring(0, 15)}${latestSavingsFund.name.length > 15 ? "..." : ""
+                  }`
+                  : "Không có"}
+              </span>
             </div>
             <Link to="/savings-fund/list"> <i
               className="bi bi-arrow-90deg-right text-secondary"
