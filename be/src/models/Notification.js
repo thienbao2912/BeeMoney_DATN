@@ -14,6 +14,11 @@ const NotificationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    categoryId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true
+    },
     status: { type: String, enum: ['not read', 'read'], default: 'not read' },
 }, { timestamps: true });
 

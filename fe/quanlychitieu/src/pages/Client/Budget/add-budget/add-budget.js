@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getCategories, getAllBudgets, createBudget } from '../../../../service/Budget'; 
-import { Spinner } from 'react-bootstrap'; 
+import { getCategories, getAllBudgets, createBudget } from '../../../../service/Budget';
+import { Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import "./add-budget.css";
@@ -15,13 +15,15 @@ const AddBudget = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [toastMessage, setToastMessage] = useState('');
-const [toastType, setToastType] = useState('success'); // success or error
-
+    const [toastType, setToastType] = useState('success'); 
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
     const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         defaultValues: {
-            startDate: '',
-            endDate: '',
+            startDate: today.toISOString().split('T')[0], 
+            endDate: tomorrow.toISOString().split('T')[0],
             amount: '',
             categoryId: ''
         }
@@ -45,17 +47,17 @@ const [toastType, setToastType] = useState('success'); // success or error
                         ...budget,
                         categoryId: expenseCategories.find(cat => cat._id === (budget.categoryId ? budget.categoryId._id : null)) || { name: 'Danh mục đã biến mất', image: null }
                     })) : [];
-    
+
                     console.log('Budgets with createdAt:', updatedBudgets);
-    
+
                     const currentDate = new Date();
                     const validBudgets = updatedBudgets
                     .filter(budget => new Date(budget.endDate) >= currentDate)
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                    .slice(0, 5);
+                    .slice(0, 4);
 
-                setBudgets(validBudgets);
-                setLoadingBudgets(false);
+                    setBudgets(validBudgets);
+                    setLoadingBudgets(false);
                 }
             } catch (err) {
                 setError('Có lỗi xảy ra khi tải dữ liệu');
@@ -77,7 +79,7 @@ const [toastType, setToastType] = useState('success'); // success or error
     };
 
     const formatCurrency = (value) => {
-        const cleanedValue = value.replace(/,/g, ''); 
+        const cleanedValue = value.replace(/,/g, '');
         if (isNaN(cleanedValue)) return '';
         const parts = cleanedValue.toString().split('.');
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -101,20 +103,20 @@ const [toastType, setToastType] = useState('success'); // success or error
             categoryId: data.categoryId,
             startDate: data.startDate,
             endDate: data.endDate,
-            amount: parseFloat(data.amount.replace(/,/g, '')), 
+            amount: parseFloat(data.amount.replace(/,/g, '')),
             userId
         };
 
         try {
             await createBudget(budgetData);
-            toast.success("Ngân sách đã được thêm thành công!"); // Display success toast
+            toast.success("Ngân sách đã được thêm thành công!");
             setTimeout(() => {
                 window.location.reload();
-            }, 3000);
+            }, 2000);
         } catch (err) {
-            setError('Có lỗi xảy ra khi thêm ngân sách');
+            // setError('Có lỗi xảy ra khi thêm ngân sách');
             console.error('Error creating budget:', err);
-            toast.error("Có lỗi xảy ra khi thêm ngân sách"); // Display error toast
+            toast.error("Có lỗi xảy ra khi thêm ngân sách");
         } finally {
             setLoading(false);
         }
@@ -161,6 +163,7 @@ const [toastType, setToastType] = useState('success'); // success or error
                                             id="startDate"
                                             className="form-control"
                                             {...register('startDate', { required: 'Ngày bắt đầu là bắt buộc' })}
+                                            min={today.toISOString().split('T')[0]}
                                         />
                                         {errors.startDate && <p className="text-danger">{errors.startDate.message}</p>}
                                     </div>
@@ -171,7 +174,8 @@ const [toastType, setToastType] = useState('success'); // success or error
                                             id="endDate"
                                             className="form-control"
                                             {...register('endDate', { required: 'Ngày kết thúc là bắt buộc' })}
-                                        />
+                                            min={today.toISOString().split('T')[0]}
+                                            />
                                         {errors.endDate && <p className="text-danger">{errors.endDate.message}</p>}
                                     </div>
                                 </div>
@@ -186,13 +190,13 @@ const [toastType, setToastType] = useState('success'); // success or error
                                             min: { value: 1, message: 'Số tiền phải lớn hơn 0' },
                                             pattern: { value: /^\d{1,3}(,\d{3})*(\.\d+)?$/, message: 'Định dạng số tiền không hợp lệ' }
                                         })}
-                                        onChange={handleAmountChange} 
+                                        onChange={handleAmountChange}
                                     />
                                     {errors.amount && <p className="text-danger">{errors.amount.message}</p>}
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="category">Danh mục</label>
-                                    <div className="category-buttons">
+                                    <div className="custom-category-grid">
                                         {loadingCategories ? (
                                             <div className="text-center mt-5">
                                                 <i className="fa fa-spinner fa-spin fa-2x primary"></i>
@@ -203,7 +207,7 @@ const [toastType, setToastType] = useState('success'); // success or error
                                                 {categories.map((cat) => (
                                                     <button
                                                         key={cat._id}
-                                                        className={`btn btn-secondary ${categoryId === cat._id ? 'active' : ''}`}
+                                                        className={`custom-category-btn ${categoryId === cat._id ? 'active' : ''}`}
                                                         type="button"
                                                         onClick={() => setValue('categoryId', cat._id)}
                                                     >
@@ -211,12 +215,12 @@ const [toastType, setToastType] = useState('success'); // success or error
                                                         <p>{truncateText(cat.name, 15)}</p>
                                                     </button>
                                                 ))}
-                                                <button className="btn btn-secondary" type="button">
-                                                    <Link className="text-dark d-flex align-items-center" to="/add-category" style={{ textDecoration: 'none' }}>
-                                                        <img src='../images/add.png' alt="Add" style={{ marginRight: '5px' }} />
-                                                        Thêm
-                                                    </Link>
-                                                </button>
+                                                <Link className="custom-category-btn text-dark" type="button" to="/add-category" style={{ textDecoration: 'none' }}>
+
+                                                    <img src="../images/add.png" alt="Add" />
+                                                    <p>Thêm</p>
+
+                                                </Link>
                                             </>
                                         ) : (
                                             <p>Không có danh mục nào</p>
@@ -286,7 +290,7 @@ const [toastType, setToastType] = useState('success'); // success or error
                     </div>
                 </div>
             </div>
-                        <ToastContainer /> {/* Add ToastContainer to display toasts */}
+                        <ToastContainer /> 
 
         </div>
     );

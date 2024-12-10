@@ -44,12 +44,6 @@ class SavingsGoalController {
                     message: 'Ngày bắt đầu không thể lớn hơn ngày kết thúc'
                 });
             }
-
-            if (targetAmount < 10000) {
-                return res.status(400).json({
-                    message: 'Số tiền mục tiêu ít nhất phải là 10,000đ'
-                });
-            }
             if (!categoryId) {
                 return res.status(400).json({
                     message: 'Chưa chọn danh mục'
