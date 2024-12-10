@@ -237,7 +237,7 @@ const SavingsFundAdd = () => {
 
                                         return (
                                             <ListGroup.Item key={index} className="d-flex align-items-center">
-                                                {fundCategory && (
+                                                {/* {fundCategory && (
                                                     <>
                                                         <img
                                                             src={fundCategory.image}
@@ -250,7 +250,17 @@ const SavingsFundAdd = () => {
                                                         />
                                                         <span className="flex-grow-1">Quỹ {fund.name}</span>
                                                     </>
-                                                )}
+                                                )} */}
+                                                <img
+                                                    src={fund.categoryId.image}
+                                                    alt={fund.categoryId.name}
+                                                    style={{
+                                                        width: "24px",
+                                                        height: "24px",
+                                                        marginRight: "8px",
+                                                    }}
+                                                />
+                                                <span className="flex-grow-1">Quỹ {fund.name}</span>
                                                 <span>{formatCurrency(fund.targetAmount)}</span>
                                             </ListGroup.Item>
                                         );

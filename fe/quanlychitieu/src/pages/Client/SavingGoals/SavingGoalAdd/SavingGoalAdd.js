@@ -48,8 +48,9 @@ const SavingGoalAdd = () => {
     const fetchCategoriesAndSavingsGoals = async () => {
       setLoadingSavingsGoals(true)
       try {
-        const categoriesData = await getCategories();
-        setCategories(categoriesData);
+        const categoriesData = await getCategories('expense', userId);
+        const filteredCategories = categoriesData.filter(category => category.type === 'expense');
+        setCategories(filteredCategories);
 
         const savingsGoalsData = await getAllSavingsGoals(userId);
         setSavingsGoals(savingsGoalsData || []);
@@ -107,24 +108,27 @@ const SavingGoalAdd = () => {
         setLoading(false);
         return;
       }
-      const currentAmount = unformatCurrency(formData.currentAmount) || '0';
-      if (Number(currentAmount) < 1000) {
+
+      const currentAmount = Number(unformatCurrency(formData.currentAmount)) || 0;
+
+      if (currentAmount !== 0 && currentAmount < 1000) {
         toast.warning('Số tiền ít nhất là 1,000 đ');
         setLoading(false);
         return;
-    }
+      }
+
       const payload = {
         ...formData,
         targetAmount: unformatCurrency(formData.targetAmount),
-        currentAmount: unformatCurrency(formData.currentAmount) || '0',
+        currentAmount: currentAmount.toString(),
       };
+
       await addSavingsGoal(payload);
-      // navigate('/saving-goal/list');
-      toast.success('Thêm mục tiêu tiết kiệm thành công')
+      toast.success('Thêm mục tiêu tiết kiệm thành công');
       reset();
+
       const updatedSavingsGoals = await getAllSavingsGoals(userId);
       setSavingsGoals(updatedSavingsGoals || []);
-
     } catch (error) {
       setGlobalError('Lỗi thêm mục tiêu tiết kiệm');
       console.error('Lỗi thêm mục tiêu tiết kiệm:', error);
@@ -132,7 +136,6 @@ const SavingGoalAdd = () => {
       setLoading(false);
     }
   };
-
 
 
   if (loadingSavingsGoals) {
@@ -228,18 +231,22 @@ const SavingGoalAdd = () => {
                 </div>
                 <div className="form-group">
                   <label htmlFor="category">Danh mục</label>
-                  <div className="category-buttons">
+                  <div className="custom-category-grid">
                     {categories.length > 0 ? (
                       categories.map((category) => (
-                        category.image ? (
+                        category && category.image ? (
                           <button
-                            className={`btn btn-secondary ${category._id === categoryId ? 'active' : ''}`}
+                            className={`custom-category-btn ${category._id === categoryId ? 'active' : ''}`}
                             type="button"
                             key={category._id}
                             onClick={() => setValue('categoryId', category._id)}
                           >
                             <img src={category.image} alt={category.name} />
-                            <p>{category.name}</p>
+                            <p>
+                              {category.name.length > 17
+                                ? `${category.name.substring(0, 17)}...`
+                                : category.name}
+                            </p>
                           </button>
                         ) : (
                           <p key={category._id}>Không thể tải danh mục</p>
@@ -248,7 +255,12 @@ const SavingGoalAdd = () => {
                     ) : (
                       <i className="fa-solid fa-circle-exclamation fa-2x"></i>
                     )}
+                    <Link className="custom-category-btn text-dark" type="button" to="/add-category" style={{ textDecoration: 'none' }}>
 
+                      <img src="../images/add.png" alt="Add" />
+                      <p>Thêm</p>
+
+                    </Link>
                   </div>
                 </div>
                 <div className="col-md-auto col-12 d-flex justify-content-center">
@@ -282,7 +294,7 @@ const SavingGoalAdd = () => {
                               alt={goal.categoryId?.name || 'No Image'}
                               width="50px"
                             />
-                            <h5 className="ms-3"> 
+                            <h5 className="ms-3">
                               {goal.name.length > 13 ? `${goal.name.substring(0, 13)}...` : goal.name}
                             </h5>
                           </div>
