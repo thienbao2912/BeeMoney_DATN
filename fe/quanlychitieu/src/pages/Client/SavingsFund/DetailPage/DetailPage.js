@@ -262,7 +262,10 @@ const FundDetail = () => {
                         </span>
 
                       </td>
-                   
+                   <td>
+                    <Link className="text-success" to={`/savings-fund/edit/${id}`}> <i class="fa-solid fa-pen-to-square"></i></Link>
+                 
+                   </td>
                     </tr>
                   </tbody>
                 </table>
