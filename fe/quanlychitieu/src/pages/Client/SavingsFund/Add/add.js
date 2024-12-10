@@ -25,7 +25,8 @@ const SavingsFundAdd = () => {
         const fetchCategoriesData = async () => {
             try {
                 const data = await getCategories();
-                setCategories(data);
+                const filteredCategories = data.filter(category => category.type === 'expense');
+                setCategories(filteredCategories);
             } catch (error) {
                 console.error('Error fetching categories:', error);
             } finally {
@@ -56,7 +57,7 @@ const SavingsFundAdd = () => {
         try {
             const payload = {
                 ...data,
-                targetAmount: Number(data.targetAmount.replace(/\./g, '').replace(/,/g, '')) // Loại bỏ dấu chấm trước khi gửi
+                targetAmount: Number(data.targetAmount.replace(/\./g, '').replace(/,/g, ''))
             };
 
             console.log("Sending data:", payload);
@@ -73,17 +74,16 @@ const SavingsFundAdd = () => {
         }
     };
 
-    // Hàm format số với dấu chấm mỗi 3 chữ số
     const formatCurrency = (amount) => {
         if (amount == null || isNaN(amount)) return '0 VNĐ';
         return Number(amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     };
 
     const handleChange = (e) => {
-        const rawValue = e.target.value.replace(/\D/g, ''); // Loại bỏ tất cả ký tự không phải là số
-        const formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Thêm dấu chấm mỗi 3 chữ số
-        setTargetAmount(formattedValue); // Cập nhật lại state
-        setValue('targetAmount', formattedValue); // Cập nhật giá trị vào react-hook-form
+        const rawValue = e.target.value.replace(/\D/g, '');
+        const formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        setTargetAmount(formattedValue);
+        setValue('targetAmount', formattedValue);
     };
 
     const validateDateRange = (startDate, endDate) => {
@@ -181,43 +181,42 @@ const SavingsFundAdd = () => {
                                     ) : (
                                         categories.map((category, index) => (
                                             <Col xs={6} md={3} key={index} className="d-flex justify-content-center mb-2">
-                                            <Button
-                                                variant={category._id === watch('categoryId') ? "primary" : "light"}
-                                                className="d-flex align-items-center justify-content-start"
-                                                style={{
-                                                    width: "160px", 
-                                                    padding: "10px", 
-                                                    fontSize: "0.9rem", 
-                                                    border: "1px solid #ced4da",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "flex-start",   
-                                                    overflow: "hidden", // Đảm bảo không có nội dung bị tràn ra ngoài
-                                                }}
-                                                onClick={() => setValue('categoryId', category._id)}
-                                            >
-                                                <img
-                                                    src={category.image}
-                                                    alt={category.name}
+                                                <Button
+                                                    variant={category._id === watch('categoryId') ? "primary" : "light"}
+                                                    className="d-flex align-items-center justify-content-start"
                                                     style={{
-                                                        width: "28px",
-                                                        height: "28px",
-                                                        marginRight: "8px", 
+                                                        width: "160px",
+                                                        padding: "10px",
+                                                        fontSize: "0.9rem",
+                                                        border: "1px solid #ced4da",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "flex-start",
+                                                        overflow: "hidden",
                                                     }}
-                                                />
-                                                <span
-                                                    style={{
-                                                        whiteSpace: "nowrap", // Đảm bảo tên không bị ngắt dòng
-                                                        overflow: "hidden", // Ẩn bớt phần chữ bị thừa
-                                                        textOverflow: "ellipsis", // Thêm dấu "..." nếu tên dài quá
-                                                        maxWidth: "calc(100% - 36px)", // Điều chỉnh chiều rộng để đảm bảo không vượt quá khi có ảnh
-                                                    }}
+                                                    onClick={() => setValue('categoryId', category._id)}
                                                 >
-                                                    {category.name}
-                                                </span>
-                                            </Button>
-                                        </Col>
-                                        
+                                                    <img
+                                                        src={category.image}
+                                                        alt={category.name}
+                                                        style={{
+                                                            width: "28px",
+                                                            height: "28px",
+                                                            marginRight: "8px",
+                                                        }}
+                                                    />
+                                                    <span
+                                                        style={{
+                                                            whiteSpace: "nowrap",
+                                                            overflow: "hidden",
+                                                            textOverflow: "ellipsis",
+                                                            maxWidth: "calc(100% - 36px)",
+                                                        }}
+                                                    >
+                                                        {category.name}
+                                                    </span>
+                                                </Button>
+                                            </Col>
                                         ))
                                     )}
                                 </Row>
@@ -238,55 +237,55 @@ const SavingsFundAdd = () => {
                 </Col>
 
                 <Col md={6}>
-    <Card className="p-4" style={{ marginTop: 0 }}>
-        <div className="mb-3">
-            <Link className="text-secondary" to="/savings-fund/list">
-                Xem tất cả danh sách
-            </Link>
-        </div>
-        <ListGroup>
-            {isLoadingFunds ? (
-                <ListGroup.Item className="text-center">
-                    <div className="text-center mt-5">
-                        <i className="fa fa-spinner fa-spin fa-2x primary"></i>
-                        <p className="mt-2 primary">Loading...</p>
-                    </div>
-                </ListGroup.Item>
-            ) : (
-                recentFunds.length > 0 ? (
-                    recentFunds.slice(0, 15).map((fund, index) => {
-                        const fundCategory = categories.find(category => category._id === fund.categoryId);
+                    <Card className="p-4" style={{ marginTop: 0 }}>
+                        <div className="mb-3">
+                            <Link className="text-secondary" to="/savings-fund/list">
+                                Xem tất cả danh sách
+                            </Link>
+                        </div>
+                        <ListGroup>
+                            {isLoadingFunds ? (
+                                <ListGroup.Item className="text-center">
+                                    <div className="text-center mt-5">
+                                        <i className="fa fa-spinner fa-spin fa-2x primary"></i>
+                                        <p className="mt-2 primary">Loading...</p>
+                                    </div>
+                                </ListGroup.Item>
+                            ) : (
+                                recentFunds.length > 0 ? (
+                                    recentFunds.slice(0, 15).map((fund, index) => {
+                                        const fundCategory = categories.find(category => category._id === fund.categoryId);
 
-                        return (
-                            <ListGroup.Item key={index} className="d-flex align-items-center mb-3 p-3 border-0" style={{ boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)" }}>
-                                {fundCategory && (
-                                    <>
-                                        <img
-                                            src={fundCategory.image}
-                                            alt={fundCategory.name}
-                                            style={{
-                                                width: "30px",
-                                                height: "30px",
-                                                marginRight: "12px",
-                                                borderRadius: "50%", 
-                                            }}
-                                        />
-                                        <span className="flex-grow-1" style={{ fontWeight: "500", fontSize: "1rem" }}> {fund.name}</span>
-                                    </>
-                                )}
-                                <span className="text-success" style={{ fontWeight: "600" }}>
-                                    {formatCurrency(fund.targetAmount)}
-                                </span>
-                            </ListGroup.Item>
-                        );
-                    })
-                ) : (
-                    <ListGroup.Item className="text-center">Không có dữ liệu</ListGroup.Item>
-                )
-            )}
-        </ListGroup>
-    </Card>
-</Col>
+                                        return (
+                                            <ListGroup.Item key={index} className="d-flex align-items-center mb-3 p-3 border-0" style={{ boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)" }}>
+                                                {fundCategory && (
+                                                    <>
+                                                        <img
+                                                            src={fundCategory.image}
+                                                            alt={fundCategory.name}
+                                                            style={{
+                                                                width: "30px",
+                                                                height: "30px",
+                                                                marginRight: "12px",
+                                                                borderRadius: "50%",
+                                                            }}
+                                                        />
+                                                        <span className="flex-grow-1" style={{ fontWeight: "500", fontSize: "1rem" }}> {fund.name}</span>
+                                                    </>
+                                                )}
+                                                <span className="text-success" style={{ fontWeight: "600" }}>
+                                                    {formatCurrency(fund.targetAmount)}
+                                                </span>
+                                            </ListGroup.Item>
+                                        );
+                                    })
+                                ) : (
+                                    <ListGroup.Item className="text-center">Không có dữ liệu</ListGroup.Item>
+                                )
+                            )}
+                        </ListGroup>
+                    </Card>
+                </Col>
             </Row>
         </div>
     );
