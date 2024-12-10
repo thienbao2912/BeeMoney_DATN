@@ -39,18 +39,18 @@ const SavingGoalDetail = () => {
 
   const handleSaveTransaction = (newAmount, note) => {
     setSavingGoal((prevGoal) => ({
-        ...prevGoal,
-        currentAmount: (parseFloat(prevGoal.currentAmount) || 0) + newAmount,
-        transactionHistory: [
-            ...prevGoal.transactionHistory,
-            { 
-                amount: newAmount, 
-                date: new Date().toISOString(),
-                note: note 
-            },
-        ],
+      ...prevGoal,
+      currentAmount: (parseFloat(prevGoal.currentAmount) || 0) + newAmount,
+      transactionHistory: [
+        ...prevGoal.transactionHistory,
+        {
+          amount: newAmount,
+          date: new Date().toISOString(),
+          note: note
+        },
+      ],
     }));
-};
+  };
 
 
 
@@ -96,94 +96,93 @@ const SavingGoalDetail = () => {
             <i class="bi bi-info-circle"></i> Thông tin mục tiêu
           </div>
           <div className="card">
-  <div className="card-body p-4">
-    <div className="row">
-      <div className="col-md-6">
-        <div className="form-group mb-4">
-          <label className="form-label text-muted">
-            <i className="bi bi-tags-fill icon-style"></i> Danh mục
-          </label>
-          {categories.length > 0 && categories.map((category) => (
-            category._id === savingGoal.categoryId && (
-              <div key={category._id} className="category-item d-flex align-items-center ms-4 mt-3">
-                <img
-                  src={category.image || 'rabbit.png'}
-                  alt={category.name}
-                  style={{ width: '50px', height: '50px' }}
-                />
-                <div className="text-secondary fw-bold mb-0 ms-3">{category.name}</div>
+            <div className="card-body p-4">
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="form-group mb-4">
+                    <label className="form-label text-muted">
+                      <i className="bi bi-tags-fill icon-style"></i> Danh mục
+                    </label>
+                    {categories.length > 0 && categories.map((category) => (
+                      category._id === savingGoal.categoryId && (
+                        <div key={category._id} className="category-item d-flex align-items-center ms-4 mt-3">
+                          <img
+                            src={category.image || 'rabbit.png'}
+                            alt={category.name}
+                            style={{ width: '50px', height: '50px' }}
+                          />
+                          <div className="text-secondary fw-bold mb-0 ms-3">{category.name}</div>
+                        </div>
+                      )
+                    ))}
+                  </div>
+
+                  <div className="form-group mb-4">
+                    <label className="form-label text-muted">
+                      <i className="bi bi-ticket-detailed-fill icon-style"></i> Tên mục tiêu
+                    </label>
+                    <div className="text-secondary ms-4">{savingGoal.name}</div>
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="form-group mb-3">
+                    <label className="form-label text-muted">
+                    </label>
+                    <div className="text-secondary ms-4">
+                      <h6 className="text-success">
+                        Đã tiết kiệm được: {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(savingGoal.currentAmount)}
+                      </h6>
+                      <h6 className="text-primary">
+                        Mục tiêu: {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(savingGoal.targetAmount)}
+                      </h6>
+                    </div>
+                  </div>
+
+                  <div className="progress-wrapper d-flex align-items-center mb-4">
+                    <span className="text-muted small me-2">{Math.round(progressPercentage)}%</span>
+                    <div className="progress flex-grow-1 rounded-pill" style={{ height: '8px' }}>
+                      <div
+                        className="progress-bar"
+                        role="progressbar"
+                        style={{
+                          width: `${Math.min(progressPercentage, 100)}%`,
+                          backgroundColor: `hsl(${Math.min(progressPercentage, 100) * 1.5}, 100%, ${Math.max(50 - progressPercentage * 0.1, 20)}%)`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="form-group mb-3">
+                    <label className="form-label text-muted">
+                      <i className="bi bi-alarm-fill icon-style"></i> Thời gian
+                    </label>
+                    <div className="text-secondary ms-4">
+                      {new Date(savingGoal.startDate).toLocaleDateString('vi-VN')} - {new Date(savingGoal.endDate).toLocaleDateString('vi-VN')}
+                    </div>
+                  </div>
+                </div>
               </div>
-            )
-          ))}
-        </div>
 
-        <div className="form-group mb-4">
-          <label className="form-label text-muted">
-            <i className="bi bi-ticket-detailed-fill icon-style"></i> Tên mục tiêu
-          </label>
-          <div className="text-secondary ms-4">{savingGoal.name}</div>
-        </div>
-      </div>
-
-      <div className="col-md-6">
-        <div className="form-group mb-3">
-          <label className="form-label text-muted">
-          <i class="bi bi-cash-stack"></i>
-          </label>
-          <div className="text-secondary ms-4">
-            <h6 className="text-success">
-              Đã tiết kiệm được: {new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              }).format(savingGoal.currentAmount)}
-            </h6>
-            <h6 className="text-primary">
-              Mục tiêu: {new Intl.NumberFormat("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              }).format(savingGoal.targetAmount)}
-            </h6>
+              {/* Nút nạp tiền */}
+              {progressPercentage < 100 && (
+                <div className="d-flex justify-content-center mt-3">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => openModal(savingGoal)}
+                  >
+                    Nạp tiền
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-
-        <div className="progress-wrapper d-flex align-items-center mb-4">
-          <span className="text-muted small me-2">{Math.round(progressPercentage)}%</span>
-          <div className="progress flex-grow-1 rounded-pill" style={{ height: '8px' }}>
-            <div
-              className="progress-bar"
-              role="progressbar"
-              style={{
-                width: `${Math.min(progressPercentage, 100)}%`,
-                backgroundColor: `hsl(${Math.min(progressPercentage, 100) * 1.5}, 100%, ${Math.max(50 - progressPercentage * 0.1, 20)}%)`,
-              }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="form-group mb-3">
-          <label className="form-label text-muted">
-            <i className="bi bi-alarm-fill icon-style"></i> Thời gian
-          </label>
-          <div className="text-secondary ms-4">
-            {new Date(savingGoal.startDate).toLocaleDateString('vi-VN')} - {new Date(savingGoal.endDate).toLocaleDateString('vi-VN')}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Nút nạp tiền */}
-    {progressPercentage < 100 && (
-      <div className="d-flex justify-content-center mt-3">
-        <button
-          className="btn btn-primary"
-          onClick={() => openModal(savingGoal)}
-        >
-          Nạp tiền
-        </button>
-      </div>
-    )}
-  </div>
-</div>
 
 
         </div>
@@ -194,50 +193,50 @@ const SavingGoalDetail = () => {
           </div>
 
           <div className="card shadow-sm rounded" style={{ border: '1px solid #e0e0e0' }}>
-  <div className="card-body" style={{ backgroundColor: '#fafbff', borderRadius: '0.5rem' }}>
-  <div className="table-responsive" style={{ maxHeight: '22rem', overflowY: 'auto' }}>
-  <table className="table">
-    <tbody>
-      {savingGoal.transactionHistory.length > 0 ? (
-        savingGoal.transactionHistory
-          .slice()  // Create a copy of the array to avoid mutating the original
-          .reverse()  // Reverse the array
-          .map((transaction, index) => (
-            <tr key={index} className="align-middle">
-              <td>
-                <h6 className="text-success mb-0">
-                  +{new Intl.NumberFormat("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  }).format(transaction.amount)}
-                </h6>
-                <div className="text-secondary mb-0">
-                  {transaction.note}
-                </div>
-              </td>
-              <td className="text-end">
-                <div className="d-flex justify-content-end flex-column align-items-end">
-                  <div className="text-secondary mb-0">
-                    <span>{new Date(transaction.date).toLocaleDateString('vi-VN')}</span>
-                  </div>
-                  <div className="text-secondary">
-                    <span>{new Date(transaction.date).toLocaleTimeString('vi-VN')}</span>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          ))
-      ) : (
-        <tr>
-          <td colSpan="2" className="text-center">Không có giao dịch nào được ghi lại.</td>
-        </tr>
-      )}
-    </tbody>
-  </table>
-</div>
+            <div className="card-body" style={{ backgroundColor: '#fafbff', borderRadius: '0.5rem' }}>
+              <div className="table-responsive" style={{ maxHeight: '22rem', overflowY: 'auto' }}>
+                <table className="table">
+                  <tbody>
+                    {savingGoal.transactionHistory.length > 0 ? (
+                      savingGoal.transactionHistory
+                        .slice()  // Create a copy of the array to avoid mutating the original
+                        .reverse()  // Reverse the array
+                        .map((transaction, index) => (
+                          <tr key={index} className="align-middle">
+                            <td>
+                              <h6 className="text-success mb-0">
+                                +{new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(transaction.amount)}
+                              </h6>
+                              <div className="text-secondary mb-0">
+                                {transaction.note}
+                              </div>
+                            </td>
+                            <td className="text-end">
+                              <div className="d-flex justify-content-end flex-column align-items-end">
+                                <div className="text-secondary mb-0">
+                                  <span>{new Date(transaction.date).toLocaleDateString('vi-VN')}</span>
+                                </div>
+                                <div className="text-secondary">
+                                  <span>{new Date(transaction.date).toLocaleTimeString('vi-VN')}</span>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                    ) : (
+                      <tr>
+                        <td colSpan="2" className="text-center">Không có giao dịch nào được ghi lại.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
-  </div>
-</div>
+            </div>
+          </div>
 
 
 

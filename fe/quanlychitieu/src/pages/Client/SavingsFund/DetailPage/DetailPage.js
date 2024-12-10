@@ -252,13 +252,7 @@ const handleAmountChange = (e) => {
                           còn {daysLeft} ngày
                         </span>
                       </td>
-                      <td>
-                        <Link
-                          to={`/savings-fund/edit/${fund._id}`}
-                        >
-                          <i className="fa fa-edit text-success" />
-                        </Link>
-                      </td>
+                   
                     </tr>
                   </tbody>
                 </table>

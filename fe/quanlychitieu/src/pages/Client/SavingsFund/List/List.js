@@ -4,7 +4,8 @@ import { getUserSavingsGoals, getCategories } from '../../../../service/SavingsF
 import { Card, Row, Col, Button, Alert, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import AcceptInvite from '../AcceptInvite';
-
+import { Badge } from "react-bootstrap";
+import { FaPlus } from "react-icons/fa";
 const ITEMS_PER_PAGE = 4;
 
 const SavingsGoalsList = ({ userId }) => {
@@ -13,7 +14,7 @@ const SavingsGoalsList = ({ userId }) => {
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
     useEffect(() => {
         const fetchData = async () => {
@@ -37,7 +38,7 @@ const SavingsGoalsList = ({ userId }) => {
     const handleCloseModal = () => setShowModal(false);
     const handleViewDetails = (id) => {
         navigate(`/savings-fund/detail/${id}`);
-      };
+    };
     if (isLoading) {
         return (
             <div className="text-center mt-5">
@@ -82,62 +83,124 @@ const SavingsGoalsList = ({ userId }) => {
                     </li>
                 </ol>
             </nav>
-            <div className="text-center mb-3">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                {/* Nút "Tham gia quỹ" */}
+                <Button
+                    variant="primary"
+                    onClick={handleShowModal}
+                    className="mb-3"
+                >
+                    Tham gia quỹ
+                </Button>
+
+                {/* Nút dấu cộng */}
                 <Button
                     onClick={handleAddGoal}
-                    className="mb-3 me-3"
+                    className="mb-3"
                     variant="primary"
-                >
-                    Thêm quỹ tiết kiệm
+                    style={{
+                        borderRadius: "50%",
+                        width: "40px",
+                        height: "40px",
+                        padding: "0",
+                    }}
+                    className="d-flex justify-content-center align-items-center">
+                    <FaPlus style={{ margin: "0", fontSize: "20px" }} />
                 </Button>
-                <Button variant="primary" onClick={handleShowModal} className="mb-3">
-                    Tham gia quỹ
-              </Button>
             </div>
-
             {goals.length === 0 && <Alert variant="info">Không có mục tiêu tiết kiệm nào.</Alert>}
-
-            <Row>
+            <Row className="g-3">
                 {currentGoals.map((goal) => (
-                    <Col key={goal._id} md={6} className="mb-4">
-                        <Card className="shadow-sm d-flex flex-column h-100">
-                            <Card.Body className="d-flex flex-column">
-                                <Row>
-                                    <Col xs={3} className="d-flex flex-column align-items-start">
-                                        <img
-                                            src={categoryMap[goal.categoryId] || 'default-image-url'}
-                                            alt={goal.name || 'Ảnh mục tiêu'}
-                                            className="img-fluid rounded mb-4"
+                    <Col key={goal._id} md={6} lg={6} className="mb-4">
+                        <Card className="shadow-sm h-100">
+                            <Card.Body className="d-flex flex-column justify-content-between">
+                                {/* Header Section */}
+                                <Row className="align-items-center mb-3">
+                                    {/* Image and Name */}
+                                    <Col xs={6} className="d-flex align-items-center">
+                                        <div
+                                            className="d-flex justify-content-center align-items-center rounded me-2"
                                             style={{
-                                                width: "60px",
-                                                height: "60px",
-                                                objectFit: "cover",
-                                                marginBottom: "2rem",
+                                                width: "50px",
+                                                height: "50px",
+                                                backgroundColor: "#eaf4fc",
                                             }}
-                                        />
+                                        >
+                                            <img
+                                                src={categoryMap[goal.categoryId] || "default-image-url"}
+                                                alt={goal.name || "Ảnh mục tiêu"}
+                                                className="img-fluid rounded"
+                                                style={{
+                                                    width: "40px",
+                                                    height: "40px",
+                                                    objectFit: "cover",
+                                                }}
+                                            />
+                                        </div>
+                                        <span className="fw-bold">{goal.name || "Tên mục tiêu"}</span>
                                     </Col>
-                                    <Col xs={9}>
-                                        <Card.Title>{goal.name || 'Tên mục tiêu'}</Card.Title>
-                                        <Card.Text>
-                                            <strong>Số tiền mục tiêu:</strong> {goal.targetAmount.toLocaleString() || 'Chưa xác định'} đ
-                                        </Card.Text>
-                                        <Card.Text>
-                                            <strong>Số thành viên:</strong> {goal.members.length || '0'} người
-                                        </Card.Text>
-                                        <Card.Text>
-                                            <strong>Hoạt động gần nhất:</strong> {goal.members.length > 0 && goal.members.some(member => member.contributedAt) ? new Date(goal.members.filter(member => member.contributedAt)[0].contributedAt).toLocaleDateString() : 'Chưa có hoạt động'}
-                                        </Card.Text>
+
+                                    <Col xs={6} className="text-end">
+                                        <div>
+                                            <i className="bi bi-cash-stack me-1"></i>
+                                            {goal.currentAmount.toLocaleString()} đ /{" "}
+                                            {goal.targetAmount.toLocaleString()} đ
+                                        </div>
+                                        <div>
+                                            <i className="bi bi-people-fill me-1"></i>
+                                            {goal.members.length || "0"} người
+                                        </div>
                                     </Col>
                                 </Row>
-                                <Button onClick={() => handleViewDetails(goal._id)} 
-                      className="btn btn-primary">
-                                    Xem chi tiết
-                                </Button>
+
+                                {/* Progress Bar */}
+                                <div className="mb-3">
+                                    <div
+                                        className="progress"
+                                        style={{ height: "10px", backgroundColor: "#f1f1f1" }}
+                                    >
+                                        <div
+                                            className="progress-bar"
+                                            role="progressbar"
+                                            style={{
+                                                width: `${(goal.currentAmount / goal.targetAmount) * 100}%`,
+                                                backgroundColor: `hsl(${Math.min(((goal.currentAmount / goal.targetAmount) * 100), 100) * 1.5}, 100%, ${Math.max(50 - ((goal.currentAmount / goal.targetAmount) * 100) * 0.1, 20)}%)`,
+                                            }}
+                                        ></div>
+                                    </div>
+                                    <div className="text-muted mt-1" style={{ fontSize: "0.875rem" }}>
+                                        {Math.min(
+                                            (goal.currentAmount / goal.targetAmount) * 100,
+                                            100
+                                        )
+                                            .toFixed(0)
+                                            .replace(".", "")
+                                        }
+                                        %
+                                    </div>
+                                </div>
+
+
+                                {/* Footer Section */}
+                                <div className="d-flex justify-content-between align-items-center">
+
+                                    <div>
+                                        <Button
+                                            variant="link"
+                                            className="text-primary p-0 me-2 align-items-center"
+                                            onClick={() => handleViewDetails(goal._id)}
+                                        >
+                                            Xem chi tiết
+                                        </Button>
+
+                                    </div>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>
                 ))}
             </Row>
+
 
             {totalPages > 1 && (
                 <div className="pagination mt-4">
@@ -159,14 +222,14 @@ const SavingsGoalsList = ({ userId }) => {
                     </ul>
                 </div>
             )}
-              <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Tham gia quỹ tiết kiệm</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-        <AcceptInvite  />
-        </Modal.Body>
-      </Modal>
+            <Modal show={showModal} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Tham gia quỹ tiết kiệm</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <AcceptInvite />
+                </Modal.Body>
+            </Modal>
         </div>
     );
 };

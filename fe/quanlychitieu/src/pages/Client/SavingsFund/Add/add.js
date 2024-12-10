@@ -10,6 +10,7 @@ const SavingsFundAdd = () => {
     const [isLoadingCategories, setIsLoadingCategories] = useState(true);
     const [isLoadingFunds, setIsLoadingFunds] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [targetAmount, setTargetAmount] = useState('');
     const { register, handleSubmit, formState: { errors }, setValue, reset, watch } = useForm({
         defaultValues: {
             name: '',
@@ -55,7 +56,7 @@ const SavingsFundAdd = () => {
         try {
             const payload = {
                 ...data,
-                targetAmount: Number(data.targetAmount.replace(/,/g, ''))
+                targetAmount: Number(data.targetAmount.replace(/\./g, '').replace(/,/g, '')) // Loại bỏ dấu chấm trước khi gửi
             };
 
             console.log("Sending data:", payload);
@@ -72,9 +73,17 @@ const SavingsFundAdd = () => {
         }
     };
 
+    // Hàm format số với dấu chấm mỗi 3 chữ số
     const formatCurrency = (amount) => {
         if (amount == null || isNaN(amount)) return '0 VNĐ';
         return Number(amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    };
+
+    const handleChange = (e) => {
+        const rawValue = e.target.value.replace(/\D/g, ''); // Loại bỏ tất cả ký tự không phải là số
+        const formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Thêm dấu chấm mỗi 3 chữ số
+        setTargetAmount(formattedValue); // Cập nhật lại state
+        setValue('targetAmount', formattedValue); // Cập nhật giá trị vào react-hook-form
     };
 
     const validateDateRange = (startDate, endDate) => {
@@ -111,21 +120,20 @@ const SavingsFundAdd = () => {
                                 />
                                 {errors.name && <div className="invalid-feedback">{errors.name.message}</div>}
                             </div>
-
                             <div className="mb-3">
                                 <label htmlFor="targetAmount" className="form-label">Số tiền mục tiêu</label>
                                 <input
                                     type="text"
                                     id="targetAmount"
+                                    value={targetAmount}
                                     {...register('targetAmount', {
                                         required: 'Số tiền mục tiêu là bắt buộc',
-                                        onChange: (e) => setValue('targetAmount', e.target.value) // Remove formatting
+                                        onChange: handleChange
                                     })}
                                     className={`form-control ${errors.targetAmount ? 'is-invalid' : ''}`}
                                 />
                                 {errors.targetAmount && <div className="invalid-feedback">{errors.targetAmount.message}</div>}
                             </div>
-
                             <Row>
                                 <Col md={6}>
                                     <div className="mb-3">
@@ -172,30 +180,44 @@ const SavingsFundAdd = () => {
                                         </Col>
                                     ) : (
                                         categories.map((category, index) => (
-                                            <Col xs={12} md={4} key={index} className="d-flex justify-content-center mb-2">
-                                                <Button
-                                                    variant={category._id === watch('categoryId') ? "primary" : "light"}
-                                                    className="d-flex align-items-center justify-content-start"
+                                            <Col xs={6} md={3} key={index} className="d-flex justify-content-center mb-2">
+                                            <Button
+                                                variant={category._id === watch('categoryId') ? "primary" : "light"}
+                                                className="d-flex align-items-center justify-content-start"
+                                                style={{
+                                                    width: "160px", 
+                                                    padding: "10px", 
+                                                    fontSize: "0.9rem", 
+                                                    border: "1px solid #ced4da",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "flex-start",   
+                                                    overflow: "hidden", // Đảm bảo không có nội dung bị tràn ra ngoài
+                                                }}
+                                                onClick={() => setValue('categoryId', category._id)}
+                                            >
+                                                <img
+                                                    src={category.image}
+                                                    alt={category.name}
                                                     style={{
-                                                        width: "200px",
-                                                        padding: "10px 12px",
-                                                        fontSize: "0.9rem",
-                                                        border: "1px solid #ced4da",
+                                                        width: "28px",
+                                                        height: "28px",
+                                                        marginRight: "8px", 
                                                     }}
-                                                    onClick={() => setValue('categoryId', category._id)}
+                                                />
+                                                <span
+                                                    style={{
+                                                        whiteSpace: "nowrap", // Đảm bảo tên không bị ngắt dòng
+                                                        overflow: "hidden", // Ẩn bớt phần chữ bị thừa
+                                                        textOverflow: "ellipsis", // Thêm dấu "..." nếu tên dài quá
+                                                        maxWidth: "calc(100% - 36px)", // Điều chỉnh chiều rộng để đảm bảo không vượt quá khi có ảnh
+                                                    }}
                                                 >
-                                                    <img
-                                                        src={category.image}
-                                                        alt={category.name}
-                                                        style={{
-                                                            width: "24px",
-                                                            height: "24px",
-                                                            marginRight: "8px",
-                                                        }}
-                                                    />
                                                     {category.name}
-                                                </Button>
-                                            </Col>
+                                                </span>
+                                            </Button>
+                                        </Col>
+                                        
                                         ))
                                     )}
                                 </Row>
@@ -216,52 +238,55 @@ const SavingsFundAdd = () => {
                 </Col>
 
                 <Col md={6}>
-                    <Card className="p-4" style={{ marginTop: 0 }}>
-                        <div className="mb-3">
-                            <Link className="text-secondary" to="/savings-fund/list">
-                                Xem tất cả danh sách
-                            </Link>
-                        </div>
-                        <ListGroup>
-                            {isLoadingFunds ? (
-                                <ListGroup.Item className="text-center">
-                                    <div className="text-center mt-5">
-                                        <i className="fa fa-spinner fa-spin fa-2x primary"></i>
-                                        <p className="mt-2 primary">Loading...</p>
-                                    </div>
-                                </ListGroup.Item>
-                            ) : (
-                                recentFunds.length > 0 ? (
-                                    recentFunds.slice(0, 15).map((fund, index) => {
-                                        const fundCategory = categories.find(category => category._id === fund.categoryId);
+    <Card className="p-4" style={{ marginTop: 0 }}>
+        <div className="mb-3">
+            <Link className="text-secondary" to="/savings-fund/list">
+                Xem tất cả danh sách
+            </Link>
+        </div>
+        <ListGroup>
+            {isLoadingFunds ? (
+                <ListGroup.Item className="text-center">
+                    <div className="text-center mt-5">
+                        <i className="fa fa-spinner fa-spin fa-2x primary"></i>
+                        <p className="mt-2 primary">Loading...</p>
+                    </div>
+                </ListGroup.Item>
+            ) : (
+                recentFunds.length > 0 ? (
+                    recentFunds.slice(0, 15).map((fund, index) => {
+                        const fundCategory = categories.find(category => category._id === fund.categoryId);
 
-                                        return (
-                                            <ListGroup.Item key={index} className="d-flex align-items-center">
-                                                {fundCategory && (
-                                                    <>
-                                                        <img
-                                                            src={fundCategory.image}
-                                                            alt={fundCategory.name}
-                                                            style={{
-                                                                width: "24px",
-                                                                height: "24px",
-                                                                marginRight: "8px",
-                                                            }}
-                                                        />
-                                                        <span className="flex-grow-1">Quỹ {fund.name}</span>
-                                                    </>
-                                                )}
-                                                <span>{formatCurrency(fund.targetAmount)}</span>
-                                            </ListGroup.Item>
-                                        );
-                                    })
-                                ) : (
-                                    <ListGroup.Item>Không có dữ liệu</ListGroup.Item>
-                                )
-                            )}
-                        </ListGroup>
-                    </Card>
-                </Col>
+                        return (
+                            <ListGroup.Item key={index} className="d-flex align-items-center mb-3 p-3 border-0" style={{ boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)" }}>
+                                {fundCategory && (
+                                    <>
+                                        <img
+                                            src={fundCategory.image}
+                                            alt={fundCategory.name}
+                                            style={{
+                                                width: "30px",
+                                                height: "30px",
+                                                marginRight: "12px",
+                                                borderRadius: "50%", 
+                                            }}
+                                        />
+                                        <span className="flex-grow-1" style={{ fontWeight: "500", fontSize: "1rem" }}> {fund.name}</span>
+                                    </>
+                                )}
+                                <span className="text-success" style={{ fontWeight: "600" }}>
+                                    {formatCurrency(fund.targetAmount)}
+                                </span>
+                            </ListGroup.Item>
+                        );
+                    })
+                ) : (
+                    <ListGroup.Item className="text-center">Không có dữ liệu</ListGroup.Item>
+                )
+            )}
+        </ListGroup>
+    </Card>
+</Col>
             </Row>
         </div>
     );

@@ -131,7 +131,7 @@ const ProfileForm = () => {
         {profile && (
           <>
             <div className="card-body">
-              <h5>Cập nhật Thông tin Cá nhân</h5>
+              {/* <h5>Cập nhật Thông tin Cá nhân</h5> */}
               <Form onSubmit={handleProfileUpdate}>
                 <div className="row">
                   <div className="col-md-4 d-flex flex-column align-items-center">

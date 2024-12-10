@@ -19,7 +19,7 @@ const User = () => {
   const [roleFilter, setRoleFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const usersPerPage = 5;
 
   useEffect(() => {
@@ -57,16 +57,16 @@ const [errorMessage, setErrorMessage] = useState("");
   const handleDeleteUser = async () => {
     if (userToDelete) {
       try {
-        
-      await updateUserStatus(userToDelete._id, { status: "locked" });
-      
-      const data = await getAllUsers();
-      const sortedUsers = data.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      setUsers(sortedUsers);
-      setSuccessMessage("Khóa tài khoản thành công.");
-      setShowConfirmModal(false);
+
+        await updateUserStatus(userToDelete._id, { status: "locked" });
+
+        const data = await getAllUsers();
+        const sortedUsers = data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setUsers(sortedUsers);
+        setSuccessMessage("Khóa tài khoản thành công.");
+        setShowConfirmModal(false);
       } catch (error) {
         console.error("Lỗi khi khóa người dùng:", error);
         setError("Không thể khóa người dùng.");
@@ -76,9 +76,9 @@ const [errorMessage, setErrorMessage] = useState("");
 
   const unblockUser = async (user) => {
     try {
-      
+
       await updateUserStatus(user._id, { status: "active" });
-  
+
       const data = await getAllUsers();
       const sortedUsers = data.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -110,17 +110,17 @@ const [errorMessage, setErrorMessage] = useState("");
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
 
   const filteredUsers = users
-  .filter((user) => {
-    if (roleFilter === "all") {
-      return true;
-    } else if (roleFilter === "status") {
-      return user.status === "locked"; 
-    }
-    return user.role === roleFilter;
-  })
-  .filter((user) =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    .filter((user) => {
+      if (roleFilter === "all") {
+        return true;
+      } else if (roleFilter === "status") {
+        return user.status === "locked";
+      }
+      return user.role === roleFilter;
+    })
+    .filter((user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
@@ -137,36 +137,36 @@ const [errorMessage, setErrorMessage] = useState("");
             </Link>
           </div>
           <div className="card-body">
-          {successMessage && <Alert variant="success">{successMessage}</Alert>}
-          {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-          <div className="row mb-4 mt-2">
-  <div className="col-md-6 mb-3">
-    <label htmlFor="search" className="form-label">Tìm kiếm người dùng</label>
-    <input
-      type="text"
-      id="search"
-      className="form-control mt-2"
-      placeholder="Tìm kiếm theo tên người dùng..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-    />
-  </div>
+            {successMessage && <Alert variant="success">{successMessage}</Alert>}
+            {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+            <div className="row mb-4 mt-2">
+              <div className="col-md-6 mb-3">
+                <label htmlFor="search" className="form-label">Tìm kiếm người dùng</label>
+                <input
+                  type="text"
+                  id="search"
+                  className="form-control mt-2"
+                  placeholder="Tìm kiếm theo tên người dùng..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
 
-  <div className="col-md-6 mb-3">
-    <label htmlFor="filter" className="form-label">Lọc người dùng</label>
-    <select
-      id="filter"
-      className="form-select mt-2"
-      value={roleFilter}
-      onChange={(e) => setRoleFilter(e.target.value)}
-    >
-      <option value="all">Tất cả</option>
-      <option value="admin">Admin</option>
-      <option value="user">Người dùng</option>
-      <option value="status">Người dùng bị khóa</option>
-    </select>
-  </div>
-</div>
+              <div className="col-md-6 mb-3">
+                <label htmlFor="filter" className="form-label">Lọc người dùng</label>
+                <select
+                  id="filter"
+                  className="form-select mt-2"
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                >
+                  <option value="all">Tất cả</option>
+                  <option value="admin">Admin</option>
+                  <option value="user">Người dùng</option>
+                  <option value="status">Người dùng bị khóa</option>
+                </select>
+              </div>
+            </div>
 
             {loading ? (
               <div
@@ -258,22 +258,22 @@ const [errorMessage, setErrorMessage] = useState("");
                                     </Link>
                                   </li>
                                   <li>
-                                      {user.status === "locked" ? (
-                                        <button
-                                          onClick={() => openUnlockModal(user)}
-                                          className="dropdown-item text-success"
-                                        >
-                                          Mở khóa
-                                        </button>
-                                      ) : (
-                                        <button
-                                          onClick={() => openDeleteModal(user)} 
-                                          className="dropdown-item text-danger"
-                                        >
-                                          Khóa
-                                        </button>
-                                      )}
-                                    </li>
+                                    {user.status === "locked" ? (
+                                      <button
+                                        onClick={() => openUnlockModal(user)}
+                                        className="dropdown-item text-success"
+                                      >
+                                        Mở khóa
+                                      </button>
+                                    ) : (
+                                      <button
+                                        onClick={() => openDeleteModal(user)}
+                                        className="dropdown-item text-danger"
+                                      >
+                                        Khóa
+                                      </button>
+                                    )}
+                                  </li>
                                 </ul>
                               </div>
                             </td>
@@ -291,9 +291,8 @@ const [errorMessage, setErrorMessage] = useState("");
                       <li key={index} className="page-item">
                         <button
                           onClick={() => paginate(index + 1)}
-                          className={`page-link ${
-                            currentPage === index + 1 ? "active" : ""
-                          }`}
+                          className={`page-link ${currentPage === index + 1 ? "active" : ""
+                            }`}
                         >
                           {index + 1}
                         </button>
