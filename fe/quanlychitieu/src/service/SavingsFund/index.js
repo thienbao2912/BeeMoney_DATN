@@ -242,6 +242,38 @@ const deleteSavingsFund = async (id) => {
         throw error;
     }
 };
+
+
+const editSavingsFund = async (id, updatedFields) => {
+    try {
+      const response = await request({
+        method: 'PATCH',
+        path: `/api/savings-fund/${id}`,
+        data: updatedFields
+      });
+  
+      // Log the entire response to see what the backend is returning
+      console.log('Full response:', response);
+  
+      // Check if response contains the expected data
+      if (response && response.data) {
+        return response.data;
+      } else {
+        console.error('Unexpected response format:', response);
+        throw new Error('Unexpected response format');
+      }
+    } catch (error) {
+      console.error('Error updating savings fund:', error.response ? error.response.data : error.message);
+  
+      if (error.response) {
+        console.error('Error response:', error.response);
+      }
+  
+      throw error;
+    }
+  };
+  
+  
 const getCategoryById = async (categoryId) => {
     try {
       const response = await fetch(`/api/categories/${categoryId}`);
@@ -265,5 +297,6 @@ export {
     getFundTransactions,
     getUserProfile,
     getAllUsers,
-    getFundMembers
+    getFundMembers,
+    editSavingsFund
 };

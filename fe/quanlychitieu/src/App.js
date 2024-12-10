@@ -42,6 +42,7 @@ import Forgetpassword from './pages/Auth/ForgetPassword/ForgetPassword';
 import PrivateRoute from './components/PrivateRoute';
 import SavingsFundList from './pages/Client/SavingsFund/List/List';
 import SavingsFundAdd from './pages/Client/SavingsFund/Add/add';
+import EditSavingsFund from './pages/Client/SavingsFund/EditSavingsFund/EditSavingsFund';
 import Hobby from './pages/Client/hobby/Hobby';
 import HobbyCategory from './pages/Client/hobbyCategory/hobbyCategory';
 import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
@@ -88,6 +89,7 @@ function App() {
           <Route path="/accept" element={<AcceptInvite />} />
           <Route path="/savings-fund/list" element={<SavingsFundList/>} />
           <Route path="/savings-fund/add" element={<SavingsFundAdd/>} />
+          <Route path="/savings-fund/edit/:id" element={<EditSavingsFund/>} />
           <Route path="/hobby" element={<Hobby/>} />
           <Route path="/hobbyCategory" element={<HobbyCategory/>} />
 

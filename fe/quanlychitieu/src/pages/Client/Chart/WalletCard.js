@@ -111,7 +111,7 @@ const WalletCard = () => {
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(user.wallet)}
+                }).format(user.wallet ?? 0)}
 
               </h2>
             </div>
@@ -172,7 +172,13 @@ const WalletCard = () => {
 
               />
 
-              <span className="text-secondary" style={{ fontSize: "15px" }}> {latestBudget ? ` ${latestBudget.categoryId.name}` : 'Không có'}</span>
+              <span className="text-secondary" style={{ fontSize: "15px" }}>
+                {latestBudget
+                  ? ` ${latestBudget.categoryId.name.substring(0, 15)}${latestBudget.categoryId.name.length > 15 ? "..." : ""
+                  }`
+                  : "Không có"}
+              </span>
+
             </div>
             <Link to="/budget"> <i
               className="bi bi-arrow-90deg-right text-secondary"
@@ -226,8 +232,13 @@ const WalletCard = () => {
                 width="15px"
 
               />
+              <span className="text-secondary" style={{ fontSize: "15px" }}>
+                {latestSavingsGoal
+                  ? ` ${latestSavingsGoal.name.substring(0, 15)}${latestSavingsGoal.name.length > 15 ? "..." : ""
+                  }`
+                  : "Không có"}
+              </span>
 
-              <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsGoal ? ` ${latestSavingsGoal.categoryId.name}` : 'Không có'}</span>
             </div>
             <Link to="/saving-goal/list"> <i
               className="bi bi-arrow-90deg-right text-secondary"
@@ -266,7 +277,7 @@ const WalletCard = () => {
                   margin: 0,
                 }}
               >
-                 {savingsFund?.length || 0}
+                {savingsFund?.length || 0}
               </h2>
             </div>
           </div>
@@ -281,15 +292,19 @@ const WalletCard = () => {
                 width="15px"
 
               />
-
-              <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsFund ? ` ${latestSavingsFund.name}` : 'Không có'}</span>
+              <span className="text-secondary" style={{ fontSize: "15px" }}>
+                {latestSavingsFund
+                  ? ` ${latestSavingsFund.name.substring(0, 15)}${latestSavingsFund.name.length > 15 ? "..." : ""
+                  }`
+                  : "Không có"}
+              </span>
             </div>
             <Link to="/savings-fund/list"> <i
               className="bi bi-arrow-90deg-right text-secondary"
               style={{ fontSize: "15px", cursor: "pointer" }}
             ></i>
             </Link>
-           
+
           </div>
         </div>
       </div>
