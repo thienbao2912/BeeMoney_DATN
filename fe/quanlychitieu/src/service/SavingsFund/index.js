@@ -252,24 +252,20 @@ const editSavingsFund = async (id, updatedFields) => {
         data: updatedFields
       });
   
-      // Log the entire response to see what the backend is returning
+      // Log toàn bộ phản hồi để kiểm tra cấu trúc
       console.log('Full response:', response);
   
-      // Check if response contains the expected data
-      if (response && response.data) {
-        return response.data;
+      // Kiểm tra xem phản hồi có chứa message và updatedFund không
+      if (response && response.message && response.updatedFund) {
+        console.log('Fund updated successfully:', response.updatedFund);
+        return response.updatedFund;  // Trả về updatedFund nếu dữ liệu hợp lệ
       } else {
         console.error('Unexpected response format:', response);
         throw new Error('Unexpected response format');
       }
     } catch (error) {
       console.error('Error updating savings fund:', error.response ? error.response.data : error.message);
-  
-      if (error.response) {
-        console.error('Error response:', error.response);
-      }
-  
-      throw error;
+      throw error; // Ném lỗi ra ngoài để xử lý ở nơi gọi
     }
   };
   

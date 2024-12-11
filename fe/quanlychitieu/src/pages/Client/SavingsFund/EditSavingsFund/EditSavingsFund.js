@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getCategories, getSavingsFundById, editSavingsFund } from '../../../../service/SavingsFund';
 
 const EditSavingsFund = () => {
@@ -17,7 +17,6 @@ const EditSavingsFund = () => {
     categoryId: '',
   });
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchCategoriesAndSavingFund = async () => {
       try {
@@ -26,20 +25,15 @@ const EditSavingsFund = () => {
           setLoading(false);
           return;
         }
-
         setLoading(true);
-
         const categoriesResponse = await getCategories(userId);
         setCategories(categoriesResponse);
-
         const savingFundResponse = await getSavingsFundById(id);
-
         const formatDate = (dateStr) => {
           if (!dateStr) return '';
           const date = new Date(dateStr);
           return date.toISOString().split('T')[0];
         };
-
         setFormData({
           name: savingFundResponse.name,
           targetAmount: formatCurrency(savingFundResponse.targetAmount),
@@ -81,26 +75,53 @@ const EditSavingsFund = () => {
 
   const unformatCurrency = (value) => value.replace(/[^\d]/g, '');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const payload = {
-        ...formData,
-        currentAmount: unformatCurrency(formData.currentAmount),
-        targetAmount: unformatCurrency(formData.targetAmount),
-      };
-      if (!id) {
-        throw new Error('Fund ID is undefined');
-      }
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      await editSavingsFund(id, payload);
-      toast.success('Cập nhật thành công!');
-      navigate('/saving-fund/list');
-    } catch (error) {
-      console.error('Error updating saving fund:', error);
-      toast.error('Cập nhật thất bại, vui lòng thử lại!');
+  const errors = [];
+
+  // Validation logic
+  if (!formData.name.trim()) {
+    errors.push('Tên quỹ không được bỏ trống!');
+  }
+  if (!formData.targetAmount) {
+    errors.push('Số tiền mục tiêu không được bỏ trống!');
+  }
+  if (!formData.startDate) {
+    errors.push('Ngày bắt đầu không được bỏ trống!');
+  }
+  if (!formData.endDate) {
+    errors.push('Ngày kết thúc không được bỏ trống!');
+  }
+  if (formData.startDate && formData.endDate && new Date(formData.startDate) > new Date(formData.endDate)) {
+    errors.push('Ngày bắt đầu không được lớn hơn ngày kết thúc!');
+  }
+
+  if (errors.length > 0) {
+    errors.forEach((error) => toast.error(error));
+    return;
+  }
+
+  try {
+    const payload = {
+      ...formData,
+      currentAmount: unformatCurrency(formData.currentAmount),
+      targetAmount: unformatCurrency(formData.targetAmount),
+    };
+
+    if (!id) {
+      throw new Error('Fund ID is undefined');
     }
-  };
+
+    const updatedFund = await editSavingsFund(id, payload);
+    toast.success('Cập nhật thành công!');
+    navigate(`/savings-fund/detail/${id}`);
+  } catch (error) {
+    toast.error('Cập nhật thất bại, vui lòng thử lại!');
+  }
+};
+
+  
 
   if (loading) {
     return (
@@ -119,7 +140,6 @@ const EditSavingsFund = () => {
           <li className="breadcrumb-item active" aria-current="page">Sửa quỹ tiết kiệm</li>
         </ol>
       </nav>
-
       <div className="card">
         <div className="card-body">
           <form onSubmit={handleSubmit}>
@@ -185,17 +205,21 @@ const EditSavingsFund = () => {
             </div>
             <div className="form-group">
               <label htmlFor="category">Danh mục</label>
-              <div className="category-buttons">
+              <div className="custom-category-grid-edit">
                 {categories.length > 0 ? (
                   categories.map((category) => (
                     <button
                       key={category._id}
-                      className={`btn btn-secondary ${category._id === formData.categoryId ? 'active' : ''}`}
+                      className={`custom-category-btn ${category._id === formData.categoryId ? 'active' : ''}`}
                       type="button"
                       onClick={() => handleCategorySelect(category._id)}
                     >
                       <img src={category.image} alt={category.name} />
-                      <p>{category.name}</p>
+                      <p>
+                        {category.name.length > 17
+                          ? `${category.name.substring(0, 17)}...`
+                          : category.name}
+                      </p>
                     </button>
                   ))
                 ) : (
@@ -203,9 +227,9 @@ const EditSavingsFund = () => {
                 )}
               </div>
             </div>
-
-            <div className="col-12 text-center">
-              <button className="btn btn-primary" type="submit">Cập nhật</button>
+            <div className="text-end">
+              <button className="btn btn-primary me-2" type="submit">Cập nhật</button>
+              <Link className="btn btn-secondary" to={`/savings-fund/detail/${id}`}>Quay lại</Link>
             </div>
           </form>
         </div>

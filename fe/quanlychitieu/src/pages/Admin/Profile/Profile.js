@@ -5,6 +5,8 @@ import { getUserProfile, updateUser } from '../../../service/Auth';
 import { storage } from '../../../config/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { RingLoader } from 'react-spinners';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './Profile.css';
 
 const Profile = () => {
@@ -64,7 +66,8 @@ const Profile = () => {
                 email: data.email,
                 role: data.role,
                 avatar: avatarURL
-            };                    
+            };    
+            toast.success("Sửa thông tin thành công!", { position: "top-right" });                
             await updateUser(userId, updateData);
             localStorage.setItem('userRole', data.role);
             setIsEditing(false);

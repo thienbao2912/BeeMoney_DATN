@@ -96,89 +96,102 @@ const SavingGoalDetail = () => {
             <i class="bi bi-info-circle"></i> Thông tin mục tiêu
           </div>
           <div className="card">
-            <div className="card-body p-4">
-              <div className="row">
-                <div className="col-md-6">
-                  <div className="form-group mb-4">
-                    <label className="form-label text-muted">
-                      <i className="bi bi-tags-fill icon-style"></i> Danh mục
-                    </label>
-                    {categories.length > 0 &&
-                      categories.map((category) =>
-                        category._id === savingGoal.categoryId ? (
-                          <div key={category._id} className="category-item d-flex align-items-center ms-4 mt-3">
-                            <img
-                              src={category.image || 'rabbit.png'}
-                              alt={category.name}
-                              style={{ width: '50px', height: '50px' }}
-                            />
-                            <div className="text-secondary fw-bold mb-0 ms-3">{category.name}</div>
-                          </div>
-                        ) : null
-                      )}
-                  </div>
+  <div className="card-body p-4">
+    <div className="row">
+      <div className="col-md-6">
+        <div className="form-group mb-4">
+          <label className="form-label text-muted">
+            <i className="bi bi-tags-fill icon-style"></i> Danh mục
+          </label>
+          {categories.length > 0 &&
+            categories.map((category) =>
+              category._id === savingGoal.categoryId ? (
+                <div key={category._id} className="category-item d-flex align-items-center ms-4 mt-3">
+                  <img
+                    src={category.image || 'rabbit.png'}
+                    alt={category.name}
+                    style={{ width: '50px', height: '50px' }}
+                  />
+                  <div className="text-secondary fw-bold mb-0 ms-3">{category.name}</div>
+                </div>
+              ) : null
+            )}
 
-                  <div className="form-group mb-4">
-                    <label className="form-label text-muted">
-                    <i class="fa-solid fa-face-smile"></i> Tên mục tiêu
-                    </label>
-                    <div className="text-secondary ms-4">{savingGoal.name}</div>
-                  </div>
-                </div>
-
-                <div className="col-md-6">
-                  <div className="form-group mb-4">
-                    <label className="form-label text-muted">
-                      <i className="bi bi-alarm-fill icon-style"></i> Thời gian
-                    </label>
-                    <div className="text-secondary ms-4">
-                      {new Date(savingGoal.startDate).toLocaleDateString('vi-VN')} - {new Date(savingGoal.endDate).toLocaleDateString('vi-VN')}
-                    </div>
-                  </div>
-
-                  <div className="form-group mb-4">
-                  <label className="form-label text-muted">
-                  <i className="fa-solid fa-sack-dollar me-2"></i> Số tiền
-                    </label>
-                    <div className="text-secondary ms-4">
-                      <h6 className="text-success">
-                        Đã tiết kiệm được: {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND',
-                        }).format(savingGoal.currentAmount)}
-                      </h6>
-                      <h6 className="text-primary">
-                        Mục tiêu: {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND',
-                        }).format(savingGoal.targetAmount)}
-                      </h6>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="progress-wrapper d-flex align-items-center">
-                <span className="text-muted small me-2">{Math.round(progressPercentage)}%</span>
-                <div className="progress flex-grow-1 rounded-pill" style={{ height: '8px' }}>
-                  <div
-                    className="progress-bar"
-                    role="progressbar"
-                    style={{
-                      width: `${Math.min(progressPercentage, 100)}%`,
-                      backgroundColor: `hsl(${Math.min(progressPercentage, 100) * 1.5}, 100%, ${Math.max(50 - progressPercentage * 0.1, 20)}%)`,
-                    }}
-                  ></div>
-                </div>
-              </div>
-              {progressPercentage < 100 && new Date(savingGoal.endDate) >= new Date() && (
-                <div className="d-flex justify-content-center mt-3">
-                  <button className="btn btn-primary" onClick={() => openModal(savingGoal)}>
-                    Nạp tiền
-                  </button>
-                </div>
-              )}
+          {/* Fallback when category is missing */}
+          {categories.find((category) => category._id === savingGoal.categoryId) === undefined && (
+            <div className="category-item d-flex align-items-center ms-4 mt-3">
+              <img
+                src={'rabbit.png'}
+                alt={'Danh mục đã bị xóa'}
+                style={{ width: '50px', height: '50px' }}
+              />
+              <div className="text-secondary fw-bold mb-0 ms-3">Danh mục đã bị xóa</div>
             </div>
+          )}
+        </div>
+
+        <div className="form-group mb-4">
+          <label className="form-label text-muted">
+            <i className="fa-solid fa-face-smile"></i> Tên mục tiêu
+          </label>
+          <div className="text-secondary ms-4">{savingGoal.name}</div>
+        </div>
+      </div>
+
+      <div className="col-md-6">
+        <div className="form-group mb-4">
+          <label className="form-label text-muted">
+            <i className="bi bi-alarm-fill icon-style"></i> Thời gian
+          </label>
+          <div className="text-secondary ms-4">
+            {new Date(savingGoal.startDate).toLocaleDateString('vi-VN')} - {new Date(savingGoal.endDate).toLocaleDateString('vi-VN')}
           </div>
+        </div>
+
+        <div className="form-group mb-4">
+          <label className="form-label text-muted">
+            <i className="fa-solid fa-sack-dollar me-2"></i> Số tiền
+          </label>
+          <div className="text-secondary ms-4">
+            <h6 className="text-success">
+              Đã tiết kiệm được: {new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+              }).format(savingGoal.currentAmount)}
+            </h6>
+            <h6 className="text-primary">
+              Mục tiêu: {new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+              }).format(savingGoal.targetAmount)}
+            </h6>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="progress-wrapper d-flex align-items-center">
+      <span className="text-muted small me-2">{Math.round(progressPercentage)}%</span>
+      <div className="progress flex-grow-1 rounded-pill" style={{ height: '8px' }}>
+        <div
+          className="progress-bar"
+          role="progressbar"
+          style={{
+            width: `${Math.min(progressPercentage, 100)}%`,
+            backgroundColor: `hsl(${Math.min(progressPercentage, 100) * 1.5}, 100%, ${Math.max(50 - progressPercentage * 0.1, 20)}%)`,
+          }}
+        ></div>
+      </div>
+    </div>
+    {progressPercentage < 100 && new Date(savingGoal.endDate) >= new Date() && (
+      <div className="d-flex justify-content-center mt-3">
+        <button className="btn btn-primary" onClick={() => openModal(savingGoal)}>
+          Nạp tiền
+        </button>
+      </div>
+    )}
+  </div>
+</div>
+
 
         </div>
 
