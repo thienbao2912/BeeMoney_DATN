@@ -203,7 +203,39 @@ class SavingsFundController {
             res.status(500).json({ message: 'Server error', error: error.message });
         }
     }
+    static async deleteSavingsFund(req, res) {
+        try {
+            const fundId = req.params.id; // ID của quỹ cần xóa
+            const userId = req.user.id; // ID người thực hiện xóa quỹ
     
+            const fund = await SavingsFund.findById(fundId);
+            if (!fund) {
+                return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
+            }
+    
+            // Kiểm tra xem người dùng có quyền xóa quỹ không
+            if (fund.userId.toString() !== userId) {
+                return res.status(403).json({ message: 'Bạn không có quyền xóa quỹ này' });
+            }
+    
+            // Lặp qua tất cả các giao dịch để hoàn lại tiền vào ví của người dùng
+            for (const transaction of fund.transactions) {
+                const user = await User.findById(transaction.userId);
+                if (user) {
+                    user.wallet += transaction.amount; // Hoàn tiền lại cho người dùng
+                    await user.save(); // Lưu lại thay đổi của user
+                }
+            }
+    
+            // Xóa quỹ khỏi cơ sở dữ liệu
+            await SavingsFund.findByIdAndDelete(fundId);
+    
+            res.status(200).json({ message: 'Xóa quỹ tiết kiệm và hoàn tiền thành công' });
+        } catch (error) {
+            console.error("Error deleting savings fund:", error);
+            res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
+        }
+    }
 
 }
 

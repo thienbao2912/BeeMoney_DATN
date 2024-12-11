@@ -136,7 +136,7 @@ const handleSubmit = async (e) => {
     <div className="container">
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
-          <li className="breadcrumb-item"><a className="text-secondary" href="/saving-fund/list">Quỹ tiết kiệm</a></li>
+          <li className="breadcrumb-item"><a className="text-secondary" href="/savings-fund/list">Quỹ tiết kiệm</a></li>
           <li className="breadcrumb-item active" aria-current="page">Sửa quỹ tiết kiệm</li>
         </ol>
       </nav>

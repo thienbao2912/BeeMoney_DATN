@@ -234,9 +234,10 @@ const deleteSavingsFund = async (id) => {
 
         if (response && response.data === 'Xóa quỹ tiết kiệm thành công') {
             return response; 
-        } else {
+        }  else {
+            console.error('Unexpected response format:', response);
             throw new Error('Unexpected response format');
-        }
+          }
     } catch (error) {
         console.error('Error deleting savings fund:', error.response ? error.response.data : error.message);
         throw error;

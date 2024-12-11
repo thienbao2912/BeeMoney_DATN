@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { getCategories, getSavingsFundById, updateSavingFundAmount, getUserProfile } from '../../../../service/SavingsFund';
-import { useParams, Link } from 'react-router-dom';
+import { getCategories, getSavingsFundById, updateSavingFundAmount, getUserProfile, deleteSavingsFund } from '../../../../service/SavingsFund';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
 import { Cookies } from 'react-cookie';
 import MemberList from '../MemberList';
 import TransactionList from '../TransactionList';
+import ConfirmationModal from '../../SavingGoals/ConfirmationModal/ConfirmationModal';
 import './DetailPage.css'
 import axios from 'axios';
 import { toast } from 'react-toastify';
 const FundDetail = () => {
-  const [fund, setFund] = useState(null);
+  const [fund, setFund] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryImage, setCategoryImage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [goalToDelete, setGoalToDelete] = useState(null);
+  const [error, setError] = useState(null);
   const [loadingSend, setLoadingSend] = useState(false);
   const [showContributeModal, setShowContributeModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -48,8 +52,32 @@ const FundDetail = () => {
       setLoading(false);
     }
   };
+  const navigate = useNavigate();
+
+  const handleDelete = async (fundId) => {
+    setLoading(true);
+    try {
+      await deleteSavingsFund(fundId);
+      toast.success('Xóa quỹ tiết kiệm thành công');
+      navigate('/savings-fund/list');
+    } catch (error) {
+      console.error('Không thể xóa quỹ tiết kiệm:', error);
+      toast.error('Không thể xóa quỹ tiết kiệm');
+      setConfirmationModalOpen(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
+  const openConfirmationModal = (item) => {
+    setGoalToDelete(item);
+    setConfirmationModalOpen(true);
+  };
+  const closeConfirmationModal = () => {
+    setGoalToDelete(null);
+    setConfirmationModalOpen(false);
+  };
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -201,6 +229,18 @@ const FundDetail = () => {
   const isExpired = daysLeft < 0;
   return (
     <div className="container">
+        <nav aria-label="breadcrumb" style={{ marginBottom: "1rem" }}>
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item active" aria-current="page">
+                        Chi tiết quỹ tiết kiệm
+                    </li>
+                    <li className="breadcrumb-item">
+                        <Link to="/savings-fund/list" className="text-dark">
+                            Danh sách quỹ tiết kiệm
+                        </Link>
+                    </li>
+                </ol>
+            </nav>
       <div className="row">
         <div className="col-md-12 mb-3">
           <div className="income-overview card">
@@ -262,10 +302,25 @@ const FundDetail = () => {
                         </span>
 
                       </td>
-                   <td>
-                    <Link className="text-success" to={`/savings-fund/edit/${id}`}> <i class="fa-solid fa-pen-to-square"></i></Link>
-                 
-                   </td>
+                      <td>
+                        <Link className="text-success" to={`/savings-fund/edit/${id}`}> <i class="fa-solid fa-pen-to-square"></i></Link>
+                        <div className="text-danger">
+                          <i style={{ cursor: "pointer" }}
+                            className="bi bi-trash-fill"
+                            onClick={() => openConfirmationModal(fund)}
+                          />
+                        </div>
+                        {isConfirmationModalOpen && (
+                          <ConfirmationModal
+                            isOpen={isConfirmationModalOpen}
+                            onClose={closeConfirmationModal}
+                            onConfirm={() => {
+                              if (goalToDelete) handleDelete(goalToDelete._id);
+                            }}
+                            message={`Bạn có chắc chắn muốn xóa mục tiêu <span class="primary">${goalToDelete?.name}</span> ?`}
+                          />
+                        )}
+                      </td>
                     </tr>
                   </tbody>
                 </table>
