@@ -6,6 +6,8 @@ import { RingLoader } from 'react-spinners';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../config/firebase';
 import ConfirmDeleteModal from '../../../components/Admin/ConfirmDeleteModal';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 
@@ -82,6 +84,7 @@ const CategoryList = () => {
     const handleDeleteCategory = async () => {
         if (categoryToDelete) {
             try {
+              toast.success("Xóa danh mục thành công!", { position: "top-right" });
                 await deleteCategory(categoryToDelete._id, navigate);
                 setCategories(categories.filter(category => category._id !== categoryToDelete._id));
                 setModalShow(false);

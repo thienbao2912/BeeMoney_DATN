@@ -5,6 +5,8 @@ import { getAllUsers, updateUserStatus } from "../../../service/Auth";
 import { RingLoader } from "react-spinners";
 import LockedModal from "../../../components/Admin/LockedModal";
 import { Alert } from "react-bootstrap";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import "./User.css";
@@ -65,7 +67,7 @@ const [errorMessage, setErrorMessage] = useState("");
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
       setUsers(sortedUsers);
-      setSuccessMessage("Khóa tài khoản thành công.");
+      toast.success("Khóa tài khoản thành công!", { position: "top-right" });
       setShowConfirmModal(false);
       } catch (error) {
         console.error("Lỗi khi khóa người dùng:", error);
@@ -84,7 +86,7 @@ const [errorMessage, setErrorMessage] = useState("");
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
       setUsers(sortedUsers);
-      setSuccessMessage("Mở khóa tài khoản thành công.");
+      toast.success("Mở khóa tài khoản thành công!", { position: "top-right" });
       setShowConfirmModal(false);
     } catch (error) {
       console.error("Lỗi khi mở khóa người dùng:", error);
