@@ -11,6 +11,7 @@ const SavingsFundAdd = () => {
     const [isLoadingCategories, setIsLoadingCategories] = useState(true);
     const [isLoadingFunds, setIsLoadingFunds] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [targetAmount, setTargetAmount] = useState('');
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -28,7 +29,8 @@ const SavingsFundAdd = () => {
         const fetchCategoriesData = async () => {
             try {
                 const data = await getCategories();
-                setCategories(data);
+                const filteredCategories = data.filter(category => category.type === 'expense');
+                setCategories(filteredCategories);
             } catch (error) {
                 console.error('Error fetching categories:', error);
             } finally {
@@ -71,7 +73,7 @@ const SavingsFundAdd = () => {
             }
             const payload = {
                 ...data,
-                targetAmount: Number(data.targetAmount.replace(/,/g, ''))
+                targetAmount: Number(data.targetAmount.replace(/\./g, '').replace(/,/g, ''))
             };
 
             console.log("Sending data:", payload);
@@ -91,6 +93,13 @@ const SavingsFundAdd = () => {
     const formatCurrency = (amount) => {
         if (amount == null || isNaN(amount)) return '0 VNĐ';
         return Number(amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    };
+
+    const handleChange = (e) => {
+        const rawValue = e.target.value.replace(/\D/g, '');
+        const formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        setTargetAmount(formattedValue);
+        setValue('targetAmount', formattedValue);
     };
 
     const validateDateRange = (startDate, endDate) => {
@@ -127,21 +136,20 @@ const SavingsFundAdd = () => {
                                 />
                                 {errors.name && <div className="invalid-feedback">{errors.name.message}</div>}
                             </div>
-
                             <div className="mb-3">
                                 <label htmlFor="targetAmount" className="form-label">Số tiền mục tiêu</label>
                                 <input
                                     type="text"
                                     id="targetAmount"
+                                    value={targetAmount}
                                     {...register('targetAmount', {
                                         required: 'Số tiền mục tiêu là bắt buộc',
-                                        onChange: (e) => setValue('targetAmount', e.target.value) // Remove formatting
+                                        onChange: handleChange
                                     })}
                                     className={`form-control ${errors.targetAmount ? 'is-invalid' : ''}`}
                                 />
                                 {errors.targetAmount && <div className="invalid-feedback">{errors.targetAmount.message}</div>}
                             </div>
-
                             <Row>
                                 <Col md={6}>
                                     <div className="mb-3">
@@ -192,15 +200,19 @@ const SavingsFundAdd = () => {
                                         </Col>
                                     ) : (
                                         categories.map((category, index) => (
-                                            <Col xs={12} md={4} key={index} className="d-flex justify-content-center mb-2">
+                                            <Col xs={6} md={3} key={index} className="d-flex justify-content-center mb-2">
                                                 <Button
                                                     variant={category._id === watch('categoryId') ? "primary" : "light"}
                                                     className="d-flex align-items-center justify-content-start"
                                                     style={{
-                                                        width: "200px",
-                                                        padding: "10px 12px",
+                                                        width: "160px",
+                                                        padding: "10px",
                                                         fontSize: "0.9rem",
                                                         border: "1px solid #ced4da",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "flex-start",
+                                                        overflow: "hidden",
                                                     }}
                                                     onClick={() => setValue('categoryId', category._id)}
                                                 >
@@ -208,12 +220,21 @@ const SavingsFundAdd = () => {
                                                         src={category.image}
                                                         alt={category.name}
                                                         style={{
-                                                            width: "24px",
-                                                            height: "24px",
+                                                            width: "28px",
+                                                            height: "28px",
                                                             marginRight: "8px",
                                                         }}
                                                     />
-                                                    {category.name}
+                                                    <span
+                                                        style={{
+                                                            whiteSpace: "nowrap",
+                                                            overflow: "hidden",
+                                                            textOverflow: "ellipsis",
+                                                            maxWidth: "calc(100% - 36px)",
+                                                        }}
+                                                    >
+                                                        {category.name}
+                                                    </span>
                                                 </Button>
                                             </Col>
                                         ))
@@ -256,21 +277,24 @@ const SavingsFundAdd = () => {
                                         const fundCategory = categories.find(category => category._id === fund.categoryId);
 
                                         return (
-                                            <ListGroup.Item key={index} className="d-flex align-items-center">
-                                                {/* {fundCategory && (
+                                            <ListGroup.Item key={index} className="d-flex align-items-center mb-3 p-3 border-0" style={{ boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)" }}>
+                                                {fundCategory && (
                                                     <>
                                                         <img
                                                             src={fundCategory.image}
                                                             alt={fundCategory.name}
                                                             style={{
-                                                                width: "24px",
-                                                                height: "24px",
-                                                                marginRight: "8px",
+                                                                width: "30px",
+                                                                height: "30px",
+                                                                marginRight: "12px",
+                                                                borderRadius: "50%",
                                                             }}
                                                         />
-                                                        <span className="flex-grow-1">Quỹ {fund.name}</span>
+                                                        <span className="flex-grow-1" style={{ fontWeight: "500", fontSize: "1rem" }}> {fund.name}</span>
                                                     </>
-                                                )} */}
+                                                )}
+                                               
+                                              
                                                 <img
                                                     src={fund.categoryId.image}
                                                     alt={fund.categoryId.name}
@@ -281,12 +305,14 @@ const SavingsFundAdd = () => {
                                                     }}
                                                 />
                                                 <span className="flex-grow-1">Quỹ {fund.name}</span>
-                                                <span>{formatCurrency(fund.targetAmount)}</span>
+                                                <span className="text-success" style={{ fontWeight: "600" }}>
+                                                    {formatCurrency(fund.targetAmount)}
+                                                </span>
                                             </ListGroup.Item>
                                         );
                                     })
                                 ) : (
-                                    <ListGroup.Item>Không có dữ liệu</ListGroup.Item>
+                                    <ListGroup.Item className="text-center">Không có dữ liệu</ListGroup.Item>
                                 )
                             )}
                         </ListGroup>
