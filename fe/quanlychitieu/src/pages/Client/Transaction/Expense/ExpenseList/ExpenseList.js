@@ -405,7 +405,7 @@ const ExpenseList = () => {
           onConfirm={() => {
             if (toDelete) handleDelete(toDelete._id);
           }}
-          message={`Bạn có chắc chắn muốn xóa chi tiêu <span class="primary">${toDelete?.description}</span> ?`}
+          message={`Bạn có chắc chắn muốn xóa chi tiêu <span class=" text-danger">${toDelete?.description}</span> ?`}
         />
       )}
     </div>

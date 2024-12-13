@@ -66,9 +66,9 @@ label {
 }
 
 .category-buttons {
-    display: flex;
+    display: grid;
     flex-wrap: wrap;
-    gap: 0.5rem; /* Consistent spacing */
+    gap: 0.5rem; 
 }
 
 .category-buttons button {
@@ -80,28 +80,27 @@ label {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 1;
-    min-width: 100px;
-    max-width: 150px;
+  
+   
     height: 50px;
     white-space: nowrap;
     text-align: center;
-    overflow: hidden; /* Prevent overflow */
-    text-overflow: ellipsis; /* Add ellipsis for long text */
+    
+    flex-direction: column;
 }
 
 .category-buttons button img {
     width: 25px;
     height: 25px;
     margin-right: 5px;
-    flex-shrink: 0; /* Prevent image from shrinking */
+    flex-shrink: 0; 
 }
 
 .category-buttons button span {
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap; /* Prevent text wrap */
+    white-space: nowrap;
 }
 
 .btn-secondary p {
@@ -122,7 +121,7 @@ label {
 }
 
 .category-buttons button:active {
-    background-color: #b0b3e6;
+    background-color: #c1a6e5;
     border: none;
 }
 
@@ -167,7 +166,7 @@ input[type="date"] {
 }
 
 .category-btn {
-    flex: 1; /* Mỗi button sẽ chiếm một phần bằng nhau của hàng */
+    flex: 1; 
     min-width: 100px;
     max-width: 150px;
     height: 50px;
@@ -177,6 +176,91 @@ input[type="date"] {
     padding: 0.5rem;
     white-space: nowrap;
     text-align: center;
-    overflow: hidden; /* Ngăn chặn tràn nội dung */
-    text-overflow: ellipsis; /* Thêm dấu "..." nếu nội dung quá dài */
+    overflow: hidden;
+    text-overflow: ellipsis; 
 }
+.custom-category-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  
+  .custom-category-grid-edit {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+  }
+  
+
+  @media (max-width: 1200px) {
+    .custom-category-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  
+    .custom-category-grid-edit {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .custom-category-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  
+    .custom-category-grid-edit {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  
+  @media (max-width: 480px) {
+    .custom-category-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    .custom-category-grid-edit {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 250px) {
+    .custom-category-grid {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  
+    .custom-category-grid-edit {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  }
+  .custom-category-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    text-align: center;
+    transition: transform 0.2s, background-color 0.2s;
+  }
+  
+  .custom-category-btn img {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 2px;
+  }
+  
+  .custom-category-btn p {
+    margin: 0;
+    font-size: 12px;
+  }
+  
+  .custom-category-btn.active {
+    background-color: #cdd0f5;
+    transform: scale(1.05);
+  }
+  
+  .custom-category-btn:hover {
+    background-color: #e9ecef;
+    transform: scale(1.05);
+  }
+  

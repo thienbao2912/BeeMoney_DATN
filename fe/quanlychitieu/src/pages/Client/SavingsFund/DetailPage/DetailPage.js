@@ -1,21 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { getCategories, getSavingsFundById, updateSavingFundAmount, getUserProfile } from '../../../../service/SavingsFund';
-import { useParams, Link } from 'react-router-dom';
+import { getCategories, getSavingsFundById, updateSavingFundAmount, getUserProfile, deleteSavingsFund } from '../../../../service/SavingsFund';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
 import { Cookies } from 'react-cookie';
 import MemberList from '../MemberList';
 import TransactionList from '../TransactionList';
+import ConfirmationModal from '../../SavingGoals/ConfirmationModal/ConfirmationModal';
 import './DetailPage.css'
 import axios from 'axios';
 import { toast } from 'react-toastify';
 const FundDetail = () => {
-  const [fund, setFund] = useState(null);
+  const [fund, setFund] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryImage, setCategoryImage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [goalToDelete, setGoalToDelete] = useState(null);
+  const [error, setError] = useState(null);
   const [loadingSend, setLoadingSend] = useState(false);
   const [showContributeModal, setShowContributeModal] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false); 
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [contributionAmount, setContributionAmount] = useState('');
   const [note, setNote] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
@@ -34,7 +38,7 @@ const FundDetail = () => {
 
 
   const fetchFund = async () => {
-    try { 
+    try {
       const fundData = await getSavingsFundById(id);
       setFund(fundData);
       const category = categories.find(cat => cat._id === fundData.categoryId);
@@ -48,8 +52,32 @@ const FundDetail = () => {
       setLoading(false);
     }
   };
+  const navigate = useNavigate();
+
+  const handleDelete = async (fundId) => {
+    setLoading(true);
+    try {
+      await deleteSavingsFund(fundId);
+      toast.success('Xóa quỹ tiết kiệm thành công');
+      navigate('/savings-fund/list');
+    } catch (error) {
+      console.error('Không thể xóa quỹ tiết kiệm:', error);
+      toast.error('Không thể xóa quỹ tiết kiệm');
+      setConfirmationModalOpen(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
+  const openConfirmationModal = (item) => {
+    setGoalToDelete(item);
+    setConfirmationModalOpen(true);
+  };
+  const closeConfirmationModal = () => {
+    setGoalToDelete(null);
+    setConfirmationModalOpen(false);
+  };
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -60,26 +88,26 @@ const FundDetail = () => {
     }
   }, [id, categories]);
 
-  
+
   const formatCurrency = (value) => {
     return Number(value).toLocaleString('vi-VN');
-};
+  };
 
-const unformatCurrency = (value) => {
+  const unformatCurrency = (value) => {
     return value.replace(/[^\d]/g, '');
-};
+  };
 
 
-const handleAmountChange = (e) => {
-  let value = e.target.value;
-  value = unformatCurrency(value);
-  if (Number(value) < 0) {
+  const handleAmountChange = (e) => {
+    let value = e.target.value;
+    value = unformatCurrency(value);
+    if (Number(value) < 0) {
       e.target.value = formatCurrency(0);
-  } else {
-    setContributionAmount(value);
+    } else {
+      setContributionAmount(value);
       e.target.value = formatCurrency(value);
-  }
-};
+    }
+  };
 
   //Hiển thị modal nạp tiền
   const handleShowContributeModal = () => setShowContributeModal(true);
@@ -94,20 +122,20 @@ const handleAmountChange = (e) => {
   const handleContribute = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     const amountToContribute = parseFloat(contributionAmount);
     if (isNaN(amountToContribute) || amountToContribute <= 0) {
       toast.warning('Vui lòng nhập số tiền hợp lệ');
       setLoading(false);
       return;
     }
-  
+
     if (amountToContribute < 1000) {
       toast.warning('Số tiền ít nhất là 1,000 đồng');
       setLoading(false);
       return;
     }
-  
+
     try {
       const currentUser = await getUserProfile();
       await updateSavingFundAmount(id, { amount: amountToContribute, note });
@@ -115,15 +143,15 @@ const handleAmountChange = (e) => {
         ...prevFund,
         currentAmount: prevFund.currentAmount + amountToContribute,
       }));
-  
-     
+
+
       setTransactionUsers((prev) => [...prev, currentUser]);
 
-  
+
       setContributionAmount('');
       setNote('');
       setShowContributeModal(false);
-  
+
       toast.success('Nạp tiền thành công');
     } catch (error) {
       if (error.response) {
@@ -137,23 +165,23 @@ const handleAmountChange = (e) => {
       setLoading(false);
     }
   };
-  
+
 
   const handleInvite = async (e) => {
     e.preventDefault();
-    
+
     if (!inviteEmail || !fund) {
       toast.warning('Vui lòng nhập email hợp lệ');
       return;
     }
-  
-    
+
+
     setLoadingSend(true);
-  
+
     try {
       const cookies = new Cookies();
       const token = cookies.get('token');
-  
+
       await axios.post(
         'http://localhost:4000/api/send-invite-code',
         { email: inviteEmail, fundId: fund._id },
@@ -163,7 +191,7 @@ const handleAmountChange = (e) => {
           },
         }
       );
-  
+
       toast.success('Đã gửi đến thành công');
       setInviteEmail('');
       setShowInviteModal(false)
@@ -181,7 +209,7 @@ const handleAmountChange = (e) => {
       setLoadingSend(false);
     }
   };
-  
+
 
   if (loading) {
     return (
@@ -198,9 +226,21 @@ const handleAmountChange = (e) => {
   const daysLeft = Math.ceil((new Date(endDate) - today) / (1000 * 60 * 60 * 24));
   const percentage = targetAmount ? (currentAmount / targetAmount) * 100 : 0;
   const progressBarClass = percentage >= 50 ? 'heets-gradient-success' : 'heets-gradient-warning';
-  
+  const isExpired = daysLeft < 0;
   return (
     <div className="container">
+        <nav aria-label="breadcrumb" style={{ marginBottom: "1rem" }}>
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item active" aria-current="page">
+                        Chi tiết quỹ tiết kiệm
+                    </li>
+                    <li className="breadcrumb-item">
+                        <Link to="/savings-fund/list" className="text-dark">
+                            Danh sách quỹ tiết kiệm
+                        </Link>
+                    </li>
+                </ol>
+            </nav>
       <div className="row">
         <div className="col-md-12 mb-3">
           <div className="income-overview card">
@@ -216,9 +256,21 @@ const handleAmountChange = (e) => {
                           alt="Category"
                         />
                       </td>
-                      <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        <h6 className="primary mb-0">{fund.name}</h6>
+                      <td>
+                        <h6
+                          style={{
+                            whiteSpace: 'normal',
+                            wordWrap: 'break-word',
+                            maxWidth: '25ch',
+
+                          }}
+                          className="primary mb-0">
+                          {fund.name}
+                        </h6>
                       </td>
+
+
+
                       <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         <span className="text-muted small">
                           <i className="fa-solid fa-sack-dollar me-2"></i>
@@ -246,67 +298,98 @@ const handleAmountChange = (e) => {
                         <br />
                         <span className="text-muted small">
                           <i className="fas fa-calendar-day me-2"></i>
-                          còn {daysLeft} ngày
+                          {isExpired ? "Đã hết hạn" : `còn ${daysLeft} ngày`}
                         </span>
+
                       </td>
                       <td>
-                        <Link
-                          to={`/savings-fund/edit/${fund._id}`}
-                        >
-                          <i className="fa fa-edit text-success" />
-                        </Link>
+                        <Link className="text-success" to={`/savings-fund/edit/${id}`}> <i class="fa-solid fa-pen-to-square"></i></Link>
+                        <div className="text-danger">
+                          <i style={{ cursor: "pointer" }}
+                            className="bi bi-trash-fill"
+                            onClick={() => openConfirmationModal(fund)}
+                          />
+                        </div>
+                        {isConfirmationModalOpen && (
+                          <ConfirmationModal
+                            isOpen={isConfirmationModalOpen}
+                            onClose={closeConfirmationModal}
+                            onConfirm={() => {
+                              if (goalToDelete) handleDelete(goalToDelete._id);
+                            }}
+                            message={`Bạn có chắc chắn muốn xóa mục tiêu <span class="primary">${goalToDelete?.name}</span> ?`}
+                          />
+                        )}
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
               <div className='action-style'>
-                <span className="custom-date-style me-2" onClick={handleShowContributeModal} style={{ backgroundColor: "#FAEBD7", color: "#F4A460", borderColor: "#F4A460", cursor: "pointer" }}>
-                  <i className="fa fa-hand-holding-usd me-2"></i> Nạp tiền
+                <span
+                  className={`custom-date-style me-2 ${daysLeft <= 0 ? 'disabled-style' : ''
+                    }`}
+                  onClick={daysLeft > 0 ? handleShowContributeModal : null}
+                  style={{
+                    backgroundColor: daysLeft > 0 ? "#FAEBD7" : "#E0E0E0",
+                    color: daysLeft > 0 ? "#F4A460" : "#A0A0A0",
+                    borderColor: daysLeft > 0 ? "#F4A460" : "#A0A0A0",
+                    cursor: daysLeft > 0 ? "pointer" : "not-allowed",
+                  }}
+                >
+                  <i className="fa fa-hand-holding-usd me-2"></i>
+                  Nạp tiền
+
                 </span>
-                <span className="custom-date-style me-2" onClick={handleShowInviteModal} style={{ cursor: "pointer" }}>
-                  <i className="fa fa-user-plus me-2"></i> Mời bạn
+                <span
+                  className="custom-date-style me-2"
+                  onClick={handleShowInviteModal}
+                  style={{ cursor: "pointer" }}
+                >
+                  <i className="fa fa-user-plus me-2"></i>
+                  Mời bạn
                 </span>
               </div>
+
             </div>
           </div>
         </div>
       </div>
       <Modal show={showInviteModal} onHide={handleCloseInviteModal}>
-  <Modal.Header closeButton>
-    <Modal.Title>Mời bạn</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <form onSubmit={handleInvite}>
-      <div className="form-group">
-        <label>Email</label>
-        <input
-          type="email"
-          className="form-control"
-          value={inviteEmail}
-          onChange={(e) => setInviteEmail(e.target.value)}
-        />
-      </div>
+        <Modal.Header closeButton>
+          <Modal.Title>Mời bạn</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form onSubmit={handleInvite}>
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                className="form-control"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+              />
+            </div>
 
-   
-      {loadingSend && (
-        <div className="text-center mt-3">
-          <i className="fa fa-spinner fa-spin fa-2x primary"></i>
-          <p className="mt-2">Đang gửi lời mời...</p>
-        </div>
-      )}
 
-      <div className="mt-3 text-end">
-        <Button variant="secondary" onClick={handleCloseInviteModal}>
-          Đóng
-        </Button>
-        <Button variant="primary" type="submit" className="ms-2" disabled={loadingSend}>
-          {loadingSend ? 'Đang gửi...' : 'Gửi lời mời'}
-        </Button>
-      </div>
-    </form>
-  </Modal.Body>
-</Modal>
+            {loadingSend && (
+              <div className="text-center mt-3">
+                <i className="fa fa-spinner fa-spin fa-2x primary"></i>
+                <p className="mt-2">Đang gửi lời mời...</p>
+              </div>
+            )}
+
+            <div className="mt-3 text-end">
+              <Button variant="secondary" onClick={handleCloseInviteModal}>
+                Đóng
+              </Button>
+              <Button variant="primary" type="submit" className="ms-2" disabled={loadingSend}>
+                {loadingSend ? 'Đang gửi...' : 'Gửi lời mời'}
+              </Button>
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
 
       <Modal show={showContributeModal} onHide={handleCloseContributeModal}>
         <Modal.Header closeButton>

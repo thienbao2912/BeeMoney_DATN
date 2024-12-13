@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../../../layouts/AdminLayout';
 import { useForm } from 'react-hook-form';
 import { registerUser } from '../../../service/Auth'; 
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng']; 
 
@@ -40,11 +42,13 @@ const AddUser = () => {
             });
 
             if (response.success) {
+                toast.success("Thêm tài khoản thành công!", { position: "top-right" });
                 setSubmitSuccess(response.message);
                 reset(); 
                 navigate('/admin/users'); 
             } else {
                 setSubmitError(response.message);
+                toast.error("Có lỗi xảy ra: " + response.message, { position: "top-right" });
             }
         } catch (error) {
             setSubmitError('Email đã tồn tại!!!');

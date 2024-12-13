@@ -234,14 +234,43 @@ const deleteSavingsFund = async (id) => {
 
         if (response && response.data === 'Xóa quỹ tiết kiệm thành công') {
             return response; 
-        } else {
+        }  else {
+            console.error('Unexpected response format:', response);
             throw new Error('Unexpected response format');
-        }
+          }
     } catch (error) {
         console.error('Error deleting savings fund:', error.response ? error.response.data : error.message);
         throw error;
     }
 };
+
+
+const editSavingsFund = async (id, updatedFields) => {
+    try {
+      const response = await request({
+        method: 'PATCH',
+        path: `/api/savings-fund/${id}`,
+        data: updatedFields
+      });
+  
+      // Log toàn bộ phản hồi để kiểm tra cấu trúc
+      console.log('Full response:', response);
+  
+      // Kiểm tra xem phản hồi có chứa message và updatedFund không
+      if (response && response.message && response.updatedFund) {
+        console.log('Fund updated successfully:', response.updatedFund);
+        return response.updatedFund;  // Trả về updatedFund nếu dữ liệu hợp lệ
+      } else {
+        console.error('Unexpected response format:', response);
+        throw new Error('Unexpected response format');
+      }
+    } catch (error) {
+      console.error('Error updating savings fund:', error.response ? error.response.data : error.message);
+      throw error; // Ném lỗi ra ngoài để xử lý ở nơi gọi
+    }
+  };
+  
+  
 const getCategoryById = async (categoryId) => {
     try {
       const response = await fetch(`/api/categories/${categoryId}`);
@@ -265,5 +294,6 @@ export {
     getFundTransactions,
     getUserProfile,
     getAllUsers,
-    getFundMembers
+    getFundMembers,
+    editSavingsFund
 };

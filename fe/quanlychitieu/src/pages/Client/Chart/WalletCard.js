@@ -4,55 +4,50 @@ import { getUserProfile } from '../../../service/SavingsFund';
 import { getAllBudgets } from '../../../service/Budget';
 import { getAllSavingsGoals } from '../../../service/SavingGoal';
 import { getUserSavingsGoals } from '../../../service/SavingsFund';
-import { toast } from 'react-toastify';
 
 const WalletCard = () => {
-  const [user, setUser] = useState(0);
+  const [user, setUser] = useState({ wallet: 0 });
   const [budget, setBudget] = useState([]);
   const [savingsGoal, setSavingsGoal] = useState([]);
   const [savingsFund, setSavingsFund] = useState([]);
+  const [isWalletVisible, setWalletVisible] = useState(true);
   const [latestBudget, setLatestBudget] = useState(null);
   const [latestSavingsGoal, setLatestSavingsGoal] = useState(null);
   const [latestSavingsFund, setLatestSavingsFund] = useState(null);
-  const [loading, setLoading] = useState(false);
   const userId = localStorage.getItem("userId");
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const profile = await getUserProfile();
-        setUser({
-          wallet: profile.wallet
-        })
+        setUser({ wallet: profile.wallet });
       } catch (error) {
-        console.error("Error fetching user profile:", error);
+        console.error('Error fetching user profile:', error);
       }
-    }
+    };
+
     const fetchBudget = async () => {
       try {
-        const budget = await getAllBudgets(userId);
-        const sortedBudgets = budget.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-
-        setBudget(budget)
-        setLatestBudget(sortedBudgets[0] || null)
+        const budgets = await getAllBudgets(userId);
+        const sortedBudgets = budgets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setBudget(budgets);
+        setLatestBudget(sortedBudgets[0] || null);
       } catch (error) {
-        console.error("Error fetching budget:", error);
+        console.error('Error fetching budgets:', error);
       }
-    }
+    };
+
     const fetchSavingsGoal = async () => {
       try {
-        const savingsGoal = await getAllSavingsGoals(userId);
-        const sortedSavingsGoal = savingsGoal.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-
-        setSavingsGoal(savingsGoal)
-        setLatestSavingsGoal(sortedSavingsGoal[0] || null)
+        const goals = await getAllSavingsGoals(userId);
+        const sortedGoals = goals.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setSavingsGoal(goals);
+        setLatestSavingsGoal(sortedGoals[0] || null);
       } catch (error) {
-        console.error("Error fetching savingsGoal:", error);
+        console.error('Error fetching savings goals:', error);
       }
-    }
+    };
+
     const fetchSavingsFund = async () => {
       try {
         const savingsFund = await getUserSavingsGoals(userId);
@@ -65,16 +60,17 @@ const WalletCard = () => {
       } catch (error) {
         console.error("Error fetching savingsFund:", error);
       }
-    }
+    };
+
     fetchUserProfile();
     fetchBudget();
     fetchSavingsGoal();
-    fetchSavingsFund()
-  }, [])
+    fetchSavingsFund();
+  }, [userId]);
 
-
-
-
+  const toggleWalletVisibility = () => {
+    setWalletVisible(!isWalletVisible);
+  };
 
   return (
     <div className="row mt-3 mb-2">
@@ -84,75 +80,75 @@ const WalletCard = () => {
             <i
               className="bi bi-wallet2"
               style={{
-                fontSize: "50px",
-                color: "#81c784",
-                marginRight: "10px",
+                fontSize: '50px',
+                color: '#81c784',
+                marginRight: '10px',
               }}
             ></i>
             <div className="ms-2">
               <p
                 style={{
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  color: "#6c757d",
-                  marginBottom: "4px",
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#6c757d',
+                  marginBottom: '4px',
                 }}
               >
                 Số dư
               </p>
               <h2
                 style={{
-                  fontSize: "15px",
-                  fontWeight: "bold",
+                  fontSize: '15px',
+                  fontWeight: 'bold',
                   margin: 0,
                 }}
               >
-
-                {new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(user.wallet)}
-
+                {isWalletVisible
+                  ? new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(user.wallet ?? 0)
+                  : "******đ"}
               </h2>
             </div>
           </div>
-
-
           <hr className="my-2" />
           <div className="d-flex justify-content-between align-items-center mt-2">
             <i
-              className="bi bi-eye-fill text-secondary"
-              style={{ fontSize: "15px", cursor: "pointer" }}
+              className={`bi ${isWalletVisible ? 'bi-eye-fill' : 'bi-eye-slash-fill'} text-secondary`}
+              style={{ fontSize: '15px', cursor: 'pointer' }}
+              onClick={toggleWalletVisibility}
             ></i>
           </div>
         </div>
       </div>
-      <div className="col-md-3">
+     {/* Ngân sách */}
+     <div className="col-md-3">
         <div className="card shadow-sm p-3">
           <div className="d-flex align-items-center mb-3">
             <i
               className="bi bi-database"
               style={{
-                fontSize: "50px",
-                color: "#f3c013",
-                marginRight: "10px",
+                fontSize: '50px',
+                color: '#f3c013',
+                marginRight: '10px',
               }}
             ></i>
             <div className="ms-4">
               <p
                 style={{
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  color: "#6c757d",
-                  marginBottom: "4px",
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#6c757d',
+                  marginBottom: '4px',
                 }}
               >
                 Ngân sách
               </p>
               <h2
                 style={{
-                  fontSize: "15px",
-                  fontWeight: "bold",
+                  fontSize: '15px',
+                  fontWeight: 'bold',
                   margin: 0,
                 }}
               >
@@ -160,24 +156,28 @@ const WalletCard = () => {
               </h2>
             </div>
           </div>
-
-
           <hr className="my-2" />
           <div className="d-flex justify-content-between align-items-center mt-2">
             <div>
               <img
-                src={latestBudget?.categoryId?.image || "/images/rabbit.png"}
-                alt={latestBudget?.categoryId?.name || "Không tồn tại"}
+                src={latestBudget?.categoryId?.image || '/images/rabbit.png'}
+                alt={latestBudget?.categoryId?.name || 'Không tồn tại'}
                 width="15px"
-
               />
 
-              <span className="text-secondary" style={{ fontSize: "15px" }}> {latestBudget ? ` ${latestBudget.categoryId.name}` : 'Không có'}</span>
+              <span className="text-secondary" style={{ fontSize: "15px" }}>
+                {latestBudget
+                  ? ` ${latestBudget.categoryId.name.substring(0, 15)}${latestBudget.categoryId.name.length > 15 ? "..." : ""
+                  }`
+                  : "Không có"}
+              </span>
+
             </div>
-            <Link to="/budget"> <i
-              className="bi bi-arrow-90deg-right text-secondary"
-              style={{ fontSize: "15px", cursor: "pointer" }}
-            ></i>
+            <Link to="/budget">
+              <i
+                className="bi bi-arrow-90deg-right text-secondary"
+                style={{ fontSize: '15px', cursor: 'pointer' }}
+              ></i>
             </Link>
           </div>
         </div>
@@ -226,8 +226,13 @@ const WalletCard = () => {
                 width="15px"
 
               />
+              <span className="text-secondary" style={{ fontSize: "15px" }}>
+                {latestSavingsGoal
+                  ? ` ${latestSavingsGoal.name.substring(0, 15)}${latestSavingsGoal.name.length > 15 ? "..." : ""
+                  }`
+                  : "Không có"}
+              </span>
 
-              <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsGoal ? ` ${latestSavingsGoal.categoryId.name}` : 'Không có'}</span>
             </div>
             <Link to="/saving-goal/list"> <i
               className="bi bi-arrow-90deg-right text-secondary"
@@ -266,7 +271,7 @@ const WalletCard = () => {
                   margin: 0,
                 }}
               >
-                 {savingsFund?.length || 0}
+                {savingsFund?.length || 0}
               </h2>
             </div>
           </div>
@@ -281,15 +286,19 @@ const WalletCard = () => {
                 width="15px"
 
               />
-
-              <span className="text-secondary" style={{ fontSize: "15px" }}> {latestSavingsFund ? ` ${latestSavingsFund.name}` : 'Không có'}</span>
+              <span className="text-secondary" style={{ fontSize: "15px" }}>
+                {latestSavingsFund
+                  ? ` ${latestSavingsFund.name.substring(0, 15)}${latestSavingsFund.name.length > 15 ? "..." : ""
+                  }`
+                  : "Không có"}
+              </span>
             </div>
             <Link to="/savings-fund/list"> <i
               className="bi bi-arrow-90deg-right text-secondary"
               style={{ fontSize: "15px", cursor: "pointer" }}
             ></i>
             </Link>
-           
+
           </div>
         </div>
       </div>

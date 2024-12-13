@@ -162,6 +162,80 @@ class SavingsFundController {
             res.status(500).json({ message: 'Server error', error });
         }
     }
+    static async editSavingsFund(req, res) {
+        const { id } = req.params; 
+        const userId = req.user.id; 
+        const { name, targetAmount, categoryId, startDate, endDate } = req.body; 
+    
+        try {
+            if (new Date(startDate) >= new Date(endDate)) {
+                return res.status(400).json({ message: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc' });
+            }
+    
+            const fund = await SavingsFund.findById(id);
+            if (!fund) {
+                return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
+            }
+    
+            const isOwner = fund.userId.toString() === userId;
+            if (!isOwner) {
+                return res.status(403).json({ message: 'Bạn không có quyền chỉnh sửa quỹ tiết kiệm này' });
+            }
+    
+            if (categoryId) {
+                const category = await Category.findById(categoryId);
+                if (!category) {
+                    return res.status(404).json({ message: 'Danh mục không tồn tại' });
+                }
+            }
+    
+            if (name) fund.name = name;
+            if (targetAmount) fund.targetAmount = targetAmount;
+            if (categoryId) fund.categoryId = categoryId;
+            if (startDate) fund.startDate = new Date(startDate);
+            if (endDate) fund.endDate = new Date(endDate);
+    
+            const updatedFund = await fund.save();
+    
+            res.status(200).json({ message: 'Cập nhật quỹ tiết kiệm thành công', updatedFund });
+        } catch (error) {
+            console.error("Error updating savings fund:", error); 
+            res.status(500).json({ message: 'Server error', error: error.message });
+        }
+    }
+    static async deleteSavingsFund(req, res) {
+        try {
+            const fundId = req.params.id; // ID của quỹ cần xóa
+            const userId = req.user.id; // ID người thực hiện xóa quỹ
+    
+            const fund = await SavingsFund.findById(fundId);
+            if (!fund) {
+                return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
+            }
+    
+            // Kiểm tra xem người dùng có quyền xóa quỹ không
+            if (fund.userId.toString() !== userId) {
+                return res.status(403).json({ message: 'Bạn không có quyền xóa quỹ này' });
+            }
+    
+            // Lặp qua tất cả các giao dịch để hoàn lại tiền vào ví của người dùng
+            for (const transaction of fund.transactions) {
+                const user = await User.findById(transaction.userId);
+                if (user) {
+                    user.wallet += transaction.amount; // Hoàn tiền lại cho người dùng
+                    await user.save(); // Lưu lại thay đổi của user
+                }
+            }
+    
+            // Xóa quỹ khỏi cơ sở dữ liệu
+            await SavingsFund.findByIdAndDelete(fundId);
+    
+            res.status(200).json({ message: 'Xóa quỹ tiết kiệm và hoàn tiền thành công' });
+        } catch (error) {
+            console.error("Error deleting savings fund:", error);
+            res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
+        }
+    }
 
 }
 

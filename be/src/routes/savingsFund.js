@@ -23,5 +23,6 @@ router.get('/:id', authMiddleware.verifyToken, SavingsFundController.getById);
 router.patch('/contribute/:id', authMiddleware.verifyToken, SavingsFundController.addTransaction);
 router.get('/:id/members', authMiddleware.verifyToken, SavingsFundController.getFundMembers);
 router.get('/:id/transactions', authMiddleware.verifyToken, SavingsFundController.getFundTransactions);
-
+router.patch('/:id', authMiddleware.verifyToken, SavingsFundController.editSavingsFund)
+router.delete('/:id', authMiddleware.verifyToken, SavingsFundController.deleteSavingsFund)
 module.exports = router;
