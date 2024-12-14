@@ -15,7 +15,7 @@ const SavingGoalList = () => {
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(8);
+  const [itemsPerPage] = useState(6);
   const [selectedMonth, setSelectedMonth] = useState("all");
   const [filterOption, setFilterOption] = useState("all");
   useEffect(() => {

@@ -14,7 +14,7 @@ const Budget = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState(null);
-  const [itemsPerPage] = useState(8);
+  const [itemsPerPage] = useState(6);
   const [selectedMonth, setSelectedMonth] = useState("all");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [budgetToEdit, setBudgetToEdit] = useState(null);
