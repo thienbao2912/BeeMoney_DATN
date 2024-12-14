@@ -66,12 +66,12 @@ const SavingGoalList = () => {
   })
   .sort((a, b) => {
     if (filterOption === "top5") {
-      return b.targetAmount - a.targetAmount; // Lớn nhất đến nhỏ nhất
+      return b.targetAmount - a.targetAmount; 
     }
     if (filterOption === "bottom5") {
-      return a.targetAmount - b.targetAmount; // Nhỏ nhất đến lớn nhất
+      return a.targetAmount - b.targetAmount; 
     }
-    return 0; // Không sắp xếp
+    return 0; 
   })
   .slice(0, filterOption === "top5" || filterOption === "bottom5" ? 5 : undefined);
   
@@ -203,33 +203,32 @@ const SavingGoalList = () => {
 
               <div className="card saving-goal">
                 <div className="card-body">
-                  <div className="category-target d-flex align-items-center mb-3">
-                    <img
-                      src={goal.categoryId?.image || "/images/no.png"}
-                      alt={goal.categoryId?.name || "Không tồn tại"}
-                      width="50px"
-                    />
+                <div className="category-target d-flex align-items-center mb-3">
+  <img
+    src={goal.categoryId?.image || "/images/no.png"} // Fallback to a placeholder image if category is missing
+    alt={goal.categoryId?.name || "Không tồn tại"} // Fallback to a default name if category is missing
+    width="50px"
+  />
+  <h5 className="ms-3">
+    {goal.name.length > 13 ? `${goal.name.substring(0, 13)}...` : goal.name}
+  </h5>
+  <div className="ms-auto d-flex flex-column align-items-end">
+    <div className="text-secondary">
+      <i className="fa-solid fa-sack-dollar me-2"></i>
+      {goal.currentAmount != null
+        ? (goal.currentAmount.toString().length > 9
+            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount).slice(0, 9)}...`
+            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount))
+        : "0 đ"} /
+      {goal.targetAmount != null
+        ? (goal.targetAmount.toString().length > 9
+            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount).slice(0, 9)}...`
+            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount))
+        : "0 đ"}
+    </div>
+  </div>
+</div>
 
-                    <h5 className="ms-3"> {goal.name.length > 13 ? `${goal.name.substring(0, 13)}...` : goal.name}</h5>
-                    <div className="ms-auto d-flex flex-column align-items-end">
-
-                      <div className="text-secondary">
-                        <i className="fa-solid fa-sack-dollar me-2"></i>
-                        {goal.currentAmount != null
-                          ? (goal.currentAmount.toString().length > 9
-                            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount).slice(0, 9)}...`
-                            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount))
-                          : "0 đ"} /
-
-                        {goal.targetAmount != null
-                          ? (goal.targetAmount.toString().length > 9
-                            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount).slice(0, 9)}...`
-                            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount))
-                          : "0 đ"}
-
-                      </div>
-                    </div>
-                  </div>
                   <div className="progress-wrapper d-flex align-items-center mt-2">
                     <span className="text-muted small me-2">{Math.round(percentage)}%</span>
                     <div className="progress flex-grow-1">

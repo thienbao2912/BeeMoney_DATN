@@ -105,4 +105,8 @@ td, th {
     color: #28a745;
   }
  
+  .disabled-style {
+    opacity: 0.6;
+    pointer-events: none;
+  }
   

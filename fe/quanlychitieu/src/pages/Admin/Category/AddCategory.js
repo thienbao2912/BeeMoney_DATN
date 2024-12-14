@@ -5,6 +5,8 @@ import { addCategory, getAllCategories } from "../../../service/CategorieAdmin";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../config/firebase";
 import Layout from "../../../layouts/AdminLayout";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const forbiddenWords = ["Chết", "Ma Túy", "Khùng"];
 
@@ -72,7 +74,7 @@ const AddCategory = () => {
         await uploadBytes(imageRef, image);
         imageUrl = await getDownloadURL(imageRef);
       }
-
+      toast.success("Thêm danh mục thành công!", { position: "top-right" });
       const categoryData = { ...data, image: imageUrl };
       await addCategory(categoryData, navigate);
       navigate("/admin/categories");
