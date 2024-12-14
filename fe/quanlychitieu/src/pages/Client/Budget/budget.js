@@ -144,9 +144,9 @@ const Budget = () => {
 
   const indexOfLastBudget = currentPage * itemsPerPage;
   const indexOfFirstBudget = indexOfLastBudget - itemsPerPage;
-  const currentBudgets = budgets.slice(indexOfFirstBudget, indexOfLastBudget);
+  const currentBudgets = filteredBudgets.slice(indexOfFirstBudget, indexOfLastBudget);
 
-  const totalPages = Math.ceil(budgets.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredBudgets.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
