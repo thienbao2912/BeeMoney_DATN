@@ -95,7 +95,7 @@ const IncomeEdit = () => {
   };
 
   const handleCategorySelect = (categoryId) => {
-    setValue('categoryId', categoryId);
+    setValue("categoryId", categoryId, { shouldValidate: true });
   };
 
   if (loading) {
@@ -166,20 +166,24 @@ const IncomeEdit = () => {
 
             <div className="form-group">
               <label htmlFor="category">Danh mục</label>
-              <div className="category-buttons">
+              <div className="custom-category-grid-edit">
                 {categories.length > 0 ? (
                   categories.map((category) =>
                     category && category.image ? (
                       <button
                         key={category._id}
-                        className={`btn btn-secondary ${
+                        className={`custom-category-btn ${
                           category._id === getValues('categoryId') ? 'active' : ''
                         }`}
                         type="button"
                         onClick={() => handleCategorySelect(category._id)}
                       >
                         <img src={category.image} alt={category.name} />
-                        <p>{category.name}</p>
+                        <p>
+                        {category.name.length > 17
+                          ? `${category.name.substring(0, 17)}...`
+                          : category.name}
+                      </p>
                       </button>
                     ) : (
                       <p key={category._id}>Dữ liệu bị thiếu</p>
@@ -192,10 +196,11 @@ const IncomeEdit = () => {
               {errors.categoryId && <span className="text-danger">Hãy chọn một danh mục</span>}
             </div>
 
-            <div className="col-12 text-center">
-              <button className="btn btn-primary" type="submit">
+            <div className="text-end">
+              <button className="btn btn-primary me-2" type="submit">
                 Cập nhật
               </button>
+                 <Link className="btn btn-secondary" to={`/income/list`}>Quay lại</Link>
             </div>
           </form>
           {error && <div className="alert alert-danger mt-3">{error}</div>}

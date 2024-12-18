@@ -56,43 +56,57 @@ class SavingsFundController {
         }
     }
 
-   static async getById(req, res) {
-    try {
-        const { id } = req.params;
-        const userId = req.user.id; 
-
-        const data = await SavingsFund.findById(id)
-            .populate('userId')
-            .populate('members.userId')
-            .populate('transactions.participantId');
-
-        if (!data) {
-            return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
+    static async getById(req, res) {
+        try {
+            const { id } = req.params; 
+            const userId = req.user.id; 
+    
+            
+            const data = await SavingsFund.findById(id)
+                .populate('userId') 
+                .populate('members.userId') 
+                .populate('transactions.userId') 
+                .populate('categoryId'); 
+    
+           
+            if (!data) {
+                return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
+            }
+    
+            
+            const isMember = data.members.some(
+                (member) => member.userId && member.userId._id.toString() === userId
+            );
+    
+          
+            const isOwner = data.userId._id.toString() === userId;
+    
+            // // Log để kiểm tra giá trị (hữu ích khi debug)
+            // console.log('User ID:', userId);
+            // console.log('Members:', data.members.map((member) => member.userId?._id.toString()));
+            // console.log('Is Member:', isMember);
+            // console.log('Is Owner:', isOwner);
+    
+            // Nếu người dùng không phải thành viên thì không được xem
+            if (!isMember) {
+                return res.status(403).json({ message: 'Bạn không có quyền truy cập chi tiết quỹ tiết kiệm này' });
+            }
+    
+            // Trả về dữ liệu quỹ tiết kiệm và thông tin quyền hạn
+            return res.status(200).json({ data, isOwner });
+        } catch (error) {
+            console.error('Error fetching savings fund:', error);
+            return res.status(500).json({ message: 'Server error' });
         }
-
-        // Kiểm tra xem userId có trong danh sách members không
-        const isMember = data.members.some(member => member.userId && member.userId._id.toString() === userId);
-
-        if (!isMember) {
-            return res.status(403).json({ message: 'Bạn không có quyền truy cập chi tiết quỹ tiết kiệm này' });
-        }
-
-        res.status(200).json({ data });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
     }
-}
-
+    
+    
 
     // Thêm giao dịch nạp tiền riêng lẻ 
     static async addTransaction(req, res) {
         try {
             const { amount, note } = req.body;
             const fundId = req.params.id;
-            if (amount < 1000) {
-                return res.status(400).json({ message: 'Số tiền ít nhất là 1.000đ' });
-            }
             const fund = await SavingsFund.findById(fundId);
             if (!fund) {
                 return res.status(404).json({ message: 'Fund not found' });
@@ -123,11 +137,11 @@ class SavingsFundController {
             }
            const data = await fund.save();
             res.status(200).json({ 
-                message: 'Transaction and contribution updated successfully',
+                message: 'Thêm giao dịch và cập nhật đóng góp thành công',
                 data: data
             });
         } catch (error) {
-            console.error("Error adding transaction:", error); // Detailed error logging
+            console.error("Error adding transaction:", error); 
             res.status(500).json({ message: 'Server error', error: error.message });
         }
     }

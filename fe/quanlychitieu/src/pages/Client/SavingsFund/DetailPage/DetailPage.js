@@ -11,6 +11,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 const FundDetail = () => {
   const [fund, setFund] = useState([]);
+
   const [categories, setCategories] = useState([]);
   const [categoryImage, setCategoryImage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -25,6 +26,10 @@ const FundDetail = () => {
   const [inviteEmail, setInviteEmail] = useState('');
   const { id } = useParams();
   const [transactionUsers, setTransactionUsers] = useState([]);
+  const [errorMessageShown, setErrorMessageShown] = useState(false);
+  const [hasAccess, setHasAccess] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
+
 
   const fetchCategories = async () => {
     try {
@@ -39,19 +44,61 @@ const FundDetail = () => {
 
   const fetchFund = async () => {
     try {
-      const fundData = await getSavingsFundById(id);
-      setFund(fundData);
-      const category = categories.find(cat => cat._id === fundData.categoryId);
-      if (category) {
-        setCategoryImage(category.image);
+      const cookies = new Cookies();
+      const token = cookies.get('token');
+      const response = await fetch(`http://localhost:4000/api/savings-fund/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token,
+        },
+      });
+
+      if (!response.ok) {
+        // Kiểm tra trạng thái HTTP từ response
+        const error = await response.json();
+        throw { response: { status: response.status, data: error } };
       }
+
+      const fundData = await response.json();
+      console.log('fundData', fundData);
+      setFund(fundData.data || fundData);
+      setIsOwner(fundData.isOwner);
+     
+     
     } catch (error) {
-      console.error('Lỗi hiển thị chi tiết quỹ tiết kiệm:', error);
-      toast.error('Lỗi hiển thị chi tiết quỹ tiết kiệm')
+      if (error.response) {
+        const status = error.response.status;
+        if (status === 403) {
+          if (!errorMessageShown) {
+            toast.warning('Bạn không có quyền truy cập');
+            setHasAccess(false);
+            setErrorMessageShown(true);
+          }
+        } else if (status === 404) {
+          if (!errorMessageShown) {
+            toast.warning('Quỹ tiết kiệm không tồn tại');
+            setErrorMessageShown(true);
+          }
+        } else {
+          if (!errorMessageShown) {
+            toast.error('Có lỗi xảy ra');
+            setErrorMessageShown(true);
+          }
+        }
+      } else {
+        if (!errorMessageShown) {
+          toast.error('Lỗi kết nối hoặc lỗi không xác định');
+          setErrorMessageShown(true);
+        }
+      }
+
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
+
   const navigate = useNavigate();
 
   const handleDelete = async (fundId) => {
@@ -83,11 +130,11 @@ const FundDetail = () => {
   }, []);
 
   useEffect(() => {
-    if (categories.length > 0) {
-      fetchFund();
-    }
-  }, [id, categories]);
 
+    fetchFund();
+
+  }, [id, categories]);
+  console.log('isOwner:', isOwner);
 
   const formatCurrency = (value) => {
     return Number(value).toLocaleString('vi-VN');
@@ -125,90 +172,111 @@ const FundDetail = () => {
 
     const amountToContribute = parseFloat(contributionAmount);
     if (isNaN(amountToContribute) || amountToContribute <= 0) {
-      toast.warning('Vui lòng nhập số tiền hợp lệ');
-      setLoading(false);
-      return;
+        toast.warning('Vui lòng nhập số tiền hợp lệ');
+        setLoading(false);
+        return;
     }
 
     if (amountToContribute < 1000) {
-      toast.warning('Số tiền ít nhất là 1,000 đồng');
-      setLoading(false);
-      return;
+        toast.warning('Số tiền ít nhất là 1,000 đồng');
+        setLoading(false);
+        return;
     }
 
     try {
-      const currentUser = await getUserProfile();
-      await updateSavingFundAmount(id, { amount: amountToContribute, note });
-      setFund((prevFund) => ({
-        ...prevFund,
-        currentAmount: prevFund.currentAmount + amountToContribute,
-      }));
+        // Lấy token từ cookie
+        const cookies = new Cookies();
+        const token = cookies.get('token');
 
+        const response = await fetch(`http://localhost:4000/api/savings-fund/contribute/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token,
+            },
+            body: JSON.stringify({ amount: amountToContribute, note }),
+        });
 
-      setTransactionUsers((prev) => [...prev, currentUser]);
-
-
-      setContributionAmount('');
-      setNote('');
-      setShowContributeModal(false);
-
-      toast.success('Nạp tiền thành công');
-    } catch (error) {
-      if (error.response) {
-        console.error('API Error:', error.response.data);
-        toast.error(error.response.data.message || 'Có lỗi xảy ra khi nạp tiền');
-      } else {
-        console.error('Unexpected Error:', error.message || error);
-        toast.error('Có lỗi xảy ra khi nạp tiền');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  const handleInvite = async (e) => {
-    e.preventDefault();
-
-    if (!inviteEmail || !fund) {
-      toast.warning('Vui lòng nhập email hợp lệ');
-      return;
-    }
-
-
-    setLoadingSend(true);
-
-    try {
-      const cookies = new Cookies();
-      const token = cookies.get('token');
-
-      await axios.post(
-        'http://localhost:4000/api/send-invite-code',
-        { email: inviteEmail, fundId: fund._id },
-        {
-          headers: {
-            'x-auth-token': token,
-          },
+        // Xử lý nếu phản hồi không thành công
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw { response: { status: response.status, data: errorData } };
         }
-      );
 
-      toast.success('Đã gửi đến thành công');
-      setInviteEmail('');
-      setShowInviteModal(false)
+        // Lấy dữ liệu từ phản hồi
+        const data = await response.json();
+
+        // Cập nhật UI
+        setFund((prevFund) => ({
+            ...prevFund,
+            currentAmount: prevFund.currentAmount + amountToContribute,
+        }));
+
+        const currentUser = await getUserProfile();
+        setTransactionUsers((prev) => [...prev, currentUser]);
+
+        setContributionAmount('');
+        setNote('');
+        setShowContributeModal(false);
+
+        toast.success('Nạp tiền thành công!');
     } catch (error) {
-      if (error.response && error.response.status === 404) {
-        toast.warning('Email này không dùng BeeMoney');
-      } else if (error.response && error.response.status === 400) {
-        toast.warning('Email này đã tham gia');
-      }
-      else {
-        toast.error('Có lỗi xảy ra khi gửi lời mời');
-      }
-      console.error('Lỗi khi gửi lời mời', error.response ? error.response.data : error.message);
+        if (error.response) {
+            const status = error.response.status;
+            if (status === 400) {
+                toast.error('Số dư không đủ để nạp tiền!');
+            } else {
+                toast.error(error.response.data.message || 'Có lỗi xảy ra, vui lòng thử lại!');
+            }
+        } else {
+            toast.error('Lỗi kết nối hoặc lỗi không xác định.');
+        }
     } finally {
-      setLoadingSend(false);
+        setLoading(false);
     }
-  };
+};
+
+
+
+const handleInvite = async (e) => {
+  e.preventDefault();
+
+  if (!inviteEmail || !fund) {
+    toast.warning('Vui lòng nhập email hợp lệ');
+    return;
+  }
+
+  setLoadingSend(true);
+
+  try {
+    const cookies = new Cookies();
+    const token = cookies.get('token');
+
+    await axios.post(
+      'http://localhost:4000/api/send-invite-code',
+      { email: inviteEmail, fundId: fund._id },
+      {
+        headers: {
+          'x-auth-token': token,
+        },
+      }
+    );
+
+    toast.success('Lời mời đã được gửi thành công');
+    setInviteEmail('');
+    setShowInviteModal(false);
+  } catch (error) {
+    if (error.response && error.response.status === 400) {
+      toast.warning('Email này đã tham gia quỹ');
+    } else {
+      toast.error('Có lỗi xảy ra khi gửi lời mời');
+    }
+    console.error('Lỗi khi gửi lời mời', error.response ? error.response.data : error.message);
+  } finally {
+    setLoadingSend(false);
+  }
+};
+
 
 
   if (loading) {
@@ -219,6 +287,9 @@ const FundDetail = () => {
       </div>
     );
   }
+  if (error) {
+    return <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>;
+  }
 
   if (!fund) return <p>Không có dữ liệu</p>;
   const { currentAmount, targetAmount, endDate } = fund || {};
@@ -227,31 +298,43 @@ const FundDetail = () => {
   const percentage = targetAmount ? (currentAmount / targetAmount) * 100 : 0;
   const progressBarClass = percentage >= 50 ? 'heets-gradient-success' : 'heets-gradient-warning';
   const isExpired = daysLeft < 0;
+  if (!hasAccess) {
+    return (
+      <div className="text-center text-secondary">
+        <h5>Bạn không có quyền truy cập vào quỹ tiết kiệm này.</h5>
+        <img
+    src='/images/sad.png'
+    width="100"
+    
+  />
+      </div>
+    );
+  }
   return (
     <div className="container">
-        <nav aria-label="breadcrumb" style={{ marginBottom: "1rem" }}>
-                <ol className="breadcrumb">
-                    <li className="breadcrumb-item active" aria-current="page">
-                        Chi tiết quỹ tiết kiệm
-                    </li>
-                    <li className="breadcrumb-item">
-                        <Link to="/savings-fund/list" className="text-dark">
-                            Danh sách quỹ tiết kiệm
-                        </Link>
-                    </li>
-                </ol>
-            </nav>
+      <nav aria-label="breadcrumb" style={{ marginBottom: "1rem" }}>
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item active" aria-current="page">
+            Chi tiết quỹ tiết kiệm
+          </li>
+          <li className="breadcrumb-item">
+            <Link to="/savings-fund/list" className="text-dark">
+              Danh sách quỹ tiết kiệm
+            </Link>
+          </li>
+        </ol>
+      </nav>
       <div className="row">
         <div className="col-md-12 mb-3">
           <div className="income-overview card">
             <div className="card-body">
               <div className="table-responsive">
-                <table className="table table-hover align-items-center">
+                <table className="table align-items-center">
                   <tbody>
                     <tr>
                       <td className="text-center" style={{ width: '100px' }}>
                         <img
-                          src={categoryImage || '/images/chicken.png'}
+                          src={fund.categoryId && fund.categoryId.image ? fund.categoryId.image : '/images/overcast.png'}
                           width="50"
                           alt="Category"
                         />
@@ -303,13 +386,21 @@ const FundDetail = () => {
 
                       </td>
                       <td>
-                        <Link className="text-success" to={`/savings-fund/edit/${id}`}> <i class="fa-solid fa-pen-to-square"></i></Link>
-                        <div className="text-danger">
-                          <i style={{ cursor: "pointer" }}
+                        <div className="progress-wrapper d-flex align-items-center mt-2">
+                      {isOwner && (
+                        <Link style={{ textDecoration: "none" }}  className="text-success" to={`/savings-fund/edit/${id}`}> 
+                        <i class="fa-solid fa-pen-to-square"></i> Sửa
+                        </Link>
+                      )}
+                        {isOwner && (
+                        <div style={{ cursor: "pointer" }} className="text-danger ms-4" onClick={() => openConfirmationModal(fund)}>
+                          <i 
                             className="bi bi-trash-fill"
-                            onClick={() => openConfirmationModal(fund)}
-                          />
+                            
+                          /> Xóa
                         </div>
+                         )}
+                         </div>
                         {isConfirmationModalOpen && (
                           <ConfirmationModal
                             isOpen={isConfirmationModalOpen}
@@ -400,7 +491,7 @@ const FundDetail = () => {
             <div className="form-group">
               <label>Số tiền</label>
               <input
-                type="number"
+                type="text"
                 className="form-control"
                 value={formatCurrency(contributionAmount)}
                 onChange={handleAmountChange}
