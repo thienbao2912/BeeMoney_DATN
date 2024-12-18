@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getCategories, getSavingsGoalById, updateSavingsGoal } from '../../../../service/SavingGoal';
 
 const SavingGoalEdit = () => {
@@ -31,8 +31,10 @@ const SavingGoalEdit = () => {
 
         setLoading(true);
 
-        const categoriesResponse = await getCategories(userId);
-        setCategories(categoriesResponse);
+        const categoriesResponse = await getCategories("expense", userId);
+        setCategories(
+          categoriesResponse.filter((category) => category.type === "expense")
+        );
 
         const savingGoalResponse = await getSavingsGoalById(id);
 
@@ -88,6 +90,26 @@ const SavingGoalEdit = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = [];
+    if (!formData.name.trim()) {
+      errors.push('Tên quỹ không được bỏ trống!');
+    }
+    if (!formData.targetAmount) {
+      errors.push('Số tiền mục tiêu không được bỏ trống!');
+    }
+    if (!formData.startDate) {
+      errors.push('Ngày bắt đầu không được bỏ trống!');
+    }
+    if (!formData.endDate) {
+      errors.push('Ngày kết thúc không được bỏ trống!');
+    }
+    if (formData.startDate && formData.endDate && new Date(formData.startDate) > new Date(formData.endDate)) {
+      errors.push('Ngày bắt đầu không được lớn hơn ngày kết thúc!');
+    }
+      if (errors.length > 0) {
+        errors.forEach((error) => toast.error(error));
+        return;
+      }
     try {
       const payload = {
         ...formData,
@@ -100,12 +122,10 @@ const SavingGoalEdit = () => {
       }
 
       const updatedGoal = await updateSavingsGoal(id, payload);
-      console.log('Updated savings goal:', updatedGoal);
-
       navigate('/saving-goal/list');
       toast.success('Cập nhật thành công!');
     } catch (error) {
-      console.error('Error updating savings goal:', error);
+       toast.error('Cập nhật thất bại, vui lòng thử lại!');
     }
   };
 
@@ -192,22 +212,22 @@ const SavingGoalEdit = () => {
             </div>
             <div className="form-group">
               <label htmlFor="category">Danh mục</label>
-              <div className="category-buttons">
+              <div className="custom-category-grid-edit">
                 {categories.length > 0 ? (
                   categories.map((category) => (
-                    category && category.image ? (
-                      <button
-                        key={category._id}
-                        className={`btn btn-secondary ${category._id === formData.categoryId ? 'active' : ''}`}
-                        type="button"
-                        onClick={() => handleCategorySelect(category._id)}
-                      >
-                        <img src={category.image} alt={category.name} />
-                        <p>{category.name}</p>
-                      </button>
-                    ) : (
-                      <p key={category._id}>Dữ liệu bị thiếu</p>
-                    )
+                    <button
+                      key={category._id}
+                      className={`custom-category-btn ${category._id === formData.categoryId ? 'active' : ''}`}
+                      type="button"
+                      onClick={() => handleCategorySelect(category._id)}
+                    >
+                      <img src={category.image} alt={category.name} />
+                      <p>
+                        {category.name.length > 17
+                          ? `${category.name.substring(0, 17)}...`
+                          : category.name}
+                      </p>
+                    </button>
                   ))
                 ) : (
                   <i className="fa-solid fa-circle-exclamation fa-2x"></i>
@@ -215,8 +235,9 @@ const SavingGoalEdit = () => {
               </div>
             </div>
 
-            <div className="col-12 text-center">
-              <button className="btn btn-primary" type="submit">Cập nhật</button>
+            <div className="text-end">
+              <button className="btn btn-primary me-2" type="submit">Cập nhật</button>
+               <Link className="btn btn-secondary" to={`/saving-goal/list`}>Quay lại</Link>
             </div>
           </form>
         </div>

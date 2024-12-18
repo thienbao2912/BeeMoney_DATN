@@ -138,21 +138,27 @@ const getFundTransactions = async (id) => {
 };
 const getSavingsFundById = async (id) => {
     try {
-        const response = await request({
-            method: 'GET',
-            path: `/api/savings-fund/${id}`
-        });
-
-        if (response && response.data) {
-            return response.data;
-        } else {
-            throw new Error('Unexpected response format');
-        }
+      // Giả sử `request()` trả về một đối tượng có thuộc tính `data`
+      const response = await request({
+        method: 'GET',
+        path: `/api/savings-fund/${id}`,
+      });
+  
+      // Kiểm tra phản hồi và lấy dữ liệu từ response
+      console.log('API Response:', response); // In phản hồi để kiểm tra
+  
+      if (response && response.data) {
+        return response.data;  // Trả về dữ liệu nếu có thuộc tính `data`
+      } else {
+        throw new Error('Dữ liệu không hợp lệ hoặc không có dữ liệu');
+      }
     } catch (error) {
-        console.error('Error fetching savings fund by ID:', error.response ? error.response.data : error.message);
-        throw error;
+      console.error('Error fetching savings fund by ID:', error);
+      throw error;
     }
-};
+  };
+  
+  
 const addSavingsFund = async (savingsFund) => {
     try {
       console.log('Payload for addSavingsFund:', savingsFund);
@@ -234,9 +240,10 @@ const deleteSavingsFund = async (id) => {
 
         if (response && response.data === 'Xóa quỹ tiết kiệm thành công') {
             return response; 
-        } else {
+        }  else {
+            console.error('Unexpected response format:', response);
             throw new Error('Unexpected response format');
-        }
+          }
     } catch (error) {
         console.error('Error deleting savings fund:', error.response ? error.response.data : error.message);
         throw error;

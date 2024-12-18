@@ -26,9 +26,13 @@ const EditSavingsFund = () => {
           return;
         }
         setLoading(true);
-        const categoriesResponse = await getCategories(userId);
-        setCategories(categoriesResponse);
+        const categoriesResponse = await getCategories("expense", userId);
+        setCategories(
+          categoriesResponse.filter((category) => category.type === "expense")
+        );
+
         const savingFundResponse = await getSavingsFundById(id);
+        
         const formatDate = (dateStr) => {
           if (!dateStr) return '';
           const date = new Date(dateStr);
@@ -80,7 +84,6 @@ const handleSubmit = async (e) => {
 
   const errors = [];
 
-  // Validation logic
   if (!formData.name.trim()) {
     errors.push('Tên quỹ không được bỏ trống!');
   }
@@ -114,8 +117,8 @@ const handleSubmit = async (e) => {
     }
 
     const updatedFund = await editSavingsFund(id, payload);
-    toast.success('Cập nhật thành công!');
     navigate(`/savings-fund/detail/${id}`);
+    toast.success('Cập nhật thành công!');
   } catch (error) {
     toast.error('Cập nhật thất bại, vui lòng thử lại!');
   }
@@ -136,7 +139,7 @@ const handleSubmit = async (e) => {
     <div className="container">
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
-          <li className="breadcrumb-item"><a className="text-secondary" href="/saving-fund/list">Quỹ tiết kiệm</a></li>
+          <li className="breadcrumb-item"><a className="text-secondary" href="/savings-fund/list">Quỹ tiết kiệm</a></li>
           <li className="breadcrumb-item active" aria-current="page">Sửa quỹ tiết kiệm</li>
         </ol>
       </nav>
