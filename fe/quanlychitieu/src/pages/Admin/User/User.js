@@ -276,14 +276,14 @@ const User = () => {
                                         </button>
                                       )}
                                     </li>
-                                    <li>
+                                    {/* <li>
                                       <Link
                                         to={`/admin/users/details/${user._id}`}
                                         className="dropdown-item"
                                       >
                                         Xem Chi Tiết
                                       </Link>
-                                    </li>
+                                    </li> */}
                                 </ul>
                               </div>
                             </td>

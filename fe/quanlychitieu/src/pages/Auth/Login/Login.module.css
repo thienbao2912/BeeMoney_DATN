@@ -125,7 +125,7 @@ input[type="password"] {
     background-color: white;
     background-repeat: no-repeat;
     background-position: 12px 11px;
-    width: 35%;
+    width: 26%;
     
     &:hover {
       box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 2px 4px rgba(0, 0, 0, .25);
@@ -170,11 +170,23 @@ input[type="password"] {
     .loginSection {
         background: linear-gradient(#ccafff, #d9d4de);
     }
+
+    .logingoogle {
+        width: 60%; 
+        font-size: 13px; 
+        padding: 10px 14px 10px 36px; 
+    }
 }
 
 @media (max-width: 576px) {
     .form-login {
         width: 100%;
+    }
+
+    .logingoogle {
+        width: 80%; 
+        font-size: 12px;
+        padding: 8px 12px 8px 32px; 
     }
 }
 input[type="password"]::-ms-reveal,
