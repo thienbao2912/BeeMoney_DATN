@@ -18,7 +18,7 @@ const getAllBudgets = async (userId) => {
     try {
         const response = await request({
             method: 'GET',
-            path: `/api/budgets/budgets?userId=${userId}`, 
+            path: `/api/budgets/budgets?userId=${userId}`,
         });
         return response; 
     } catch (error) {

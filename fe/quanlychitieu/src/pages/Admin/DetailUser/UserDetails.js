@@ -1,20 +1,53 @@
 import React, { useState, useEffect } from "react";
+import Layout from "../../../layouts/AdminLayout";
 import { useParams } from "react-router-dom";
 import { getUser } from "../../../service/Auth"; 
 import { RingLoader } from "react-spinners";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./UserDetail.css";
-
+import { getAllCategories } from '../../../service/Category';
+import { getUserHobbies } from "../../../service/Auth";
+import { getAllBudgets } from "../../../service/Budget";
+import { getUserSavingsGoals } from "../../../service/SavingsFund"; 
+import { getAllSavingsGoals } from "../../../service/SavingGoal";
 const UserDetail = () => {
   const { id } = useParams(); 
   const [user, setUser] = useState(null);
+  const [budgets, setBudgets] = useState([]); // Add state to store budgets
+  const [Goals, setGoals] = useState([]); // Add state to store budgets
+  const [savingsGoals, setSavingsGoals] = useState([]); // Add state to store savings goals
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1); // Page number for hobbies
+  const [hobbiesPerPage] = useState(6); // Number of hobbies per page
 
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const data = await getUser(id); 
+        // Fetch user details
+        const data = await getUser(id);
+
+        // Fetch all categories related to user
+        const categories = data.categories?.length > 0
+          ? await Promise.all(
+              data.categories.map(async (categoryId) => {
+                const category = await getAllCategories();
+                return category.data;
+              })
+            )
+          : [];
+
+        // Sort categories by createdAt
+        const sortedCategories = categories.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        data.categories = sortedCategories;
+
+        // Fetch user hobbies
+        const hobbiesResponse = await getUserHobbies(id);
+        data.hobbies = hobbiesResponse.success ? hobbiesResponse.hobbies : [];
+
         setUser(data);
       } catch (error) {
         setError("Không thể tải thông tin người dùng.");
@@ -24,7 +57,42 @@ const UserDetail = () => {
       }
     };
 
+    // Fetch user budgets
+    const fetchUserBudgets = async () => {
+      try {
+        const userBudgets = await getAllBudgets(id); // Assuming this function takes userId as parameter
+        setBudgets(userBudgets); // Set budgets state
+      } catch (error) {
+        console.error("Error fetching user budgets:", error);
+        setError("Không thể tải thông tin ngân sách.");
+      }
+    };
+    const fetchUserGoals = async () => {
+      try {
+        const userGoals = await getAllSavingsGoals(id);
+        setGoals(userGoals); 
+      } catch (error) {
+        console.error("Error fetching user Goals:", error);
+setError("Không thể tải thông tin mục tiêu.");
+      }
+    };
+    // Fetch user savings goals
+const fetchUserSavingsGoals = async () => {
+  try {
+    const userSavings = await getUserSavingsGoals(id); // Assuming this function returns user's savings goals
+    console.log(userSavings); // Kiểm tra dữ liệu trả về
+    setSavingsGoals(userSavings.data || []); // Đảm bảo là mảng
+  } catch (error) {
+    console.error("Error fetching user savings goals:", error);
+    setError("Không thể tải thông tin quỹ tiết kiệm.");
+  }
+};
+
+
     fetchUserDetails();
+    fetchUserGoals();
+    fetchUserBudgets();
+    fetchUserSavingsGoals();
   }, [id]);
 
   if (loading) {
@@ -39,49 +107,132 @@ const UserDetail = () => {
     return <div className="alert alert-danger">{error}</div>;
   }
 
+  // Format currency for wallet amount
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount);
+  };
+
+  // Calculate hobbies to display based on pagination
+  const indexOfLastHobby = currentPage * hobbiesPerPage;
+  const indexOfFirstHobby = indexOfLastHobby - hobbiesPerPage;
+  const currentHobbies = user.hobbies.slice(indexOfFirstHobby, indexOfLastHobby);
+
+  const totalPages = Math.ceil(user.hobbies.length / hobbiesPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
-    <div className="container py-4">
-      <div className="card">
-        <div className="card-header">
-          <h5>Chi tiết người dùng</h5>
+    <Layout>
+      <div className="container py-4">
+  <div className="card">
+    <div className="card-header">
+      <h5>Chi tiết người dùng</h5>
+    </div>
+    <div className="card-body">
+      <div className="row">
+        <div className="col-md-4 d-flex justify-content-center">
+          <img
+            src={user.avatar || "/path/to/default-avatar.png"}
+            alt="Avatar"
+            className="img-fluid rounded-circle"
+            style={{
+              width: "150px",
+              height: "150px",
+              objectFit: "cover",
+            }}
+          />
         </div>
-        <div className="card-body">
+        <div className="col-md-8">
+          <h3 className="mb-4 mt-2">{user.name}</h3>
+          <p>
+            <strong>Email:</strong> {user.email}
+          </p>
+          <p>
+            <strong>Ví:</strong> {formatCurrency(user.wallet)}
+          </p>
+          <p>
+            <strong>Mục tiêu:</strong> {Goals.length}{" "}
+            {Goals.length === 1 ? "mục tiêu" : "mục tiêu"}
+          </p>
+          <p>
+            <strong>Ngân sách:</strong> {budgets.length}{" "}
+            {budgets.length === 1 ? "ngân sách" : "ngân sách"}
+          </p>
+          <p>
+            <strong>Quỹ tiết kiệm:</strong> {savingsGoals.length}{" "}
+            {savingsGoals.length === 1
+              ? "quỹ tiết kiệm"
+              : "quỹ tiết kiệm"}
+          </p>
+          <p className="mb-4">
+            <strong>Sở thích:</strong>
+          </p>
+
+          {/* Display hobbies */}
           <div className="row">
-            <div className="col-md-4">
-              <img
-                src={user.avatar || "/path/to/default-avatar.png"} 
-                alt="Avatar"
-                className="img-fluid rounded-circle"
-                style={{ width: "150px", height: "150px", objectFit: "cover" }}
-              />
-            </div>
-            <div className="col-md-8">
-              <h3>{user.name}</h3>
-              <p><strong>Email:</strong> {user.email}</p>
-              <p><strong>Ví:</strong> {user.wallet}</p>
-              <p><strong>Chi tiêu:</strong> {user.expenses}</p>
-              <p><strong>Thu nhập:</strong> {user.income}</p>
-              <p><strong>Vai trò:</strong> {user.role}</p>
-              <p><strong>Danh mục:</strong> {user.categories}</p>
-            </div>
+            {currentHobbies.length > 0 ? (
+              currentHobbies.map((hobby, index) => (
+                <div
+                  key={index}
+                  className="col-md-2 col-12 mb-3 d-flex justify-content-center"
+                >
+                  <div
+                    className="card"
+                    style={{
+                      width: "80%",
+                      minHeight: "60px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div className="card-body text-center">
+                      <h6
+                        className="card-title"
+                        style={{
+                          fontSize: "0.9rem",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {hobby.name}
+                      </h6>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center">Không có thông tin sở thích.</p>
+            )}
           </div>
-          <div className="row mt-4">
-            <div className="col-md-12">
-              <h5>Hoạt động gần đây:</h5>
-              <ul>
-                {user.activities?.length > 0 ? (
-                  user.activities.map((activity, index) => (
-                    <li key={index}>{activity}</li>
-                  ))
-                ) : (
-                  <li>Không có hoạt động gần đây.</li>
-                )}
-              </ul>
-            </div>
-          </div>
+
+          <nav>
+            <ul className="pagination justify-content-center">
+              {[...Array(totalPages)].map((_, index) => (
+                <li key={index} className="page-item">
+                  <button
+                    className="page-link"
+                    onClick={() => paginate(index + 1)}
+                  >
+                    {index + 1}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+    </Layout>
   );
 };
 
