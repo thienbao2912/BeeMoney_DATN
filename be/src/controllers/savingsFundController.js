@@ -41,6 +41,7 @@ class SavingsFundController {
     }
     static async getUserSavingsGoals(req, res) {
         const userId = req.user.id;
+        // const { userId } = req.query;
         if (!userId) {
             return res.status(400).json({ message: 'Thiếu userId' });
         }

@@ -14,8 +14,8 @@ const UserDetail = () => {
   const { id } = useParams(); 
   const [user, setUser] = useState(null);
   const [budgets, setBudgets] = useState([]); // Add state to store budgets
-  const [Goals, setGoals] = useState([]); // Add state to store budgets
-  const [savingsGoals, setSavingsGoals] = useState([]); // Add state to store savings goals
+  const [goals, setGoals] = useState([]); // Add state to store budgets
+  const [funds, setFunds] = useState([]); // Add state to store savings goals
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1); // Page number for hobbies
@@ -62,6 +62,8 @@ const UserDetail = () => {
       try {
         const userBudgets = await getAllBudgets(id); // Assuming this function takes userId as parameter
         setBudgets(userBudgets); // Set budgets state
+        console.log("Budgets", userBudgets);
+        
       } catch (error) {
         console.error("Error fetching user budgets:", error);
         setError("Không thể tải thông tin ngân sách.");
@@ -70,29 +72,39 @@ const UserDetail = () => {
     const fetchUserGoals = async () => {
       try {
         const userGoals = await getAllSavingsGoals(id);
-        setGoals(userGoals); 
+        console.log("Goals", userGoals);
+
+        if (userGoals && Array.isArray(userGoals)) {
+          setGoals(userGoals); // Lưu vào state
+        } else {
+          setGoals([]); // Xử lý khi dữ liệu trả về không hợp lệ
+        }
       } catch (error) {
         console.error("Error fetching user Goals:", error);
-setError("Không thể tải thông tin mục tiêu.");
+        setError("Không thể tải thông tin mục tiêu.");
       }
     };
-    // Fetch user savings goals
-const fetchUserSavingsGoals = async () => {
-  try {
-    const userSavings = await getUserSavingsGoals(id); // Assuming this function returns user's savings goals
-    console.log(userSavings); // Kiểm tra dữ liệu trả về
-    setSavingsGoals(userSavings.data || []); // Đảm bảo là mảng
-  } catch (error) {
-    console.error("Error fetching user savings goals:", error);
-    setError("Không thể tải thông tin quỹ tiết kiệm.");
-  }
-};
-
+    
+    const fetchUserFunds = async () => {
+      try {
+        const userFunds = await getUserSavingsGoals(id);
+        console.log("Funds", userFunds);
+        if (userFunds && Array.isArray(userFunds)) {
+          setFunds(userFunds); // Lưu vào state
+        } else {
+          setFunds([]); // Xử lý khi dữ liệu trả về không hợp lệ
+        }
+      } catch (error) {
+        console.error("Error fetching user savings goals:", error);
+        setError("Không thể tải thông tin quỹ tiết kiệm.");
+      }
+    };
+    
 
     fetchUserDetails();
     fetchUserGoals();
     fetchUserBudgets();
-    fetchUserSavingsGoals();
+    fetchUserFunds();
   }, [id]);
 
   if (loading) {
@@ -129,7 +141,7 @@ const fetchUserSavingsGoals = async () => {
       <div className="container py-4">
   <div className="card">
     <div className="card-header">
-      <h5>Chi tiết người dùng</h5>
+      <h5>Chi tiết người dùng {user.name}</h5>
     </div>
     <div className="card-body">
       <div className="row">
@@ -154,19 +166,19 @@ const fetchUserSavingsGoals = async () => {
             <strong>Ví:</strong> {formatCurrency(user.wallet)}
           </p>
           <p>
-            <strong>Mục tiêu:</strong> {Goals.length}{" "}
-            {Goals.length === 1 ? "mục tiêu" : "mục tiêu"}
+            <strong>Mục tiêu:</strong> {goals.length}{" "}
+            {goals.length === 1 ? "mục tiêu" : "mục tiêu"}
           </p>
           <p>
             <strong>Ngân sách:</strong> {budgets.length}{" "}
             {budgets.length === 1 ? "ngân sách" : "ngân sách"}
           </p>
-          <p>
-            <strong>Quỹ tiết kiệm:</strong> {savingsGoals.length}{" "}
-            {savingsGoals.length === 1
+          {/* <p>
+            <strong>Quỹ tiết kiệm:</strong> {funds.length}{" "}
+            {funds.length === 1
               ? "quỹ tiết kiệm"
               : "quỹ tiết kiệm"}
-          </p>
+          </p> */}
           <p className="mb-4">
             <strong>Sở thích:</strong>
           </p>

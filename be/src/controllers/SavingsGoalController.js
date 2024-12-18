@@ -3,7 +3,7 @@ const User = require('../models/User');
 class SavingsGoalController {
     static async getAll(req, res) {
         try {
-            const userId = req.user.id;
+            const { userId } = req.query;
             let data = []
             data = await SavingsGoal.find({ userId }).populate({
                 path: 'categoryId',
