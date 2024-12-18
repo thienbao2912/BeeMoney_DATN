@@ -152,7 +152,7 @@ const DashboardStatistics = () => {
               label: "Số Người Dùng Theo Tháng",
               data: monthlyCounts,
               backgroundColor: barColors,
-              borderColor: barColors.map((color) => color.replace("0.6", "1")), 
+              borderColor: barColors.map((color) => color.replace("0.6", "1")),
               borderWidth: 1,
             },
           ],
@@ -217,13 +217,14 @@ const DashboardStatistics = () => {
 
   return (
     <div className="container-fluid py-4">
+
       <div className="row">
-        <div className="col-md-6">
-          <div className="card mt-4">
-            <div className="card-header">
+        <div className="col-md-6 d-flex">
+          <div className="card w-100 mt-4">
+            <div className="card-header text-center">
               <h5>Người Dùng Tạo Trong Tháng</h5>
             </div>
-            <div style={{ height: "228px" }} className="card-body">
+            <div className="card-body d-flex flex-column">
               {currentUsers.length === 0 ? (
                 <p>Không có người dùng mới trong tháng này.</p>
               ) : (
@@ -256,7 +257,7 @@ const DashboardStatistics = () => {
               )}
             </div>
             <nav>
-              <ul className="pagination">
+              <ul className="pagination justify-content-center">
                 {pageNumbers.map((number) => (
                   <li key={number} className="page-item">
                     <button onClick={() => paginate(number)} className="page-link">
@@ -269,12 +270,12 @@ const DashboardStatistics = () => {
           </div>
         </div>
 
-        <div className="col-md-6">
-          <div className="card mt-4">
-            <div className="card-header">
+        <div className="col-md-6 d-flex">
+          <div className="card w-100 mt-4">
+            <div className="card-header text-center">
               <h5>Tổng Người Dùng Trong 6 Tháng Qua</h5>
             </div>
-            <div className="card-body">
+            <div className="card-body d-flex flex-column">
               <Bar
                 data={barDataSixMonths}
                 options={{ scales: { y: { beginAtZero: true } } }}
@@ -283,7 +284,6 @@ const DashboardStatistics = () => {
           </div>
         </div>
       </div>
-
       <div className="row">
         <div className="col-md-6">
           <div className="card mt-4">
