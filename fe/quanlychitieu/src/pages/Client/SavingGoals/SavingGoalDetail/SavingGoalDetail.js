@@ -106,9 +106,9 @@ const SavingGoalDetail = () => {
           {categories.length > 0 &&
             categories.map((category) =>
               category._id === savingGoal.categoryId ? (
-                <div key={category._id} className="category-item d-flex align-items-center ms-4 mt-3">
+                <div key={category._id} className="d-flex align-items-center ms-4 mt-3">
                   <img
-                    src={category.image || 'rabbit.png'}
+                    src={category.image || '/iamges/rabbit.png'}
                     alt={category.name}
                     style={{ width: '50px', height: '50px' }}
                   />
@@ -117,11 +117,11 @@ const SavingGoalDetail = () => {
               ) : null
             )}
 
-          {/* Fallback when category is missing */}
+
           {categories.find((category) => category._id === savingGoal.categoryId) === undefined && (
             <div className="category-item d-flex align-items-center ms-4 mt-3">
               <img
-                src={'rabbit.png'}
+                src={'/images/rabbit.png'}
                 alt={'Danh mục đã bị xóa'}
                 style={{ width: '50px', height: '50px' }}
               />
