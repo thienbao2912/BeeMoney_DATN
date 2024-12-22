@@ -240,7 +240,7 @@ function Login() {
             </a>
           </div>
           <ReCAPTCHA
-            sitekey="6LcZwlAqAAAAAMWeZ1Bkzt-Kjnux1WLDYAJ776Jl"
+            sitekey="6Lf6FJ0qAAAAAEyBba1--6ZyMZIkcT28TNYfz6r-"
             onChange={(val) => {
               setCapVal(val);
               setRecaptchaError("");

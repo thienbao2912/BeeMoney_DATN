@@ -136,7 +136,7 @@ const ProfileForm = () => {
                 <div className="row">
                   <div className="col-md-4 d-flex flex-column align-items-center">
                     <img
-                      src={profile.avatar || "/default-avatar.png"}
+                      src={profile.avatar || "/images/default-avatar.jpg"}
                       alt="Avatar"
                       className="rounded-circle mb-3"
                       style={{ width: "150px", height: "150px", objectFit: "cover" }}

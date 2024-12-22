@@ -19,6 +19,8 @@ const Budget = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [budgetToEdit, setBudgetToEdit] = useState(null);
   const [filterOption, setFilterOption] = useState("all");
+  const [lowBudget, setLowBudget] = useState(null);
+  const [isLowBudgetModalOpen, setIsLowBudgetModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   useEffect(() => {
     const fetchBudgets = async () => {
@@ -60,7 +62,16 @@ const Budget = () => {
           });
         }
         setBudgets(response);
-        setFilteredBudgets(response);
+         // Kiểm tra ngân sách nào dưới 20%
+         const lowBudget = response.find(
+          (budget) =>
+            (budget.remainingBudget / (budget.amount || 1)) * 100 < 20
+        );
+
+        if (lowBudget) {
+          setLowBudget(lowBudget);
+          setIsLowBudgetModalOpen(true);
+        }
       } catch (err) {
         setError(err.message);
         console.error("Lỗi khi lấy tất cả ngân sách:", err);
@@ -68,7 +79,6 @@ const Budget = () => {
         setIsLoading(false);
       }
     };
-
     fetchBudgets();
   }, [selectedMonth]);
 
@@ -116,6 +126,10 @@ const Budget = () => {
     }
   };
   
+  const closeLowBudgetModal = () => {
+    setIsLowBudgetModalOpen(false);
+    setLowBudget(null);
+  };
 
   const openEditModal = (budget) => {
     setBudgetToEdit(budget);
@@ -154,8 +168,12 @@ const Budget = () => {
 
   return (
     <div className="categories-overview">
+       
       <nav aria-label="breadcrumb">
+        {/* Modal thông báo ngân sách thấp */}
+       
         <ol className="breadcrumb">
+          
           <li className="breadcrumb-item active" aria-current="page">
             Ngân sách
           </li>
