@@ -6,6 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { addCategory, getAllCategories } from '../../../../service/Category';
 import { storage } from '../../../../config/firebase'; 
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './add-category.css'
 
 const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng']; 
 
@@ -21,7 +24,6 @@ const containsForbiddenWords = (value) => {
   const normalizedValue = normalizeText(value);
   return forbiddenWords.some(word => normalizedValue.includes(normalizeText(word)));
 };
-
 
 const AddCategory = () => {
     const { register, handleSubmit, formState: { errors }, setError, clearErrors } = useForm();
@@ -66,26 +68,53 @@ const AddCategory = () => {
         }
     };
 
+    const isValidText = (value) => {
+        if (value.trim().length < 3) return 'Nội dung phải có ít nhất 3 ký tự';
+        if (/^\d+$/.test(value)) return 'cần phải có ký tự chữ';
+        if (!/^[a-zA-Z0-9\s]+$/.test(value)) return 'Chỉ được chứa chữ, số và khoảng trắng';
+        return true;
+    };
+    
+    
+    
     const onSubmit = async (data) => {
         setLoading(true);
         try {
+            // Kiểm tra tên danh mục
+            const nameValidation = isValidText(data.categoryName);
+            if (nameValidation !== true) {
+                setError('categoryName', { type: 'manual', message: nameValidation });
+                setLoading(false);
+                return;
+            }
+    
+            // Kiểm tra mô tả danh mục
+            const descriptionValidation = isValidText(data.categoryDescription);
+            if (descriptionValidation !== true) {
+                setError('categoryDescription', { type: 'manual', message: descriptionValidation });
+                setLoading(false);
+                return;
+            }
+    
+            // Kiểm tra trùng lặp danh mục
+            const duplicateCategory = existingCategories.find(
+                (category) => category.name.toLowerCase() === data.categoryName.toLowerCase()
+            );
+            if (duplicateCategory) {
+                setError('categoryName', { type: 'manual', message: 'Tên danh mục đã tồn tại' });
+                setLoading(false);
+                return;
+            }
+    
+            // Kiểm tra file ảnh
             const fileValidationError = validateFile(data.categoryImage[0]);
             if (fileValidationError !== true) {
                 setError('categoryImage', { type: 'manual', message: fileValidationError });
                 setLoading(false);
                 return;
             }
-
-            const duplicateCategory = existingCategories.find(
-                (category) => category.name.toLowerCase() === data.categoryName.toLowerCase()
-            );
-
-            if (duplicateCategory) {
-                setError('categoryName', { type: 'manual', message: 'Tên danh mục đã tồn tại' });
-                setLoading(false);
-                return;
-            }
-
+    
+            // Upload ảnh và thêm danh mục
             const imageUrl = await uploadImage(data.categoryImage[0]);
             const categoryData = {
                 name: data.categoryName,
@@ -93,19 +122,22 @@ const AddCategory = () => {
                 description: data.categoryDescription,
                 type: data.categoryType
             };
-            
             await addCategory(categoryData);
-            navigate('/categories'); 
+    
+            toast.success('Danh mục đã được thêm thành công!', { position: "top-right", autoClose: 3000 });
+            setTimeout(() => navigate('/categories'), 3000);
         } catch (error) {
             console.error('Error adding category:', error);
-            alert('Đã xảy ra lỗi khi thêm danh mục');
+            toast.error('Đã xảy ra lỗi khi thêm danh mục.');
         } finally {
             setLoading(false);
         }
     };
+    
 
     return (
         <div className="container mt-4">
+            <ToastContainer />
             <nav aria-label="breadcrumb">
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item"><a href="/categories" className='text-dark'>Danh mục</a></li>
@@ -119,15 +151,14 @@ const AddCategory = () => {
                         <div className="mb-0">
                             <label htmlFor="categoryName" className="form-label">Tên danh mục</label>
                             <input
-                                type="text"
-                                className="form-control"
-                                id="categoryName"
-                                {...register('categoryName', {
-                                    required: 'Tên danh mục là bắt buộc',
-                                    validate: value => 
-                                      !containsForbiddenWords(value) || 'Tên danh mục chứa từ cấm',
-                                  })}
-                            />
+    type="text"
+    className="form-control"
+    id="categoryName"
+    {...register('categoryName', {
+        required: 'Tên danh mục là bắt buộc',
+        validate: value => isValidText(value) || 'Tên danh mục không hợp lệ',
+    })}
+/>
                             {errors.categoryName && <p className="text-danger">{errors.categoryName.message}</p>}
                         </div>
                         <div className="mb-0">
@@ -138,6 +169,7 @@ const AddCategory = () => {
                                 id="categoryImage"
                                 {...register('categoryImage', { required: 'Hình ảnh là bắt buộc' })}
                                 onChange={handleFileChange}
+                                accept="image/jpeg, image/png, image/gif"
                             />
                             {errors.categoryImage && <p className="text-danger">{errors.categoryImage.message}</p>}
                         </div>

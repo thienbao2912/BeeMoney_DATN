@@ -1,6 +1,6 @@
 const Transaction = require("../models/Transaction");
 const Budget = require("../models/Budget");
-
+const User = require('../models/User');
 class TransactionController {
   static async getAll(req, res) {
     try {
@@ -13,7 +13,6 @@ class TransactionController {
           path: "categoryId",
           select: "image name",
         });
-        console.log(data);
         return res.status(200).json({
           data,
         });
@@ -58,12 +57,23 @@ class TransactionController {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (type === 'expense') {
+        user.wallet -= amount; // Có thể âm
+      } else if (type === 'income') {
+        user.wallet += amount; // Cộng vào ví
+      }
+
+      await user.save();
+
       let data = { userId, date, amount, type, categoryId, description };
       let createRes = await Transaction.create(data);
 
       await TransactionController.updateBudget(userId, categoryId, date);
-
-      console.log("Transaction created:", createRes);
 
       return res.status(200).json({
         message: "Created successfully",
@@ -71,9 +81,10 @@ class TransactionController {
       });
     } catch (error) {
       console.error("Error creating transaction:", error);
-      return res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
+
 
   static async edit(req, res) {
     try {
@@ -85,27 +96,54 @@ class TransactionController {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
+      let oldTransaction = await Transaction.findById(transactionId);
+      if (!oldTransaction) {
+        return res.status(404).json({ message: "Transaction not found" });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const oldAmount = Number(oldTransaction.amount);
+      const newAmount = Number(amount);
+
+
+      if (oldTransaction.type === 'expense') {
+        user.wallet += oldAmount;
+      } else if (oldTransaction.type === 'income') {
+        user.wallet -= oldAmount;
+      }
+
+      if (type === 'expense') {
+        user.wallet -= newAmount;
+      } else if (type === 'income') {
+        user.wallet += newAmount;
+      }
+
+
+      await user.save();
+
+
       let data = { userId, date, amount, type, categoryId, description };
-      let result = await Transaction.findByIdAndUpdate(transactionId, data, {
-        new: true,
-      });
+      let result = await Transaction.findByIdAndUpdate(transactionId, data, { new: true });
+
 
       if (!result) {
         return res.status(404).json({ message: "Transaction not found" });
       }
 
-      // Update budget after updating transaction
+
       await TransactionController.updateBudget(userId, categoryId, date);
 
-      // Log the successful update
-      console.log("Transaction updated:", result);
+
 
       return res.status(200).json({
         message: "Updated successfully",
         data: result,
       });
     } catch (error) {
-      // Log the error for debugging purposes
       console.error("Error updating transaction:", error);
       return res.status(500).json({ message: "Server error" });
     }
@@ -121,9 +159,24 @@ class TransactionController {
         return res.status(404).json({ message: "Transaction not found" });
       }
 
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const amount = Number(transaction.amount);
+
+      if (transaction.type === 'expense') {
+        user.wallet += amount;
+      } else if (transaction.type === 'income') {
+        user.wallet -= amount;
+      }
+
+      await user.save();
+
+
       await Transaction.findByIdAndDelete(transactionId);
 
-      // Update budget after deleting transaction
       await TransactionController.updateBudget(
         userId,
         transaction.categoryId,
@@ -134,11 +187,14 @@ class TransactionController {
         message: "Deleted successfully",
       });
     } catch (error) {
+      console.error("Error deleting transaction:", error);
       res.status(500).json({
         message: "Server error",
       });
     }
   }
+
+
 
   static async updateBudget(userId, categoryId, transactionDate) {
     try {

@@ -4,6 +4,7 @@ import { Offcanvas, Button } from "react-bootstrap";
 import { getUserProfile } from "../../../service/Auth";
 import "bootstrap-icons/font/bootstrap-icons.min.css"; 
 import "./SidebarClient.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const Sidebar = () => {
   const [user, setUser] = useState({
@@ -11,6 +12,7 @@ const Sidebar = () => {
     role: "user",
     avatar: "/images/default-avatar.jpg",
   });
+  
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
 
@@ -31,18 +33,31 @@ const Sidebar = () => {
     fetchUserProfile();
   }, []);
 
+  const logout = () => {
+    navigate("/login"); // Điều hướng về trang login
+  };
+  
+
   const handleLogout = () => {
     try {
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('userRole');
+      // Xóa thông tin người dùng
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userRole");
       sessionStorage.clear();
       clearCookies();
-      navigate("/login");
+  
+      // Thêm trạng thái vào sessionStorage
+      sessionStorage.setItem("logoutMessage", "Đăng xuất thành công!");
+  
+      // Chuyển hướng đến trang login
+      logout();
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
+  
+
 
   const clearCookies = () => {
     document.cookie.split(";").forEach((c) => {
@@ -69,7 +84,7 @@ const Sidebar = () => {
       width="40"
       className="rounded-circle"
     />
-    <div className="greeting">Xin chào, {user.name}</div>
+    <div className="greeting">Hi, {user.name}</div>
   </div>
   <nav className="sidebar-nav">
     <ul className="navbar-nav">
@@ -96,6 +111,11 @@ const Sidebar = () => {
       <li className="nav-item">
         <a className="nav-link" href="/saving-goal/list">
           <i className="bi bi-piggy-bank"></i> Mục tiêu tiết kiệm
+        </a>
+      </li>
+      <li className="nav-item">
+        <a className="nav-link" href="/savings-fund/list">
+        <i class="bi bi-people-fill"></i> Quỹ tiết kiệm
         </a>
       </li>
       <li className="nav-item">
@@ -127,13 +147,13 @@ const Sidebar = () => {
         <Offcanvas.Body>
           <div className="sidebar-head d-flex align-items-center justify-content-between">
             <img
-              src={user.avatar}
+              src={"/images/default-avatar.jpg"}
               alt="Avatar"
               width="40"
               className="rounded-circle"
             />
             <div>
-              <div className="greeting">Xin chào, {user.name}</div>
+              <div className="greeting">Hi, {user.name}</div>
             </div>
           </div>
           <nav className="sidebar-nav">

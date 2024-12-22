@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from 'react-toastify';
 import "./ExpenseEdit.css";
 import {
   getCategories,
@@ -6,10 +7,10 @@ import {
   getTransactionById,
 } from "../../../../../service/Transaction";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form"; // Import useForm
+import { useForm } from "react-hook-form";
 
 const ExpenseEdit = () => {
-  const { id } = useParams(); // Get the transaction ID from the URL params
+  const { id } = useParams(); 
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
   const {
@@ -18,7 +19,7 @@ const ExpenseEdit = () => {
     formState: { errors },
     setValue,
     getValues,
-  } = useForm(); // Destructure form hooks
+  } = useForm(); 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -70,7 +71,7 @@ const ExpenseEdit = () => {
   
 
   const unformatCurrency = (value) => value.replace(/[^\d]/g, "");
-
+  const today = new Date().toISOString().split('T')[0];
   const handleAmountInput = (e) => {
     
     const rawValue = e.target.value.replace(/[^\d]/g, "");
@@ -86,6 +87,7 @@ const ExpenseEdit = () => {
   };
 
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
       const payload = {
         ...data,
@@ -98,14 +100,18 @@ const ExpenseEdit = () => {
 
       await updateTransaction(id, payload);
       navigate("/expense/list"); 
+      toast.success('Cập nhật chi tiêu thành công')
     } catch (err) {
       setError("Failed to update transaction. Please try again later.");
-    }
+    } finally {
+      setLoading(false);
+  }
   };
 
   const handleCategorySelect = (categoryId) => {
-    setValue("categoryId", categoryId);
+    setValue("categoryId", categoryId, { shouldValidate: true });
   };
+  
 
   if (loading) {
     return (
@@ -143,6 +149,7 @@ const ExpenseEdit = () => {
                   name="date"
                   className="form-control"
                   {...register("date", { required: "Bắt buộc nhập ngày" })}
+                  max={today}
                 />
                 {errors.date && (
                   <span className="text-danger">{errors.date.message}</span>
@@ -155,7 +162,7 @@ const ExpenseEdit = () => {
                   id="amount"
                   name="amount"
                   className="form-control"
-                  value={getValues("amount")} // Không thêm ₫ khi hiển thị
+                  value={getValues("amount")} 
                   {...register("amount", { required: "Số tiền là bắt buộc" })}
                   onChange={handleAmountInput}
                 />
@@ -184,23 +191,26 @@ const ExpenseEdit = () => {
 
             <div className="form-group">
               <label htmlFor="category">Danh mục</label>
-              <div className="category-buttons">
+              <div className="custom-category-grid-edit">
                 {categories.length > 0 ? (
                   categories.map((category) =>
                     category && category.image ? (
                       <button
-                        key={category._id}
-                        className={`btn btn-secondary ${
-                          category._id === getValues("categoryId")
-                            ? "active"
-                            : ""
-                        }`}
-                        type="button"
-                        onClick={() => handleCategorySelect(category._id)}
-                      >
-                        <img src={category.image} alt={category.name} />
-                        <p>{category.name}</p>
-                      </button>
+                      key={category._id}
+                      className={`custom-category-btn ${
+                        category._id === getValues("categoryId") ? "active" : ""
+                      }`}
+                      type="button"
+                      onClick={() => handleCategorySelect(category._id)}
+                    >
+                      <img src={category.image} alt={category.name} />
+                      <p>
+                        {category.name.length > 17
+                          ? `${category.name.substring(0, 17)}...`
+                          : category.name}
+                      </p>
+                    </button>
+                    
                     ) : (
                       <p key={category._id}>Dữ liệu bị thiếu</p>
                     )
@@ -214,10 +224,11 @@ const ExpenseEdit = () => {
               )}
             </div>
 
-            <div className="col-12 text-center">
-              <button className="btn btn-primary" type="submit">
+            <div className="text-end">
+              <button className="btn btn-primary me-2" type="submit">
                 Cập nhật
               </button>
+                 <Link className="btn btn-secondary" to={`/expense/list`}>Quay lại</Link>
             </div>
           </form>
           {error && <div className="alert alert-danger mt-3">{error}</div>}

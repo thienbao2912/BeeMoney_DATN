@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { getCategories, getAllBudgets, createBudget } from '../../../../service/Budget'; 
-import { Spinner } from 'react-bootstrap'; 
+import { getCategories, getAllBudgets, createBudget } from '../../../../service/Budget';
+import { Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import "./add-budget.css";
+import { toast, ToastContainer } from 'react-toastify'; // Import Toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import Toastify styles
 
 const AddBudget = () => {
     const [categories, setCategories] = useState([]);
@@ -12,11 +14,17 @@ const AddBudget = () => {
     const [loadingBudgets, setLoadingBudgets] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [isDuplicate, setIsDuplicate] = useState(false); // Trạng thái mới kiểm tra lỗi trùng lặp
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('success'); 
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
     const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         defaultValues: {
-            startDate: '',
-            endDate: '',
+            startDate: today.toISOString().split('T')[0], 
+            endDate: tomorrow.toISOString().split('T')[0],
             amount: '',
             categoryId: ''
         }
@@ -40,17 +48,17 @@ const AddBudget = () => {
                         ...budget,
                         categoryId: expenseCategories.find(cat => cat._id === (budget.categoryId ? budget.categoryId._id : null)) || { name: 'Danh mục đã biến mất', image: null }
                     })) : [];
-    
+
                     console.log('Budgets with createdAt:', updatedBudgets);
-    
+
                     const currentDate = new Date();
                     const validBudgets = updatedBudgets
                     .filter(budget => new Date(budget.endDate) >= currentDate)
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                    .slice(0, 5);
+                    .slice(0, 4);
 
-                setBudgets(validBudgets);
-                setLoadingBudgets(false);
+                    setBudgets(validBudgets);
+                    setLoadingBudgets(false);
                 }
             } catch (err) {
                 setError('Có lỗi xảy ra khi tải dữ liệu');
@@ -65,14 +73,14 @@ const AddBudget = () => {
 
 
     const validateDates = (startDate, endDate) => {
-        if (new Date(startDate) > new Date(endDate)) {
-            return 'Ngày bắt đầu không thể lớn hơn ngày kết thúc';
+        if (new Date(startDate) >= new Date(endDate)) {
+            return 'Ngày bắt đầu không thể lớn hơn hoặc bằng ngày kết thúc';
         }
         return true;
     };
 
     const formatCurrency = (value) => {
-        const cleanedValue = value.replace(/,/g, ''); 
+        const cleanedValue = value.replace(/,/g, '');
         if (isNaN(cleanedValue)) return '';
         const parts = cleanedValue.toString().split('.');
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -82,34 +90,52 @@ const AddBudget = () => {
     const onSubmit = async (data) => {
         setLoading(true);
         setError('');
-
+        setIsDuplicate(false); // Reset trạng thái isDuplicate khi bắt đầu submit
+        
+        // Kiểm tra ngày hợp lệ
         const dateValidationError = validateDates(data.startDate, data.endDate);
         if (dateValidationError !== true) {
             setError(dateValidationError);
             setLoading(false);
             return;
         }
-
+    
         const userId = localStorage.getItem('userId');
-
+    
         const budgetData = {
             categoryId: data.categoryId,
             startDate: data.startDate,
             endDate: data.endDate,
-            amount: parseFloat(data.amount.replace(/,/g, '')), 
+            amount: parseFloat(data.amount.replace(/,/g, '')),
             userId
         };
-
+    
         try {
-            await createBudget(budgetData);
-            window.location.reload(); 
+            // Gọi API tạo ngân sách
+            await createBudget(budgetData); // Your existing createBudget function
+    
+            // Hiển thị thông báo thành công nếu không phải lỗi trùng lặp
+            if (!isDuplicate) {
+                toast.success("Ngân sách đã được thêm thành công!");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
         } catch (err) {
-            setError('Có lỗi xảy ra khi thêm ngân sách');
-            console.error('Error creating budget:', err);
+            if (err.response && err.response.status === 409) {
+                setIsDuplicate(true); // Đánh dấu là trùng lặp khi nhận lỗi 409
+                toast.info("Ngân sách của danh mục này hiện còn hiệu lực");
+            } else {
+                toast.error("Có lỗi xảy ra khi thêm ngân sách");
+            }
         } finally {
-            setLoading(false);
+            setLoading(false); // Dừng trạng thái loading
         }
     };
+    
+    
+    
+    
 
     const handleAmountChange = (e) => {
         let value = e.target.value;
@@ -152,6 +178,7 @@ const AddBudget = () => {
                                             id="startDate"
                                             className="form-control"
                                             {...register('startDate', { required: 'Ngày bắt đầu là bắt buộc' })}
+                                            min={today.toISOString().split('T')[0]}
                                         />
                                         {errors.startDate && <p className="text-danger">{errors.startDate.message}</p>}
                                     </div>
@@ -162,7 +189,8 @@ const AddBudget = () => {
                                             id="endDate"
                                             className="form-control"
                                             {...register('endDate', { required: 'Ngày kết thúc là bắt buộc' })}
-                                        />
+                                            min={today.toISOString().split('T')[0]}
+                                            />
                                         {errors.endDate && <p className="text-danger">{errors.endDate.message}</p>}
                                     </div>
                                 </div>
@@ -177,13 +205,13 @@ const AddBudget = () => {
                                             min: { value: 1, message: 'Số tiền phải lớn hơn 0' },
                                             pattern: { value: /^\d{1,3}(,\d{3})*(\.\d+)?$/, message: 'Định dạng số tiền không hợp lệ' }
                                         })}
-                                        onChange={handleAmountChange} 
+                                        onChange={handleAmountChange}
                                     />
                                     {errors.amount && <p className="text-danger">{errors.amount.message}</p>}
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="category">Danh mục</label>
-                                    <div className="category-buttons">
+                                    <div className="custom-category-grid">
                                         {loadingCategories ? (
                                             <div className="text-center mt-5">
                                                 <i className="fa fa-spinner fa-spin fa-2x primary"></i>
@@ -194,7 +222,7 @@ const AddBudget = () => {
                                                 {categories.map((cat) => (
                                                     <button
                                                         key={cat._id}
-                                                        className={`btn btn-secondary ${categoryId === cat._id ? 'active' : ''}`}
+                                                        className={`custom-category-btn ${categoryId === cat._id ? 'active' : ''}`}
                                                         type="button"
                                                         onClick={() => setValue('categoryId', cat._id)}
                                                     >
@@ -202,12 +230,12 @@ const AddBudget = () => {
                                                         <p>{truncateText(cat.name, 15)}</p>
                                                     </button>
                                                 ))}
-                                                <button className="btn btn-secondary" type="button">
-                                                    <Link className="text-dark d-flex align-items-center" to="/add-category" style={{ textDecoration: 'none' }}>
-                                                        <img src='../images/add.png' alt="Add" style={{ marginRight: '5px' }} />
-                                                        Thêm
-                                                    </Link>
-                                                </button>
+                                                <Link className="custom-category-btn text-dark" type="button" to="/add-category" style={{ textDecoration: 'none' }}>
+
+                                                    <img src="../images/add.png" alt="Add" />
+                                                    <p>Thêm</p>
+
+                                                </Link>
                                             </>
                                         ) : (
                                             <p>Không có danh mục nào</p>
@@ -277,6 +305,8 @@ const AddBudget = () => {
                     </div>
                 </div>
             </div>
+                        <ToastContainer /> 
+
         </div>
     );
 };

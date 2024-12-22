@@ -3,6 +3,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { getAllCategories, deleteCategory } from '../../../service/Category';
 import ConfirmationModal from '../SavingGoals/ConfirmationModal/ConfirmationModal';
 import './Categories.css';
+import { toast, ToastContainer } from 'react-toastify';
+
 const Categories = () => {
     const [categories, setCategories] = useState([]);
     const [isFetching, setIsFetching] = useState(false);
@@ -38,13 +40,17 @@ const Categories = () => {
             console.log('Delete response:', response);
             if (response.message === 'Đã xóa thành công') {
                 setCategories(categories.filter(category => category._id !== id));
+                toast.success('Xóa danh mục thành công!');
             } else {
                 console.error('Lỗi khi xóa danh mục:', response.message);
+                toast.error('Xóa danh mục thất bại.');
             }
         } catch (error) {
             console.error('Lỗi khi xóa danh mục:', error);
+            toast.error('Xóa danh mục thất bại.');
         }
     };
+    
 
     const openConfirmationModal = (goalId) => {
         setGoalToDelete(goalId);

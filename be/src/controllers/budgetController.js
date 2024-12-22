@@ -25,9 +25,16 @@ class BudgetController {
             }
     
             // Kiểm tra ngân sách đã tồn tại
-            const existingBudget = await Budget.findOne({ categoryId, userId, startDate: { $lte: endDate }, endDate: { $gte: startDate } });
+            const currentDate = new Date();
+            const existingBudget = await Budget.findOne({
+                categoryId,
+                userId,
+                startDate: { $lte: endDate },
+                endDate: { $gte: startDate, $gte: currentDate }  // Thêm điều kiện để bỏ qua ngân sách hết hạn
+            });
+
             if (existingBudget) {
-                return res.status(400).json({ message: 'Ngân sách của danh mục này đã tồn tại' });
+                return res.status(400).json({ message: 'Ngân sách của danh mục này đã tồn tại và còn hiệu lực' });
             }
     
             // Tạo ngân sách mới
@@ -132,8 +139,8 @@ class BudgetController {
             // Lấy tất cả các ngân sách của userId và populate các trường liên quan
             const budgets = await Budget.find({ userId }).populate('categoryId').exec();
 
-            console.log(`Budgets found: ${budgets.length}`);
-            console.log(budgets);
+            // console.log(`Budgets found: ${budgets.length}`);
+            // console.log(budgets);
 
             res.status(200).json(budgets);
         } catch (error) {

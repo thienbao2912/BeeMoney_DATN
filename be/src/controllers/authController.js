@@ -5,12 +5,12 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { sendPasswordResetEmail } = require('../services/emailservices');
 const passport = require('passport');
+const { inactive } = require('../services/lockedaccount');
 const cron = require('node-cron');
 const crypto = require('crypto');
 
 const authController = {
 
-    // Đăng ký
     registerUser: async (req, res) => {
         try {
             const { email, password, name } = req.body;
@@ -29,37 +29,59 @@ const authController = {
         }
     },
 
-    // Đăng nhập
     loginUser: async (req, res) => {
         try {
             const user = await User.findOne({ email: req.body.email });
             if (!user) {
                 return res.status(400).json({ error: 'Thông tin đăng nhập không chính xác' });
             }
-
+    
             const validPassword = await bcrypt.compare(req.body.password, user.password);
             if (!validPassword) {
                 return res.status(400).json({ error: 'Thông tin đăng nhập không chính xác' });
             }
-
-            if (user.status != 'active') {
-                return res.status(400).json({ error: 'Tài khoản đã bị khóa' });
+    
+            if (user.status === 'locked') {
+                return res.status(403).json({ error: 'Tài khoản đã bị khóa' });
             }
+    
             const payload = {
                 id: user.id,
                 role: user.role,
                 name: user.name,
             };
+    
             const jwtSecret = process.env.JWT_ACCESS_KEY;
             if (!jwtSecret) {
                 throw new Error('JWT_ACCESS_KEY is not defined');
             }
-
-            const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
-            const { password, ...others } = user._doc
-            return res.status(200).json({ ...others, accessToken: token });
+    
+            const token = jwt.sign(payload, jwtSecret, { expiresIn: '100h' });
+    
+            const isFirstLogin = user.isFirstLogin;
+    
+            if (isFirstLogin) {
+                await User.findByIdAndUpdate(user._id, { isFirstLogin: false });
+            }
+    
+            await authController.updateLastLogin(user._id);
+            const { password, ...others } = user._doc;
+    
+            return res.status(200).json({ 
+                ...others, 
+                accessToken: token, 
+                isFirstLogin 
+            });
         } catch (err) {
             return res.status(500).json({ error: err.message });
+        }
+    },    
+
+    updateLastLogin: async (userId) => {
+        try {
+            await User.findByIdAndUpdate(userId, { lastLogin: new Date() });
+        } catch (error) {
+            console.error('Error updating last login:', error);
         }
     },
 
@@ -203,7 +225,6 @@ const authController = {
             res.status(500).json({ error: 'Server error while updating user' });
         }
     },
-
     getProfile: async (req, res) => {
         try {
             const id = req.params.id;
@@ -216,8 +237,8 @@ const authController = {
                 return res.status(404).json({ error: "Không tìm thấy người dùng" });
             }
 
-            const { _id, email, name, avatar, role } = user;
-            res.status(200).json({ _id, email, name, avatar, role });
+            const { _id, email, name, avatar, role, wallet } = user;
+            res.status(200).json({ _id, email, name, avatar, role,  wallet });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
@@ -230,7 +251,64 @@ const authController = {
         } catch (error) {
             res.status(500).json({ error: 'Server error' });
         }
-    }
+    },
+    addHobbies : async (req, res) => {
+        try {
+            const { userId, hobbies } = req.body; // userId và hobbies sẽ được gửi từ frontend
+            const user = await User.findById(userId);
+    
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+    
+            // Thêm sở thích vào mảng hobbies của người dùng
+            user.hobbies.push(...hobbies); // hobbies là mảng sở thích
+            await user.save();
+    
+            return res.status(200).json({ success: true, message: 'Hobbies added successfully', user });
+        } catch (error) {
+            console.error("Error adding hobbies:", error);
+            return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        }
+      },
+      getUserHobbies: async (req, res) => {
+        try {
+            const { userId } = req.params;
+
+            // Tìm người dùng trong cơ sở dữ liệu
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            // Giả sử bạn đã có trường hobbies trong schema User
+            const hobbies = user.hobbies || [];  // Lấy danh sách sở thích của người dùng
+
+            res.status(200).json({ success: true, hobbies });
+        } catch (err) {
+            res.status(500).json({ success: false, message: err.message });
+        }
+    },
+    removeHobby: async (req, res) => {
+        try {
+            const { userId, hobbyId } = req.body;  // userId and hobbyId will be passed from the frontend
+            const user = await User.findById(userId);
+    
+            if (!user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+    
+            // Remove the hobby from the hobbies array
+            user.hobbies = user.hobbies.filter(hobby => hobby !== hobbyId); // hobbyId is used here for simplicity
+            await user.save();
+    
+            return res.status(200).json({ success: true, message: 'Hobby removed successfully', user });
+        } catch (error) {
+            console.error("Error removing hobby:", error);
+            return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        }
+    },
+    
 }
 
 cron.schedule('*/1 * * * *', async () => {
@@ -243,6 +321,34 @@ cron.schedule('*/1 * * * *', async () => {
     } catch (error) {
         console.error('Error clearing expired reset password tokens:', error);
     }
+});
+
+cron.schedule('*/1 * * * *', async () => { 
+    try {
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+        const result = await User.updateMany(
+            { lastLogin: { $lte: oneYearAgo }, status: { $ne: 'locked' } }, 
+            { $set: { status: 'locked' } }
+        );
+
+        const lockedUsers = await User.find({ lastLogin: { $lte: oneYearAgo }, status: 'locked', emailSent: false  });
+
+        for (const user of lockedUsers) {
+            try {
+                await inactive(user.email, user._id);
+                console.log(`Sent email to ${user.email}`);
+                await User.findByIdAndUpdate(user._id, { emailSent: true });
+            } catch (error) {
+                console.error(`Error sending email to ${user.email}:`, error);
+            }
+        }
+
+    } catch (error) {
+        console.error('Error locking inactive accounts:', error);
+    }
+    
 });
 
 module.exports = authController;

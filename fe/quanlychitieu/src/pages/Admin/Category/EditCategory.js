@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../config/firebase';
 import Layout from '../../../layouts/AdminLayout';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng']; 
 
@@ -54,7 +56,7 @@ const EditCategory = () => {
                 await uploadBytes(imageRef, image);
                 imageUrl = await getDownloadURL(imageRef);
             }
-
+            toast.success("Sửa danh mục thành công!", { position: "top-right" });
             const categoryData = { ...data, image: imageUrl };
             await updateCategory(id, categoryData, navigate);
             navigate('/admin/categories');

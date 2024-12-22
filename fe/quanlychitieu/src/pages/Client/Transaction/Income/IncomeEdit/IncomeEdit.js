@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import './IncomeEdit.css';
 import { getCategories, updateTransaction, getTransactionById } from '../../../../../service/Transaction';
 import { Link, useParams, useNavigate } from 'react-router-dom';
@@ -59,7 +60,7 @@ const IncomeEdit = () => {
   };
 
   const unformatCurrency = (value) => value.replace(/[^\d]/g, '');
-
+  const today = new Date().toISOString().split('T')[0];
   const handleAmountInput = (e) => {
     const rawValue = e.target.value.replace(/[^\d]/g, '');
     if (!rawValue) {
@@ -72,6 +73,7 @@ const IncomeEdit = () => {
   };
 
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
       const payload = {
         ...data,
@@ -84,13 +86,16 @@ const IncomeEdit = () => {
 
       await updateTransaction(id, payload);
       navigate('/income/list');
+      toast.success('Cập nhật thu nhập thành công')
     } catch (err) {
       setError('Failed to update transaction. Please try again later.');
-    }
+    } finally {
+      setLoading(false);
+  }
   };
 
   const handleCategorySelect = (categoryId) => {
-    setValue('categoryId', categoryId);
+    setValue("categoryId", categoryId, { shouldValidate: true });
   };
 
   if (loading) {
@@ -129,6 +134,7 @@ const IncomeEdit = () => {
                   name="date"
                   className="form-control"
                   {...register('date', { required: 'Bắt buộc nhập ngày' })}
+                  max={today}
                 />
                 {errors.date && <span className="text-danger">{errors.date.message}</span>}
               </div>
@@ -160,20 +166,24 @@ const IncomeEdit = () => {
 
             <div className="form-group">
               <label htmlFor="category">Danh mục</label>
-              <div className="category-buttons">
+              <div className="custom-category-grid-edit">
                 {categories.length > 0 ? (
                   categories.map((category) =>
                     category && category.image ? (
                       <button
                         key={category._id}
-                        className={`btn btn-secondary ${
+                        className={`custom-category-btn ${
                           category._id === getValues('categoryId') ? 'active' : ''
                         }`}
                         type="button"
                         onClick={() => handleCategorySelect(category._id)}
                       >
                         <img src={category.image} alt={category.name} />
-                        <p>{category.name}</p>
+                        <p>
+                        {category.name.length > 17
+                          ? `${category.name.substring(0, 17)}...`
+                          : category.name}
+                      </p>
                       </button>
                     ) : (
                       <p key={category._id}>Dữ liệu bị thiếu</p>
@@ -186,10 +196,11 @@ const IncomeEdit = () => {
               {errors.categoryId && <span className="text-danger">Hãy chọn một danh mục</span>}
             </div>
 
-            <div className="col-12 text-center">
-              <button className="btn btn-primary" type="submit">
+            <div className="text-end">
+              <button className="btn btn-primary me-2" type="submit">
                 Cập nhật
               </button>
+                 <Link className="btn btn-secondary" to={`/income/list`}>Quay lại</Link>
             </div>
           </form>
           {error && <div className="alert alert-danger mt-3">{error}</div>}

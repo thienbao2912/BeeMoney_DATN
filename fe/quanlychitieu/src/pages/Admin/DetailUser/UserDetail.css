@@ -1,0 +1,44 @@
+.user-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .avatar-section {
+    margin-right: 15px;
+  }
+  
+  .avatar-img {
+    width: 60px; 
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .category-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .category-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: calc(50% - 10px);
+    box-sizing: border-box;
+  }
+  
+  .category-logo {
+    width: 40px; 
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #007bff;
+    padding: 3px;
+  }

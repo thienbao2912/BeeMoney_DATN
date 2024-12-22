@@ -2,11 +2,18 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
+const HobbySchema = new mongoose.Schema({
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+    name: { type: String },
+    addedAt: { type: Date, default: Date.now },
+});
 const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String },
     name: { type: String, required: true },
-    status: { type: String, default: 'active' },
+    status: { type: String, enum: ['active', 'locked'], default: 'active' },
+    lastLogin: { type: Date, default: Date.now },
+    emailSent: { type: Boolean, default: false },
     socialLogin: {
         googleId: String,
         facebookId: String
@@ -16,6 +23,9 @@ const UserSchema = new mongoose.Schema({
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     tokenLogin: String,
+    wallet: { type: Number, default: 0 },
+    isFirstLogin: { type: Boolean, default: true },
+    hobbies: [HobbySchema],
 }, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {
@@ -37,7 +47,7 @@ UserSchema.methods.comparePassword = function (password) {
 UserSchema.methods.createPasswordChangedToken = function () {
     const resetToken = crypto.randomBytes(32).toString('hex');
     this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    this.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // Token hết hạn sau 15 phút
+    this.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
     return resetToken;
 };
 

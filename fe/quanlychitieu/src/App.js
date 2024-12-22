@@ -1,4 +1,6 @@
 import React from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
@@ -12,6 +14,7 @@ import ExpenseList from './pages/Client/Transaction/Expense/ExpenseList/ExpenseL
 import ExpenseEdit from './pages/Client/Transaction/Expense/ExpenseEdit/ExpenseEdit';
 import SavingGoalAdd from './pages/Client/SavingGoals/SavingGoalAdd/SavingGoalAdd';
 import SavingGoalList from './pages/Client/SavingGoals/SavingGoalList/SavingGoalList';
+import SavingGoalDetail from './pages/Client/SavingGoals/SavingGoalDetail/SavingGoalDetail';
 import PassSaving from './pages/Client/SavingGoals/PassSaving/PassSaving';
 import SavingGoalEdit from './pages/Client/SavingGoals/SavingGoalEdit/SavingGoalEdit';
 import Home from './pages/Client/Home/Home';
@@ -32,8 +35,16 @@ import Categories from './pages/Client/Category/Categories';
 import AddCategory from './pages/Client/Category/Add-Category/add-category';
 import EditCategory from './pages/Client/Category/Update-Category/Update-Category';
 import Register from './pages/Auth/Register/Register';
+import FundDetail from './pages/Client/SavingsFund/DetailPage/DetailPage';
+import SendInvite from './pages/Client/SavingsFund/SendInvite';
+import AcceptInvite from './pages/Client/SavingsFund/AcceptInvite';
 import Forgetpassword from './pages/Auth/ForgetPassword/ForgetPassword';
 import PrivateRoute from './components/PrivateRoute';
+import SavingsFundList from './pages/Client/SavingsFund/List/List';
+import SavingsFundAdd from './pages/Client/SavingsFund/Add/add';
+import EditSavingsFund from './pages/Client/SavingsFund/EditSavingsFund/EditSavingsFund';
+import Hobby from './pages/Client/hobby/Hobby';
+import HobbyCategory from './pages/Client/hobbyCategory/hobbyCategory';
 import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
 import AdminRoutes from './pages/Admin/Router/AdminRoutes';
 
@@ -57,6 +68,7 @@ function App() {
           <Route path="/expense/edit/:id" element={<ExpenseEdit />} />
           <Route path="/saving-goal/add" element={<SavingGoalAdd />} />
           <Route path="/saving-goal/list" element={<SavingGoalList />} />
+          <Route path="/saving-goal/detail/:id" element={<SavingGoalDetail />} />
           <Route path="/saving-goal/past" element={<PassSaving />} />
           <Route path="/saving-goal/edit/:id" element={<SavingGoalEdit />} />
           <Route path="/income/add" element={<IncomeAdd />} />
@@ -72,6 +84,15 @@ function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/add-category" element={<AddCategory />} />
           <Route path="/edit-category/:id" element={<EditCategory />} />
+          <Route path="/savings-fund/detail/:id" element={<FundDetail />} />
+          <Route path="/invite" element={<SendInvite />} />
+          <Route path="/accept" element={<AcceptInvite />} />
+          <Route path="/savings-fund/list" element={<SavingsFundList/>} />
+          <Route path="/savings-fund/add" element={<SavingsFundAdd/>} />
+          <Route path="/savings-fund/edit/:id" element={<EditSavingsFund/>} />
+          <Route path="/hobby" element={<Hobby/>} />
+          <Route path="/hobbyCategory" element={<HobbyCategory/>} />
+
         </Route>
         <Route path="/admin/*" element={<PrivateRoute element={<AdminRoutes />} requiredRole="admin" />} />
       </>
@@ -80,8 +101,10 @@ function App() {
 
   return (
     <NotificationProvider>
-      <RouterProvider router={router} />
-    </NotificationProvider>
+    <ToastContainer position="top-right" autoClose={2000} />
+    <RouterProvider router={router} />
+  </NotificationProvider>
+    
   );
 }
 

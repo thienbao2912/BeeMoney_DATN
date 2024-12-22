@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { updateBudget } from "../../../../service/Budget"; 
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EditBudgetModal = ({ budget, isOpen, onClose, setBudgets }) => {
   const [amount, setAmount] = useState(budget.amount || 0);
@@ -46,9 +48,12 @@ const EditBudgetModal = ({ budget, isOpen, onClose, setBudgets }) => {
           return [...prevBudgets, updatedBudget];
         });
     
+        // Thêm thông báo thành công
+        toast.success("Cập nhật ngân sách thành công!");
+    
         onClose();
       } catch (err) {
-        setError("Error updating budget");
+        setError("Lỗi khi cập nhật ngân sách");
         console.error("Error updating budget:", err);
       } finally {
         setIsLoading(false);
@@ -107,6 +112,7 @@ const EditBudgetModal = ({ budget, isOpen, onClose, setBudgets }) => {
           {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
         </Button>
       </Modal.Footer>
+      <ToastContainer />
     </Modal>
   );
 };

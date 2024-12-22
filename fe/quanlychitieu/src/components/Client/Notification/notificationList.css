@@ -1,0 +1,46 @@
+.notification-list .widget-media {
+    width: 900px;
+    max-height: 500px !important; /* Tăng chiều cao của khung thông báo */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+    padding: 20px; /* Thêm khoảng cách xung quanh khung thông báo */
+}
+
+.notification-list ul {
+    padding: 0; /* Loại bỏ padding mặc định */
+    margin: 0;
+}
+
+.notification-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px; /* Tăng padding để khung lớn hơn */
+    margin-bottom: 15px; /* Tăng khoảng cách giữa các thông báo */
+    border: 1px solid #e0e0e0; /* Thêm viền để làm nổi bật khung thông báo */
+    border-radius: 8px; /* Làm các góc khung mềm mại */
+    background-color: #f9f9f9; /* Màu nền cho khung */
+}
+.notification-list .widget-media .d-flex .notification-title {
+    font-weight: bold;
+    font-size: 16px;
+    text-align: left;
+    justify-content: space-between; /* Ensure space between elements */
+    width: 100%; /* Ensure the title takes up the full width */
+    display: flex; /* Flexbox layout for alignment */
+}
+
+.notification-list .content {
+    font-size: 16px;  /* Tăng kích thước nội dung nếu cần */
+}
+
+.notification-list .time {
+    font-size: 14px;  /* Tăng kích thước thời gian nếu cần */
+    color: #888;
+}
+
+.notification-list .btn {
+    padding: 12px 18px; /* Làm nút xóa lớn hơn */
+    font-size: 16px;
+}

@@ -1,69 +1,87 @@
-import React, { useState, useEffect } from 'react';
-import './IncomeAdd.css';
-import { getAllTransactions, addTransaction, getCategories } from '../../../../../service/Transaction';
-import { Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import React, { useState, useEffect } from "react";
+import "./IncomeAdd.css";
+import {
+  getAllTransactions,
+  addTransaction,
+  getCategories,
+} from "../../../../../service/Transaction";
+import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
-const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng'];
+const forbiddenWords = ["Chết", "Ma Túy", "Khùng"];
 
 const removeAccents = (str) => {
-  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 };
 
 const normalizeText = (text) => {
-  return removeAccents(text).toLowerCase().replace(/\s+/g, '');
+  return removeAccents(text).toLowerCase().replace(/\s+/g, "");
 };
 
 const containsForbiddenWords = (value) => {
   const normalizedValue = normalizeText(value);
-  return forbiddenWords.some(word => normalizedValue.includes(normalizeText(word)));
+  return forbiddenWords.some((word) =>
+    normalizedValue.includes(normalizeText(word))
+  );
 };
-
 
 const IncomeAdd = () => {
   const [categories, setCategories] = useState([]);
   const [incomes, setIncomes] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingCategoriesAndIncomes, setLoadingCategoriesAndIncomes] =
+    useState(false);
 
-  const userId = localStorage.getItem('userId');
-  const today = new Date().toISOString().split('T')[0];
+  const userId = localStorage.getItem("userId");
+  const today = new Date().toISOString().split("T")[0];
 
-  const { register, handleSubmit, setValue, watch, formState: { errors }, clearErrors } = useForm({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+    clearErrors,
+  } = useForm({
     defaultValues: {
       date: today,
-      amount: '',
-      description: '',
-      categoryId: ''
-    }
+      amount: "",
+      description: "",
+      categoryId: "",
+    },
   });
 
-  const categoryId = watch('categoryId');
-  const amount = watch('amount');
+  const categoryId = watch("categoryId");
+  const amount = watch("amount");
 
   useEffect(() => {
     const fetchCategoriesAndIncomes = async () => {
-      setLoading(true);
+      setLoadingCategoriesAndIncomes(true);
       try {
-        const categoriesResponse = await getCategories('income', userId);
-        console.log('Categories Response:', categoriesResponse);
+        const categoriesResponse = await getCategories("income", userId);
 
         if (Array.isArray(categoriesResponse)) {
-          const filteredCategories = categoriesResponse.filter(category => category.type === 'income');
-          console.log('Filtered Categories:', filteredCategories);
+          const filteredCategories = categoriesResponse.filter(
+            (category) => category.type === "income"
+          );
+          console.log("Filtered Categories:", filteredCategories);
           setCategories(filteredCategories);
         } else {
-          console.error('Expected an array but got:', categoriesResponse);
+          console.error("Expected an array but got:", categoriesResponse);
         }
 
-        const incomesResponse = await getAllTransactions('income', userId);
-        console.log('Incomes Response:', incomesResponse);
+        const incomesResponse = await getAllTransactions("income", userId);
         setIncomes(incomesResponse || []);
       } catch (err) {
-        console.error('Error fetching data:', err.response ? err.response.data : err.message);
-        setError('Failed to fetch data. Please try again later.');
+        console.error(
+          "Error fetching data:",
+          err.response ? err.response.data : err.message
+        );
+        setError("Failed to fetch data. Please try again later.");
       } finally {
-        setLoading(false);
+        setLoadingCategoriesAndIncomes(false);
       }
     };
 
@@ -71,60 +89,60 @@ const IncomeAdd = () => {
   }, [userId]);
 
   useEffect(() => {
-    if (amount && amount.trim() !== '') {
-      clearErrors('amount');
+    if (amount && amount.trim() !== "") {
+      clearErrors("amount");
     }
   }, [amount, clearErrors]);
 
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-        const payload = {
-            ...data,
-            amount: unformatCurrency(data.amount),
-            date: new Date(data.date).toISOString(),
-            type: 'income'
-        };
-        console.log('Submitting payload:', payload);
+      const payload = {
+        ...data,
+        amount: unformatCurrency(data.amount),
+        date: new Date(data.date).toISOString(),
+        type: "income",
+      };
 
-        if (!payload.date || !payload.amount || !payload.categoryId) {
-            throw new Error('Missing required fields');
-        }
+      if (!payload.date || !payload.amount || !payload.categoryId) {
+        throw new Error("Missing required fields");
+      }
 
-        const response = await addTransaction(payload);
-        console.log('Response:', response);
+      await addTransaction(payload);
+      toast.success("Thêm thu nhập thành công");
+      setValue("date", today);
+      setValue("amount", "");
+      setValue("description", "");
+      setValue("categoryId", "");
 
-        setValue('date', today); 
-        setValue('amount', '');
-        setValue('description', '');
-        setValue('categoryId', '');
-
-        const incomesResponse = await getAllTransactions('income', userId);
-        setIncomes(incomesResponse || []);
+      const incomesResponse = await getAllTransactions("income", userId);
+      setIncomes(incomesResponse || []);
     } catch (err) {
-        console.error('Error adding income:', err.response ? err.response.data : err.message);
-        setError('Failed to add income. Please try again later.');
+      console.error(
+        "Error adding income:",
+        err.response ? err.response.data : err.message
+      );
+      toast.warning("Vui lòng chọn danh mục");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
-
+  };
 
   const formatCurrency = (value) => {
-    return Number(value).toLocaleString('vi-VN');
+    return Number(value).toLocaleString("vi-VN");
   };
-  
+
   const unformatCurrency = (value) => {
-    return value.replace(/[^\d]/g, '');
+    return value.replace(/[^\d]/g, "");
   };
 
   const handleAmountInput = (e) => {
-    const rawValue = e.target.value.replace(/[^\d]/g, '');
+    const rawValue = e.target.value.replace(/[^\d]/g, "");
     const formattedValue = formatCurrency(rawValue);
-    setValue('amount', formattedValue, { shouldValidate: true });
+    setValue("amount", formattedValue, { shouldValidate: true });
   };
 
-  if (loading) {
+  if (loadingCategoriesAndIncomes) {
     return (
       <div className="text-center mt-5">
         <i className="fa fa-spinner fa-spin fa-2x primary"></i>
@@ -133,16 +151,21 @@ const IncomeAdd = () => {
     );
   }
 
-  // Sort incomes by date (most recent first) and limit to top 5
-  const sortedIncomes = [...incomes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+  const sortedIncomes = [...incomes]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
 
   return (
     <div className="categories-overview">
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
-          <li className="breadcrumb-item active" aria-current="page">Thêm thu nhập</li>
+          <li className="breadcrumb-item active" aria-current="page">
+            Thêm thu nhập
+          </li>
           <li className="breadcrumb-item">
-            <Link className='text-secondary' to="/income/list">Danh sách thu nhập</Link>
+            <Link className="text-secondary" to="/income/list">
+              Danh sách thu nhập
+            </Link>
           </li>
         </ol>
       </nav>
@@ -152,8 +175,20 @@ const IncomeAdd = () => {
           <div className="income-overview card">
             <div className="card-body">
               <div className="col-md-auto col-12 d-flex justify-content-center d-flex gap-2">
-                <Link className="btn btn-outline-primary" to='/expense/add'>Chi tiêu</Link>
-                <Link className="btn btn-primary" to='/income/add'>Thu nhập</Link>
+                <Link
+                  className="btn btn-outline-primary mr-2"
+                  style={{ width: "6rem" }}
+                  to="/expense/add"
+                >
+                  Chi tiêu
+                </Link>
+                <Link
+                  className="btn btn-primary mr-2"
+                  style={{ width: "6rem" }}
+                  to="/income/add"
+                >
+                  Thu nhập
+                </Link>
               </div>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="form-row">
@@ -163,10 +198,17 @@ const IncomeAdd = () => {
                       type="date"
                       id="date"
                       name="date"
-                      className="form-control"
-                      {...register('date', { required: 'Ngày là bắt buộc' })}
+                      className={`form-control ${
+                        errors.date ? "is-invalid" : ""
+                      }`}
+                      {...register("date", { required: "Ngày là bắt buộc" })}
+                      max={today}
                     />
-                    {errors.date && <p className="text-danger">{errors.date.message}</p>}
+                    {errors.date && (
+                      <div className="invalid-feedback">
+                        {errors.date.message}
+                      </div>
+                    )}
                   </div>
                   <div className="form-group col">
                     <label htmlFor="amount">Số tiền</label>
@@ -174,11 +216,19 @@ const IncomeAdd = () => {
                       type="text"
                       id="amount"
                       name="amount"
-                      className="form-control"
-                      {...register('amount', { required: 'Số tiền là bắt buộc' })}
+                      className={`form-control ${
+                        errors.amount ? "is-invalid" : ""
+                      }`}
+                      {...register("amount", {
+                        required: "Số tiền là bắt buộc",
+                      })}
                       onInput={handleAmountInput}
                     />
-                    {errors.amount && <p className="text-danger">{errors.amount.message}</p>}
+                    {errors.amount && (
+                      <div className="invalid-feedback">
+                        {errors.amount.message}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="form-group">
@@ -187,56 +237,76 @@ const IncomeAdd = () => {
                     type="text"
                     id="description"
                     name="description"
-                    className="form-control"
-                    {...register('description', {
-                      required: 'Ghi chú là bắt buộc',
-                      validate: value => 
-                        !containsForbiddenWords(value) || 'Ghi chú chứa từ cấm',
+                    className={`form-control ${
+                      errors.description ? "is-invalid" : ""
+                    }`}
+                    {...register("description", {
+                      required: "Ghi chú là bắt buộc",
+                      validate: (value) =>
+                        !containsForbiddenWords(value) || "Ghi chú chứa từ cấm",
                     })}
                   />
-                  {errors.description && <p className="text-danger">{errors.description.message}</p>}
+                  {errors.description && (
+                    <div className="invalid-feedback">
+                      {errors.description.message}
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">
                   <label htmlFor="category">Danh mục</label>
-                  <div className="category-buttons">
+                  <div className="custom-category-grid">
                     {categories.length > 0 ? (
-                      categories.map((category) => (
+                      categories.map((category) =>
                         category && category.image ? (
                           <button
-                            className={`btn btn-secondary ${category._id === categoryId ? 'active' : ''}`}
+                            className={`custom-category-btn ${
+                              category._id === categoryId ? "active" : ""
+                            }`}
                             type="button"
                             key={category._id}
-                            onClick={() => setValue('categoryId', category._id)}
+                            onClick={() => setValue("categoryId", category._id)}
                           >
                             <img src={category.image} alt={category.name} />
-                            <p>{category.name}</p>
+                            <p>
+                              {category.name.length > 17
+                                ? `${category.name.substring(0, 17)}...`
+                                : category.name}
+                            </p>
                           </button>
                         ) : (
                           <p key={category._id}>Dữ liệu bị thiếu</p>
                         )
-                      ))
+                      )
                     ) : (
                       <i className="fa-solid fa-circle-exclamation fa-2x"></i>
                     )}
-                    <button
-                      className="btn btn-secondary"
+                    <Link
+                      className="custom-category-btn text-dark"
                       type="button"
+                      to="/add-category"
+                      style={{ textDecoration: "none" }}
                     >
-                      <Link
-                        className="text-dark d-flex align-items-center"
-                        to="/add-category"
-                        style={{ textDecoration: 'none' }}
-                      >
-                        <img src='../images/add.png' alt="Add" style={{ marginRight: '5px' }} />
-                        Thêm
-                      </Link>
-                    </button>
+                      {/* <Link
+      className="text-dark d-flex align-items-center justify-content-center"
+      to="/add-category"
+      style={{ textDecoration: 'none' }}
+    > */}
+                      <img src="../images/add.png" alt="Add" />
+                      <p>Thêm</p>
+                      {/* </Link> */}
+                    </Link>
                   </div>
                 </div>
 
                 <div className="col-md-auto col-12 d-flex justify-content-center">
-                  <button className="btn btn-primary w-100 text-center" type="submit">Thêm thu nhập</button>
+                  <button
+                    className="btn btn-primary w-100 text-center"
+                    disabled={loading}
+                    type="submit"
+                  >
+                    {loading ? "Đang thêm..." : "Thêm thu nhập"}
+                  </button>
                 </div>
               </form>
               {error && <div className="alert alert-danger mt-3">{error}</div>}
@@ -247,29 +317,48 @@ const IncomeAdd = () => {
         <div className="col-md-6 mb-3">
           <div className="income-overview card">
             <div className="card-body">
-              <Link className="text-secondary" to="/income/list">Xem tất cả thu nhập</Link>
+              <Link className="text-secondary" to="/income/list">
+                Xem tất cả thu nhập
+              </Link>
               {sortedIncomes.length > 0 ? (
-                sortedIncomes.map(income => (
-                  <div className="history-details d-flex px-2 py-1 align-items-center justify-content-between mt-4" key={income._id}>
+                sortedIncomes.map((income) => (
+                  <div
+                    className="history-details d-flex px-2 py-1 align-items-center justify-content-between mt-4"
+                    key={income._id}
+                  >
                     <div className="mr-3 d-flex align-items-center">
                       {income.categoryId && income.categoryId.image ? (
                         <img
                           src={income.categoryId.image}
                           alt={income.categoryId.name}
-                          className="category-image"
                           width="50"
                           height="50"
                         />
                       ) : (
-                        <div className="placeholder-image" style={{ width: '50px', height: '50px' }} />
+                        <div
+                          className="placeholder-image"
+                          style={{ width: "50px", height: "50px" }}
+                        />
                       )}
                     </div>
                     <div className="text-center flex-grow-1">
-                      <h6 className="mb-0">{income.description}</h6>
-                      <p className="text-success mb-0">+ {Number(income.amount).toLocaleString()}</p>
+                    <h6 className="mb-0">
+                        {income.description.length > 25
+                          ? `${income.description.substring(0, 25)}...`
+                          : income.description}
+                      </h6>
+                      <p className="text-success mb-0">
+                        +{" "}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(income.amount)}
+                      </p>
                     </div>
                     <div className="text-end">
-                      <p className="text-secondary mb-0">{new Date(income.date).toLocaleDateString()}</p>
+                      <p className="text-secondary mb-0">
+                        {new Date(income.date).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
                 ))

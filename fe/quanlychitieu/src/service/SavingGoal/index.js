@@ -8,8 +8,6 @@ const getAllSavingsGoals = async (userId) => {
             params: { userId }
         });
 
-        console.log('API Response:', response);
-
         if (response  && Array.isArray(response.data)) {
             return response.data; 
         } else {
@@ -41,7 +39,6 @@ const getSavingsGoalById = async (id) => {
 
 const addSavingsGoal = async (savingsGoal) => {
     try {
-      console.log('Payload for addSavingsGoal:', savingsGoal);
       const response = await request({
         method: 'POST',
         path: '/api/savings-goals',
@@ -52,36 +49,44 @@ const addSavingsGoal = async (savingsGoal) => {
         return response.data;
       } else {
         throw new Error('Unexpected response format');
-      }
+      } 
     } catch (error) {
       console.error('Error adding savings goal:', error.response ? error.response.data : error.message);
       throw error;
     }
   };
-  
-const updateSavingGoalAmount  = async (goalId, updateData) => {
+  const addTransaction = async (goalId, data) => {
     try {
         const response = await request({
-            method: 'PATCH',
+            method: 'POST',
             path: `/api/savings-goals/${goalId}`,
-            data: updateData
+            data: data,
         });
 
         if (response && response.data) {
             return response.data;
         } else {
-            throw new Error('Unexpected response format');
+            throw new Error("Unexpected response format"); // Chỉ xảy ra nếu phản hồi không hợp lệ
         }
     } catch (error) {
-        console.error('Error updating savings goal:', error.response ? error.response.data : error.message);
+        // Log để kiểm tra
+        console.error("Request Error:", error);
+
+        // Ensure that the error message from backend is shown in the toast
+        if (error.response?.status === 400) {
+            throw {
+                status: 400,
+                message: error.response?.data?.message || 'Số dư không đủ', // Default message if none from the backend
+            };
+        }
+        // Re-throw the error for other cases
         throw error;
     }
 };
+
+
 const updateSavingsGoal = async (goalId, updatedFields) => {
     try {
-      console.log('Updating goal with ID:', goalId);
-      console.log('Updated fields:', updatedFields);
-      
       const response = await request({
         method: 'PATCH',
         path: `/api/savings-goals/allFields/${goalId}`,
@@ -106,13 +111,9 @@ const deleteSavingsGoal = async (id) => {
             path: `/api/savings-goals/${id}`
         });
 
-        console.log('Delete response:', response);
-
         if (response && response.data === 'Xóa mục tiêu tiết kiệm thành công') {
             return response; 
-        } else {
-            throw new Error('Unexpected response format');
-        }
+        } 
     } catch (error) {
         console.error('Error deleting savings goal:', error.response ? error.response.data : error.message);
         throw error; 
@@ -129,7 +130,6 @@ const getCategories = async (userId) => {
             params: { userId }
         });
 
-        console.log('API Response:', response);
         if (response && Array.isArray(response.data)) {
             return response.data;
         } else {
@@ -141,4 +141,4 @@ const getCategories = async (userId) => {
     }
 };
 
-export { getAllSavingsGoals, getSavingsGoalById, addSavingsGoal, updateSavingGoalAmount, updateSavingsGoal, deleteSavingsGoal, getCategories };
+export { getAllSavingsGoals, getSavingsGoalById, addSavingsGoal, addTransaction, updateSavingsGoal, deleteSavingsGoal, getCategories };

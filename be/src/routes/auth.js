@@ -22,6 +22,8 @@ router.get("/get-one/:id", authController.getOne);
 // Cập nhật thông tin người dùng
 router.put('/update/:id', authController.update);
 
+router.put('/update-last-login/:id', authController.updateLastLogin);
+
 // Xác minh mật khẩu cũ
 router.post('/verify-password', authController.verifyOldPassword);
 
@@ -36,5 +38,11 @@ router.get("/", middlewareController.verifyToken, authController.getAllUser);
 
 // Xóa người dùng
 router.delete("/:id", middlewareController.verifyTokenAdminAuth, authController.deleteUser);
+
+router.post('/add-hobbies', authController.addHobbies);
+
+router.get('/get-hobbies/:userId', authController.getUserHobbies);
+router.post('/remove-hobby', authController.removeHobby);
+
 
 module.exports = router;

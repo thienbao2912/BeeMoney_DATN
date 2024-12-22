@@ -1,17 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { getAllTransactions, deleteTransaction } from '../../../../../service/Transaction';
-import ConfirmationModal from '../../../SavingGoals/ConfirmationModal/ConfirmationModal'; 
-import { Link } from 'react-router-dom'; 
-
+import ConfirmationModal from '../../../SavingGoals/ConfirmationModal/ConfirmationModal';
+import { getCategories } from "../../../../../service/Category";
+import CustomDropdown from "../../CustomDropdown";
+import { Link } from 'react-router-dom';
+import { toast } from "react-toastify";
 const IncomeList = () => {
     const [incomes, setIncomes] = useState([]);
+    const [filteredIncomes, setFilteredIncomes] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedMonth, setSelectedMonth] = useState("");
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
-    const [goalToDelete, setGoalToDelete] = useState(null);
+    const [toDelete, setToDelete] = useState(null);
     const [itemsPerPage] = useState(5);
-    const userId = localStorage.getItem('userId'); 
+    const [filterOption, setFilterOption] = useState("all");
+    const userId = localStorage.getItem('userId');
+
+    const generateMonthOptions = () => {
+        const months = [];
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+
+        for (let i = 1; i <= 12; i++) {
+            const month = i.toString().padStart(2, "0");
+            months.push({
+                display: `${i}`,
+                value: `${year}-${month}`,
+            });
+        }
+        return months;
+    };
 
     useEffect(() => {
         const fetchIncomes = async () => {
@@ -21,6 +43,8 @@ const IncomeList = () => {
                 if (Array.isArray(data)) {
                     const sortedIncomes = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                     setIncomes(sortedIncomes);
+                    setFilteredIncomes(sortedIncomes)
+
                 } else {
                     throw new Error('Unexpected data format');
                 }
@@ -32,35 +56,112 @@ const IncomeList = () => {
             }
         };
 
+
+        const fetchCategories = async () => {
+            try {
+                const data = await getCategories();
+                const incomeCategories = data.filter(
+                    (category) => category.type === "income"
+                );
+                setCategories(incomeCategories);
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        };
+
         fetchIncomes();
+        fetchCategories();
     }, [userId]);
 
+    useEffect(() => {
+        if (incomes.length > 0) {
+            applyFilter(filterOption);
+        }
+    }, [incomes, filterOption, selectedCategory, selectedMonth]);
+
     const handleDelete = async (incomeId) => {
+        setLoading(true);
         try {
             await deleteTransaction(incomeId);
             setConfirmationModalOpen(false);
             const updatedIncomes = await getAllTransactions('income', userId);
-            const sortedIncomes = updatedIncomes.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const sortedIncomes = updatedIncomes.sort(
+                (a, b) => new Date(b.date) - new Date(a.date)
+            );
             setIncomes(sortedIncomes || []);
+            toast.success('Đã xóa thu nhập')
+            setLoading(false)
         } catch (error) {
             console.error('Error deleting income:', error.response ? error.response.data : error.message);
             setError('Failed to delete income. Please try again later.');
         }
     };
-  
-    const openConfirmationModal = (goalId) => {
-        setGoalToDelete(goalId);
+
+    const applyFilter = (option) => {
+        let filtered = [...incomes];
+        switch (option) {
+            case "top5":
+                filtered = filtered.sort((a, b) => b.amount - a.amount).slice(0, 5);
+                break;
+            case "bottom5":
+                filtered = filtered.sort((a, b) => a.amount - b.amount).slice(0, 5);
+                break;
+            case "category":
+                if (selectedCategory) {
+                    filtered = filtered.filter(
+                        (income) => income.categoryId?._id === selectedCategory
+                    );
+                }
+                break;
+            case "month":
+                if (selectedMonth) {
+                    filtered = filtered.filter((income) => {
+                        const incomeMonth = new Date(income.date)
+                            .toISOString()
+                            .slice(0, 7);
+                        return incomeMonth === selectedMonth;
+                    });
+                }
+                break;
+            default:
+                filtered = incomes;
+                break;
+        }
+        setFilteredIncomes(filtered);
+        setCurrentPage(1);
+    };
+
+    const handleFilterChange = (e) => {
+        setFilterOption(e.target.value);
+        if (e.target.value !== "category") {
+            setSelectedCategory("");
+        }
+        if (e.target.value !== "month") {
+            setSelectedMonth("");
+        }
+    };
+
+    const handleCategoryChange = (e) => {
+        setSelectedCategory(e.target.value);
+    };
+
+    const handleMonthChange = (e) => {
+        setSelectedMonth(e.target.value);
+    };
+
+    const openConfirmationModal = (item) => {
+        setToDelete(item);
         setConfirmationModalOpen(true);
     };
 
     const closeConfirmationModal = () => {
-        setGoalToDelete(null);
+        setToDelete(null);
         setConfirmationModalOpen(false);
     }
     const indexOfLastIncome = currentPage * itemsPerPage;
     const indexOfFirstIncome = indexOfLastIncome - itemsPerPage;
-    const currentIncomes = incomes.slice(indexOfFirstIncome, indexOfLastIncome);
-    const totalPages = Math.ceil(incomes.length / itemsPerPage);
+    const currentIncomes = filteredIncomes.slice(indexOfFirstIncome, indexOfLastIncome);
+    const totalPages = Math.ceil(filteredIncomes.length / itemsPerPage);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -87,6 +188,44 @@ const IncomeList = () => {
                     </li>
                 </ol>
             </nav>
+            <div className="col-lg-6 col-md-8 col-sm-12 d-flex align-items-center mb-2">
+                <select
+                    value={filterOption}
+                    onChange={handleFilterChange}
+                    className="form-select me-2"
+                    style={{ width: "200px" }}
+                >
+                    <option value="all">Tất cả</option>
+                    <option value="top5">5 chi tiêu lớn nhất</option>
+                    <option value="bottom5">5 chi tiêu nhỏ nhất</option>
+                    <option value="category">Lọc theo danh mục</option>
+                    <option value="month">Lọc theo tháng</option>
+                </select>
+
+                {filterOption === "category" && (
+                    <CustomDropdown
+                        options={categories}
+                        value={selectedCategory}
+                        onChange={handleCategoryChange}
+                        className="form-select me-2"
+                    />
+                )}
+                {filterOption === "month" && (
+                    <select
+                        value={selectedMonth}
+                        onChange={handleMonthChange}
+                        className="form-select me-2"
+                        style={{ width: "200px" }}
+                    >
+                        <option value="">Chọn tháng</option>
+                        {generateMonthOptions().map(({ display, value }) => (
+                            <option key={value} value={value}>
+                                Tháng {display}
+                            </option>
+                        ))}
+                    </select>
+                )}
+            </div>
             <div className="text-center mt-4 mb-4">
                 <Link to="/income/add" className="primary">
                     <i className="fa fa-plus"></i> Thêm thu nhập
@@ -137,13 +276,13 @@ const IncomeList = () => {
                                                 <span className="text-secondary">{income.description}</span>
                                             </td>
                                             <td className="align-middle">
-                                                <span className="text-success"> {Number(income.amount) < 0
-                                                        ? `${Number(income.amount).toLocaleString()} đ`
-                                                        : `+ ${Number(income.amount).toLocaleString()} đ`
-                                                    }</span>
+                                                <span className="text-success">+ {new Intl.NumberFormat("vi-VN", {
+                                                    style: "currency",
+                                                    currency: "VND",
+                                                }).format(income.amount)}</span>
                                             </td>
                                             <td className="align-middle">
-                                                <span className="custom-date-style">{new Date(income.date).toLocaleDateString()}</span>
+                                                <span className="badge bg-info">{new Date(income.date).toLocaleDateString()}</span>
                                             </td>
                                             <td className="align-middle text-center">
                                                 <button className="btn btn-link p-0 text-danger">
@@ -153,7 +292,7 @@ const IncomeList = () => {
                                                 </button>
                                                 <button
                                                     className="btn btn-link p-0 text-danger"
-                                                    onClick={() => openConfirmationModal(income._id)}
+                                                    onClick={() => openConfirmationModal(income)}
                                                     aria-label="Delete"
                                                 >
                                                     <i className="fa fa-trash" />
@@ -175,31 +314,35 @@ const IncomeList = () => {
                 </div>
             </div>
 
-            <div className="pagination text-center mt-4">
-                <button 
-                    className="btn btn-secondary" 
-                    onClick={() => paginate(currentPage - 1)}
-                    disabled={currentPage === 1}
+            <div className="pagination justify-content-center mt-3 flex-wrap">
+        {totalPages > 1 && (
+          <ul className="pagination">
+            {Array.from({ length: totalPages }, (_, index) => (
+              <li
+                key={index + 1}
+                className={`page-item ${
+                  currentPage === index + 1 ? "active" : ""
+                }`}
+              >
+                <button
+                  onClick={() => paginate(index + 1)}
+                  className="page-link"
                 >
-                    <i className="fa-solid fa-backward"></i>
+                  {index + 1}
                 </button>
-                <span className="mx-2">{currentPage} / {totalPages}</span>
-                <button 
-                    className="btn btn-secondary" 
-                    onClick={() => paginate(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                >
-                    <i className="fa-solid fa-forward"></i>
-                </button>
-            </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
             {isConfirmationModalOpen && (
                 <ConfirmationModal
                     isOpen={isConfirmationModalOpen}
                     onClose={closeConfirmationModal}
                     onConfirm={() => {
-                        if (goalToDelete) handleDelete(goalToDelete);
+                        if (toDelete) handleDelete(toDelete._id);
                     }}
-                    message="Bạn có chắc chắn muốn xóa mục tiêu này?"
+                    message={`Bạn có chắc chắn muốn xóa <span class="primary">${toDelete?.description}</span> ?`}
                 />
             )}
         </div>
