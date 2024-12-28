@@ -21,6 +21,7 @@ const FundDetail = () => {
   const [inviteEmail, setInviteEmail] = useState('');
   const { id } = useParams();
   const [transactionUsers, setTransactionUsers] = useState([]);
+  const name = localStorage.getItem('userName')
 
   const fetchCategories = async () => {
     try {
@@ -163,6 +164,36 @@ const FundDetail = () => {
           },
         }
       );
+
+      await fetch("http://localhost:4000/proxy/notification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+        appId: 25582,
+        appToken: "DowBN7qkm455dOdSTMH4w0",
+        title: "BeeMoney",
+        body: ` ${name} mời bạn tham gia quỹ tiết kiệm.`,
+        dateSent: "2024-12-26T08:00:00+07:00" ,
+        pushData: { yourProperty: "yourPropertyValue" },
+        bigPictureURL: "Big picture URL as a string"
+        })
+      })
+      .then(async (response) => {
+       
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          return await response.json(); 
+        } else {
+          const text = await response.text(); 
+          console.warn("Phản hồi không phải JSON:", text);
+          return { message: text }; 
+        }
+      })
+        .then(data => console.log(data))
+        .catch(error => console.error("Error:", error));
+
 
       toast.success('Đã gửi đến thành công');
       setInviteEmail('');
