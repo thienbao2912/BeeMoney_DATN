@@ -4,7 +4,6 @@ import { Offcanvas, Button } from "react-bootstrap";
 import { getUserProfile } from "../../../service/Auth";
 import "bootstrap-icons/font/bootstrap-icons.min.css"; 
 import "./SidebarClient.css";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Sidebar = () => {
@@ -85,7 +84,7 @@ const Sidebar = () => {
       width="40"
       className="rounded-circle"
     />
-    <div className="greeting">Xin chào, {user.name}</div>
+    <div className="greeting">Hi, {user.name}</div>
   </div>
   <nav className="sidebar-nav">
     <ul className="navbar-nav">
@@ -148,13 +147,13 @@ const Sidebar = () => {
         <Offcanvas.Body>
           <div className="sidebar-head d-flex align-items-center justify-content-between">
             <img
-              src={user.avatar}
+              src={"/images/default-avatar.jpg"}
               alt="Avatar"
               width="40"
               className="rounded-circle"
             />
             <div>
-              <div className="greeting">Xin chào, {user.name}</div>
+              <div className="greeting">Hi, {user.name}</div>
             </div>
           </div>
           <nav className="sidebar-nav">

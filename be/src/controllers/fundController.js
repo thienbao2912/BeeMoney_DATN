@@ -29,26 +29,48 @@ const sendConfirmationEmail = async (email, code) => {
     const mailOptions = {
         from: `"BeeMoney" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: 'Mã xác nhận tham gia quỹ tiết kiệm',
+        subject: 'Thư Mời Tham Gia Quỹ Tiết Kiệm BeeMoney',
         html: `
-      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px; background-color: #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
-    <h2 style="text-align: center; color: #8A2BE2; font-size: 24px; margin-bottom: 20px; letter-spacing: 1px;">Mã xác nhận của bạn</h2>
-    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px; text-align: center;">
-        Bạn đã được mời tham gia vào quỹ tiết kiệm. Vui lòng sử dụng mã xác nhận dưới đây để tham gia:
-    </p>
-    <div style="background-color: #f3e8ff; padding: 25px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; border: 1px solid #dcd3f0; margin-bottom: 20px;">
-        <span style="color: #8A2BE2;">${code}</span>
-    </div>
-    <p style="font-size: 14px; text-align: center; color: #888; margin-bottom: 20px;">
-        Mã xác nhận này có hiệu lực trong 24 giờ.
-    </p>
-    <p style="margin-top: 40px; font-size: 14px; color: #666; text-align: center;">
-        BeeMoney - Quản lý chi tiêu
-    </p>
-</div>
-
+        <div style="font-family: 'Roboto', Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 10px; background-color: #ffffff; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+            <!-- Header -->
+            <header style="text-align: center; margin-bottom: 20px;">
+                <img src="https://firebasestorage.googleapis.com/v0/b/dax-bemoney.appspot.com/o/logoemail%2Femail-thankyou.png?alt=media&token=d8b6f8f3-7563-467e-9ac4-848eaf7a7a1b" alt="BeeMoney Logo" style="max-width: 590px;">
+            </header>
+    
+            <!-- Title -->
+            <h2 style="color: #4CAF50; text-align: center; font-size: 20px; margin-bottom: 15px; font-weight: 600;">
+                Bạn Đã Nhận Một Lời Mời!
+            </h2>
+    
+            <!-- Intro -->
+            <p style="font-size: 16px; line-height: 1.6; text-align: center; color: #555; margin-bottom: 20px;">
+                Bạn được mời tham gia Quỹ Tiết Kiệm BeeMoney. Mã xác nhận để tham gia:
+            </p>
+    
+            <!-- Confirmation Code -->
+            <div style="background-color: #e8f5e9; color: #388E3C; font-size: 24px; font-weight: bold; text-align: center; padding: 15px; margin-bottom: 20px; border: 2px dashed #81C784; border-radius: 6px;">
+                ${code}
+            </div>
+    
+            <!-- Expiry Info -->
+            <p style="font-size: 14px; color: #888; text-align: center; margin-bottom: 20px;">
+                Mã xác nhận sẽ hết hạn sau 1 giờ.
+            </p>
+               <p style="font-size: 14px; color: #888; text-align: center; margin-bottom: 20px;">
+               Hãy nhanh chóng sử dụng mã xác nhận để không bỏ lỡ cơ hội tham gia quỹ tiết kiệm
+            </p>
+    
+            <!-- Footer -->
+            <footer style="text-align: center; font-size: 12px; color: #999;">
+                <p>BeeMoney - Giải pháp tài chính thông minh.</p>
+            </footer>
+        </div>
         `
     };
+    
+    
+    
+    
 
     try {
         await transporter.sendMail(mailOptions);
@@ -68,12 +90,6 @@ class SavingsFundController {
         const { email, fundId } = req.body;
     
         try {
-            // Tìm người dùng theo email
-            const user = await User.findOne({ email });
-            if (!user) {
-                return res.status(404).json({ message: 'Email này không sử dụng BeeMoney' });
-            }
-    
             // Tìm quỹ tiết kiệm theo ID
             const savingsFund = await SavingsFund.findById(fundId);
             if (!savingsFund) {
@@ -81,7 +97,8 @@ class SavingsFundController {
             }
     
             // Kiểm tra xem email đã tham gia quỹ chưa
-            const isMember = savingsFund.members.some(member => member.userId.equals(user._id));
+            const user = await User.findOne({ email }); // Có thể không tìm thấy user
+            const isMember = savingsFund.members.some(member => user && member.userId.equals(user._id));
             if (isMember) {
                 return res.status(400).json({ message: 'Email này đã tham gia quỹ' });
             }
@@ -99,6 +116,7 @@ class SavingsFundController {
             res.status(500).send('Lỗi máy chủ');
         }
     }
+    
     
 
 

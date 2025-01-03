@@ -14,6 +14,7 @@ const AddBudget = () => {
     const [loadingBudgets, setLoadingBudgets] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [isDuplicate, setIsDuplicate] = useState(false); // Trạng thái mới kiểm tra lỗi trùng lặp
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('success'); 
     const today = new Date();
@@ -89,16 +90,18 @@ const AddBudget = () => {
     const onSubmit = async (data) => {
         setLoading(true);
         setError('');
-
+        setIsDuplicate(false); // Reset trạng thái isDuplicate khi bắt đầu submit
+        
+        // Kiểm tra ngày hợp lệ
         const dateValidationError = validateDates(data.startDate, data.endDate);
         if (dateValidationError !== true) {
             setError(dateValidationError);
             setLoading(false);
             return;
         }
-
+    
         const userId = localStorage.getItem('userId');
-
+    
         const budgetData = {
             categoryId: data.categoryId,
             startDate: data.startDate,
@@ -106,21 +109,33 @@ const AddBudget = () => {
             amount: parseFloat(data.amount.replace(/,/g, '')),
             userId
         };
-
+    
         try {
-            await createBudget(budgetData);
-            toast.success("Ngân sách đã được thêm thành công!");
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
+            // Gọi API tạo ngân sách
+            await createBudget(budgetData); // Your existing createBudget function
+    
+            // Hiển thị thông báo thành công nếu không phải lỗi trùng lặp
+            if (!isDuplicate) {
+                toast.success("Ngân sách đã được thêm thành công!");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
         } catch (err) {
-            // setError('Có lỗi xảy ra khi thêm ngân sách');
-            console.error('Error creating budget:', err);
-            toast.error("Có lỗi xảy ra khi thêm ngân sách");
+            if (err.response && err.response.status === 409) {
+                setIsDuplicate(true); // Đánh dấu là trùng lặp khi nhận lỗi 409
+                toast.info("Ngân sách của danh mục này hiện còn hiệu lực");
+            } else {
+                toast.error("Có lỗi xảy ra khi thêm ngân sách");
+            }
         } finally {
-            setLoading(false);
+            setLoading(false); // Dừng trạng thái loading
         }
     };
+    
+    
+    
+    
 
     const handleAmountChange = (e) => {
         let value = e.target.value;

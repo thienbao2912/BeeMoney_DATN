@@ -14,8 +14,8 @@ const WalletCard = () => {
   const [latestBudget, setLatestBudget] = useState(null);
   const [latestSavingsGoal, setLatestSavingsGoal] = useState(null);
   const [latestSavingsFund, setLatestSavingsFund] = useState(null);
-  const [loading, setLoading] = useState(false);
   const userId = localStorage.getItem("userId");
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -103,12 +103,12 @@ const WalletCard = () => {
                   margin: 0,
                 }}
               >
-
-                {new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(user.wallet ?? 0)}
-
+                {isWalletVisible
+                  ? new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(user.wallet ?? 0)
+                  : "******đ"}
               </h2>
             </div>
           </div>
@@ -122,8 +122,8 @@ const WalletCard = () => {
           </div>
         </div>
       </div>
-      {/* Ngân sách */}
-      <div className="col-md-3">
+     {/* Ngân sách */}
+     <div className="col-md-3">
         <div className="card shadow-sm p-3">
           <div className="d-flex align-items-center mb-3">
             <i
@@ -302,7 +302,7 @@ const WalletCard = () => {
           </div>
         </div>
       </div>
-      </div>
+    </div>
   );
 };
 
