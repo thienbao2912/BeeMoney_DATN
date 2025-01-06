@@ -23,7 +23,7 @@ class NotifiController {
 
     static async addNotification(req, res) {
         try {
-            const { userId, content, customId, categoryId } = req.body; // Thêm categoryId vào
+            const { userId, content, customId, categoryId } = req.body; 
 
             if (!userId || !content) {
                 return res.status(400).json({ message: "Thiếu thông tin người dùng hoặc nội dung thông báo" });
@@ -33,7 +33,7 @@ class NotifiController {
                 userId,
                 content,
                 customId,
-                categoryId, // Lưu categoryId nếu có
+                categoryId, 
             });
 
             await newNotification.save();
@@ -65,7 +65,6 @@ class NotifiController {
     }
 };
 
-// Cron job cho thông báo khi mục tiêu tiết kiệm hết hạn
 cron.schedule('*/1 * * * *', async () => { 
     try {
         const today = new Date();
@@ -98,7 +97,6 @@ cron.schedule('*/1 * * * *', async () => {
     }
 });
 
-// Cron job cho thông báo khi ngân sách hết hạn
 cron.schedule('*/1 * * * *', async () => { 
     try {
         const today = new Date();
@@ -126,7 +124,6 @@ cron.schedule('*/1 * * * *', async () => {
     }
 });
 
-// Cron job cho thông báo khi ngân sách đến hạn
 cron.schedule('*/1 * * * *', async () => {
     try {
         const todayStart = new Date();
