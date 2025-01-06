@@ -13,6 +13,7 @@ const fundRoutes = require('./routes/fund');
 const notifiRoutes = require('./routes/notification');
 const jwt = require('jsonwebtoken');
 const authGoogle = require("./routes/authGoogle");
+const fetch = require("node-fetch");
 const session = require("express-session");
 const passport = require("passport");
 const OAuth2Strategy = require("passport-google-oauth2").Strategy;
@@ -28,9 +29,12 @@ const hobbyCategoryRoutes = require("./routes/HobbyCategory")
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: process.env.URL_FE,
-    methods: "GET, POST, PUT, DELETE, PATCH",
-    credentials: true
+    // origin: process.env.URL_FE,
+    // methods: "GET, POST, PUT, DELETE, PATCH",
+    // credentials: true
+  origin: [process.env.URL_FE, 'https://app.nativenotify.com'],
+  methods:"GET, POST, PUT, DELETE, PATCH",
+  credentials:true
 }))
 
 app.use(session({
@@ -168,6 +172,23 @@ app.use('/api/incomes', income);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/hobbys', hobbyRoutes);
 app.use('/api/hobbyCategoies', hobbyCategoryRoutes);
+
+app.post("/proxy/notification", async (req, res) => {
+    try {
+      const response = await fetch("https://app.nativenotify.com/api/notification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(req.body)
+      });
+  
+      const text = await response.text(); 
+      res.status(response.status).send(text);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
 
 // Start server
 const PORT = process.env.PORT || 4000;
