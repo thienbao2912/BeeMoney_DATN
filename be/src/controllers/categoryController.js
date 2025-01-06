@@ -1,5 +1,6 @@
 const categoryModel = require('../models/Category')
 const Transaction = require("../models/Transaction");
+const Budget = require("../models/Budget");
 class CategoryController {
     static async getAll(req, res) {
         try {
@@ -87,12 +88,12 @@ class CategoryController {
             // Cập nhật tất cả các giao dịch có liên quan đến danh mục bị xóa, set categoryId = null
             await Transaction.updateMany(
                 { categoryId: id },  // Tìm tất cả giao dịch có categoryId là id của danh mục
-                { $set: { categoryId: null } }  // Cập nhật categoryId thành null
+                { $set: { categoryId: null } },
             );
 
             await Budget.updateMany(
                 { categoryId: id },  // Tìm tất cả giao dịch có categoryId là id của danh mục
-                { $set: { categoryId: null } }  // Cập nhật categoryId thành null
+                { $set: { categoryId: null, status: 'inactive' } },  // Cập nhật categoryId thành null
             );
 
             // Xóa danh mục

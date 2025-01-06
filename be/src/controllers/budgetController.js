@@ -192,7 +192,14 @@ class BudgetController {
 
             const existingCategory = await Category.findById(categoryId);
             if (!existingCategory) {
+                // Cập nhật trạng thái ngân sách nếu danh mục không còn tồn tại
                 return res.status(404).json({ message: 'Category not found' });
+            }
+            
+            // Kiểm tra nếu danh mục bị xóa và cập nhật trạng thái ngân sách
+            const categoryExists = await Category.exists({ _id: categoryId });
+            if (!categoryExists) {
+                budget.status = 'inactive';
             }
 
             const budget = await Budget.findById(budgetId);

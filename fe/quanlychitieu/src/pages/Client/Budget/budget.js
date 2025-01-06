@@ -281,10 +281,10 @@ const Budget = () => {
                       </span>
                       <span
                         className={`d-block ${budget.budgetStatus === "available"
-                            ? "text-success"
-                            : budget.budgetStatus === "exhausted"
-                              ? "text-warning"
-                              : "text-danger"
+                          ? "text-success"
+                          : budget.budgetStatus === "exhausted"
+                            ? "text-warning"
+                            : "text-danger"
                           }`}
                       >
                         {budget.budgetStatus === "available" ? (
@@ -317,7 +317,9 @@ const Budget = () => {
                   </div>
 
                   <div className="date text-secondary mb-3">
-                    {budget.status === "inactive" ? (
+                    {budget.status === "inactive" && budget.categoryId === null ? (
+                      <span className="text-danger">Ngừng hoạt động</span>
+                    ) : budget.status === "inactive" ? (
                       <span className="text-danger">Ngân sách đã hết hạn</span>
                     ) : (
                       <>
