@@ -41,9 +41,6 @@ const Categories = () => {
             if (response.message === 'Đã xóa thành công') {
                 setCategories(categories.filter(category => category._id !== id));
                 toast.success('Xóa danh mục thành công!');
-            } else {
-                console.error('Lỗi khi xóa danh mục:', response.message);
-                toast.error('Xóa danh mục thất bại.');
             }
         } catch (error) {
             console.error('Lỗi khi xóa danh mục:', error);
@@ -205,9 +202,10 @@ const Categories = () => {
                     onConfirm={() => {
                         if (goalToDelete) handleDeleteCategory(goalToDelete);
                     }}
-                    message="Bạn có chắc chắn muốn xóa mục tiêu này?"
+                    message="Bạn có chắc chắn muốn xóa danh mục này?"
                 />
             )}
+            <ToastContainer />
         </div>
     );
 };

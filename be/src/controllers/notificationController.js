@@ -87,7 +87,7 @@ cron.schedule('*/1 * * * *', async () => {
                         userId: user._id,
                         content: content,
                         customId: goal._id,
-                        categoryId: goal.categoryId // Lấy categoryId từ SavingsGoal
+                        categoryId: goal.categoryId ? goal.categoryId._id : null // Lấy categoryId từ SavingsGoal
                     });
                 }
             }
@@ -109,14 +109,14 @@ cron.schedule('*/1 * * * *', async () => {
         expiringBudgets.forEach(async (budget) => {
             const user = await User.findById(budget.userId);
             if (user) {
-                const content = `Ngân sách của bạn cho danh mục "${budget.categoryId.name}" chỉ còn 1 ngày là đến hạn.`;
+                const content = `Ngân sách "${budget.name}" của bạn chỉ còn 1 ngày là đến hạn.`;
                 const existingNotification = await Notification.findOne({ customId: budget._id });
                 if (!existingNotification) {
                     await Notification.create({
                         userId: user._id,
                         content,
                         customId: budget._id,
-                        categoryId: budget.categoryId._id // Lưu categoryId từ Budget
+                        categoryId: budget.categoryId ? budget.categoryId._id : null
                     });
                 }
             }
@@ -138,7 +138,7 @@ cron.schedule('*/1 * * * *', async () => {
         dueTodayBudgets.forEach(async (budget) => {
             const user = await User.findById(budget.userId);
             if (user) {
-                const content = `Ngân sách của bạn cho danh mục "${budget.categoryId.name}" đã đến hạn.`;
+                const content = `Ngân sách "${budget.name}" của bạn đã đến hạn.`;
                 const existingNotification = await Notification.findOne({
                     userId: user._id,
                     customId: budget._id,
@@ -149,7 +149,7 @@ cron.schedule('*/1 * * * *', async () => {
                         userId: user._id,
                         content,
                         customId: budget._id,
-                        categoryId: budget.categoryId._id // Lưu categoryId từ Budget
+                        categoryId: budget.categoryId ? budget.categoryId._id : null
                     });
                 }
             }

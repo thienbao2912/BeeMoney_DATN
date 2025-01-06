@@ -251,25 +251,36 @@ const IncomeList = () => {
                                         <tr key={income._id}>
                                             <td className="align-middle">
                                                 <div className="align-items-center justify-content-center">
-                                                    {income.categoryId && income.categoryId.image ? (
-                                                        <img
-                                                            src={income.categoryId.image}
-                                                            alt={income.categoryId.name}
-                                                            width="50"
-                                                            height="50"
-                                                            className="rounded"
-                                                        />
+                                                    {income.categoryId ? (
+                                                        income.categoryId.image ? (
+                                                            <img
+                                                                src={income.categoryId.image}
+                                                                alt={income.categoryId.name}
+                                                                width="50"
+                                                                height="50"
+                                                                className="rounded"
+                                                            />
+                                                        ) : (
+                                                            <div
+                                                                className="placeholder-image"
+                                                                style={{ width: "50px", height: "50px" }}
+                                                            />
+                                                        )
                                                     ) : (
-                                                        <div
-                                                            className="placeholder-image"
-                                                            style={{ width: '50px', height: '50px' }}
-                                                        />
+                                                        <>
+                                                            {/* Hiển thị hình ảnh mặc định khi danh mục không tồn tại */}
+                                                            <img
+                                                                src="/images/exclamation.png"  // Đặt đường dẫn đến hình ảnh mặc định
+                                                                alt="Danh mục đã bị xóa"
+                                                                width="50"
+                                                                height="50"
+                                                                className="rounded"
+                                                            />
+                                                            <p className="text-xs text-secondary mb-0 font-weight-bold">
+                                                                Danh mục đã bị xóa!
+                                                            </p>
+                                                        </>
                                                     )}
-                                                    <div className="ml-2">
-                                                        <p className="text-xs text-secondary mb-0 font-weight-bold">
-                                                            {income.categoryId ? income.categoryId.name : 'Danh mục không tồn tại'}
-                                                        </p>
-                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="align-middle">
@@ -315,26 +326,25 @@ const IncomeList = () => {
             </div>
 
             <div className="pagination justify-content-center mt-3 flex-wrap">
-        {totalPages > 1 && (
-          <ul className="pagination">
-            {Array.from({ length: totalPages }, (_, index) => (
-              <li
-                key={index + 1}
-                className={`page-item ${
-                  currentPage === index + 1 ? "active" : ""
-                }`}
-              >
-                <button
-                  onClick={() => paginate(index + 1)}
-                  className="page-link"
-                >
-                  {index + 1}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                {totalPages > 1 && (
+                    <ul className="pagination">
+                        {Array.from({ length: totalPages }, (_, index) => (
+                            <li
+                                key={index + 1}
+                                className={`page-item ${currentPage === index + 1 ? "active" : ""
+                                    }`}
+                            >
+                                <button
+                                    onClick={() => paginate(index + 1)}
+                                    className="page-link"
+                                >
+                                    {index + 1}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
             {isConfirmationModalOpen && (
                 <ConfirmationModal
                     isOpen={isConfirmationModalOpen}

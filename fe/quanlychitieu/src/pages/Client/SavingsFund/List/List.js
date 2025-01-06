@@ -104,7 +104,7 @@ const SavingsGoalsList = ({ userId }) => {
                         height: "40px",
                         padding: "0",
                     }}
-                  >
+                >
                     <FaPlus style={{ margin: "0", fontSize: "20px" }} />
                 </Button>
             </div>
@@ -126,16 +126,31 @@ const SavingsGoalsList = ({ userId }) => {
                                                 backgroundColor: "#eaf4fc",
                                             }}
                                         >
-                                            <img
-                                               src={goal.categoryId.image|| '/images/chicken.png'}
-                                               alt={goal.categoryId.name || 'Ảnh mục tiêu'}
-                                                className="img-fluid rounded"
-                                                style={{
-                                                    width: "40px",
-                                                    height: "40px",
-                                                    objectFit: "cover",
-                                                }}
-                                            />
+                                            {goal.categoryId && goal.categoryId.image ? (
+                                                <img
+                                                    src={goal.categoryId.image}
+                                                    alt={goal.categoryId.name || 'Ảnh mục tiêu'}
+                                                    className="img-fluid rounded"
+                                                    style={{
+                                                        width: "40px",
+                                                        height: "40px",
+                                                        objectFit: "cover",
+                                                    }}
+                                                />
+                                            ) : (
+                                                <>
+                                                    <img
+                                                        src="/images/exclamation.png"
+                                                        alt="Danh mục đã bị xóa"
+                                                        className="img-fluid rounded"
+                                                        style={{
+                                                            width: "40px",
+                                                            height: "40px",
+                                                            objectFit: "cover",
+                                                        }}
+                                                    />
+                                                </>
+                                            )}
                                         </div>
                                         <span className="fw-bold">{goal.name || "Tên mục tiêu"}</span>
                                     </Col>

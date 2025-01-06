@@ -335,10 +335,20 @@ const IncomeAdd = () => {
                           height="50"
                         />
                       ) : (
-                        <div
-                          className="placeholder-image"
-                          style={{ width: "50px", height: "50px" }}
-                        />
+                        <>
+                          {/* Hiển thị hình ảnh mặc định khi danh mục không tồn tại */}
+                          <img
+                            src="/images/exclamation.png"  // Đặt đường dẫn đến hình ảnh mặc định
+                            alt="Danh mục đã bị xóa"
+                            width="50"
+                            height="50"
+                            className="rounded"
+                            style={{ marginRight: "8px" }} // Khoảng cách giữa ảnh và chữ
+                          />
+                          <p className="text-xs text-secondary mb-0 font-weight-bold" style={{ marginLeft: "4px" }}>
+                            Danh mục đã bị xóa!
+                          </p>
+                        </>
                       )}
                     </div>
                     <div className="text-center flex-grow-1">

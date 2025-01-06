@@ -95,15 +95,40 @@ const BudgetDetail = () => {
                                     <thead>
                                         <tr>
                                             <td className="d-flex justify-content-center align-items-center">
-                                                {budget.categoryId?.image && <img src={budget.categoryId.image} alt="Category" style={{ width: 50 }} className="me-2" />}
+                                                {budget.categoryId && budget.categoryId.image ? (
+                                                    <img src={budget.categoryId.image} alt="Category" style={{ width: 50 }} className="me-2" />
+                                                ) : (
+                                                    <img src="/images/exclamation.png" alt="Default Category" style={{ width: 50 }} className="me-2" />
+                                                )}
                                             </td>
                                             <td className="justify-content-between align-items-center">
-                                                <h4 className="mb-0"><strong>{budget.categoryId?.name || 'Chưa có tên danh mục'}</strong></h4>
+                                                <h4 className="mb-0"><strong>{budget.name || 'Chưa có tên danh mục'}</strong></h4>
                                             </td>
-                                            <td><strong><span className="d-block text-end large-text">{formatCurrency(budget.amount)}</span></strong></td>
+                                            <td>
+                                                <strong>
+                                                    <span className="d-block text-end large-text">
+                                                        {budget.status === "active" ? (
+                                                            <span className="text-success">
+                                                                <i className="bi bi-circle-fill" style={{ color: "green", fontSize: "10px", marginRight: "5px" }}></i>
+                                                                Đang hoạt động
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-danger">
+                                                                <i className="bi bi-circle-fill" style={{ color: "red", fontSize: "10px", marginRight: "5px" }}></i>
+                                                                Ngừng hoạt động
+                                                            </span>
+                                                        )}
+                                                    </span>
+                                                </strong>
+                                            </td>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr>
+                                            <td></td>
+                                            <td><strong>Số tiền đặt ra</strong></td>
+                                            <td><strong><span className="d-block text-end text-success">{formatCurrency(budget.amount || 0)}</span></strong></td>
+                                        </tr>
                                         <tr>
                                             <td></td>
                                             <td><strong>Đã chi</strong></td>
@@ -112,7 +137,7 @@ const BudgetDetail = () => {
                                         <tr>
                                             <td></td>
                                             <td><strong>Còn lại</strong></td>
-                                            <td><strong><span className="d-block text-end text-success">{formatCurrency(budget.remainingBudget || 0)}</span></strong></td>
+                                            <td><strong><span className="d-block text-end text-danger">{formatCurrency(budget.remainingBudget || 0)}</span></strong></td>
                                         </tr>
                                         <tr>
                                             <td className="d-flex justify-content-center align-items-center">
@@ -126,9 +151,11 @@ const BudgetDetail = () => {
                                         <tr>
                                             <td></td>
                                             <td className='d-block text-start'>Kéo dài: {totalDays} ngày</td>
-                                            <td>
-                                                <span className='d-block text-end'>Còn lại: {daysRemaining} ngày</span>
-                                            </td>
+                                            {daysRemaining > 0 && (
+                                                <td>
+                                                    <span className="d-block text-end">Còn lại: {daysRemaining} ngày</span>
+                                                </td>
+                                            )}
                                         </tr>
                                     </tbody>
                                 </table>
@@ -168,6 +195,16 @@ const BudgetDetail = () => {
                                     )}
                                 </ul>
                             </div>
+                            {budget.budgetStatus === 'exhausted' && (
+                                <div className="text-end text-warning mt-3">
+                                    Ngân sách đã hết
+                                </div>
+                            )}
+                            {budget.budgetStatus === 'over-budget' && (
+                                <div className="text-end text-danger mt-3">
+                                    Chi tiêu vượt ngân sách
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

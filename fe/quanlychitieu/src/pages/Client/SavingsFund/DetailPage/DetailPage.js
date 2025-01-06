@@ -334,7 +334,7 @@ const handleInvite = async (e) => {
                     <tr>
                       <td className="text-center" style={{ width: '100px' }}>
                         <img
-                          src={fund.categoryId && fund.categoryId.image ? fund.categoryId.image : '/images/overcast.png'}
+                          src={fund.categoryId && fund.categoryId.image ? fund.categoryId.image : '/images/exclamation.png'}
                           width="50"
                           alt="Category"
                         />

@@ -8,19 +8,32 @@ class TransactionController {
       let queryString = req.query;
       let type = queryString.type;
       let data = [];
+
+      // Nếu có loại giao dịch (type), tìm theo loại giao dịch
       if (type) {
-        data = await Transaction.find({ userId, type }).populate({
+        data = await Transaction.find({
+          userId,
+          type,
+          $or: [{ categoryId: { $exists: true } }, { categoryId: null }] // Lọc những giao dịch có categoryId là null hoặc tồn tại
+        }).populate({
           path: "categoryId",
           select: "image name",
         });
+
         return res.status(200).json({
           data,
         });
       }
-      data = await Transaction.find({ userId }).populate({
+
+      // Nếu không có type, lấy tất cả giao dịch của người dùng, bao gồm cả những giao dịch có categoryId là null
+      data = await Transaction.find({
+        userId,
+        $or: [{ categoryId: { $exists: true } }, { categoryId: null }] // Tương tự, lấy giao dịch có categoryId null hoặc tồn tại
+      }).populate({
         path: "categoryId",
         select: "image name",
       });
+
       console.log(data);
       res.status(200).json({
         data,
@@ -218,12 +231,26 @@ class TransactionController {
           },
         });
 
+        // Cập nhật status và budgetStatus
+        if (new Date() > new Date(budget.endDate)) {
+          budget.status = 'inactive';
+        }
+
         const totalExpenses = expenses.reduce((total, transaction) => {
           return total + parseFloat(transaction.amount);
         }, 0);
 
         budget.totalExpenses = totalExpenses;
         budget.remainingBudget = budget.amount - totalExpenses;
+
+        if (budget.remainingBudget > 0) {
+          budget.budgetStatus = 'available';
+        } else if (budget.remainingBudget === 0) {
+          budget.budgetStatus = 'exhausted';
+        } else {
+          budget.budgetStatus = 'over-budget';
+        }
+
         await budget.save();
       }
     } catch (error) {

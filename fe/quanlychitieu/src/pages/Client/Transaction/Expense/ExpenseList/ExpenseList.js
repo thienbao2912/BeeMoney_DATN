@@ -39,7 +39,7 @@ const ExpenseList = () => {
     }
     return months;
   };
-  
+
   useEffect(() => {
     const fetchExpenses = async () => {
       setLoading(true);
@@ -51,7 +51,7 @@ const ExpenseList = () => {
           );
           setExpenses(sortedExpenses);
           setFilteredExpenses(sortedExpenses);
-          
+
         } else {
           throw new Error("Unexpected data format");
         }
@@ -127,7 +127,7 @@ const ExpenseList = () => {
           filtered = filtered.filter((expense) => {
             const expenseMonth = new Date(expense.date)
               .toISOString()
-              .slice(0, 7); 
+              .slice(0, 7);
             return expenseMonth === selectedMonth;
           });
         }
@@ -245,13 +245,13 @@ const ExpenseList = () => {
           )}
         </div>
 
-        
+
       </div>
       <div className="text-center mt-4 mb-4">
-                <Link to="/expense/add" className="primary">
-                    <i className="fa fa-plus"></i> Thêm chi tiêu
-                </Link>
-            </div>
+        <Link to="/expense/add" className="primary">
+          <i className="fa fa-plus"></i> Thêm chi tiêu
+        </Link>
+      </div>
       <div className="card">
         <div className="card-body">
           <div className="table-responsive">
@@ -301,27 +301,36 @@ const ExpenseList = () => {
                     <tr key={expense._id}>
                       <td className="align-middle">
                         <div className="align-items-center justify-content-center">
-                          {expense.categoryId && expense.categoryId.image ? (
-                            <img
-                              src={expense.categoryId.image}
-                              alt={expense.categoryId.name}
-                              width="50"
-                              height="50"
-                              className="rounded"
-                            />
+                          {expense.categoryId ? (
+                            expense.categoryId.image ? (
+                              <img
+                                src={expense.categoryId.image}
+                                alt={expense.categoryId.name}
+                                width="50"
+                                height="50"
+                                className="rounded"
+                              />
+                            ) : (
+                              <div
+                                className="placeholder-image"
+                                style={{ width: "50px", height: "50px" }}
+                              />
+                            )
                           ) : (
-                            <div
-                              className="placeholder-image"
-                              style={{ width: "50px", height: "50px" }}
-                            />
+                            <>
+                              {/* Hiển thị hình ảnh mặc định khi danh mục không tồn tại */}
+                              <img
+                                src="/images/exclamation.png"  // Đặt đường dẫn đến hình ảnh mặc định
+                                alt="Danh mục đã bị xóa"
+                                width="50"
+                                height="50"
+                                className="rounded"
+                              />
+                              <p className="text-xs text-secondary mb-0 font-weight-bold">
+                                Danh mục đã bị xóa!
+                              </p>
+                            </>
                           )}
-                          <div className="ml-2">
-                            <p className="text-xs text-secondary mb-0 font-weight-bold">
-                              {expense.categoryId
-                                ? expense.categoryId.name
-                                : "Danh mục không tồn tại"}
-                            </p>
-                          </div>
                         </div>
                       </td>
                       <td className="align-middle">
@@ -382,9 +391,8 @@ const ExpenseList = () => {
             {Array.from({ length: totalPages }, (_, index) => (
               <li
                 key={index + 1}
-                className={`page-item ${
-                  currentPage === index + 1 ? "active" : ""
-                }`}
+                className={`page-item ${currentPage === index + 1 ? "active" : ""
+                  }`}
               >
                 <button
                   onClick={() => paginate(index + 1)}
