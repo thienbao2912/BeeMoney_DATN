@@ -1,0 +1,136 @@
+.premium-container {
+  padding: 20px;
+  text-align: center;
+  background-image: url('../../../../public/images/background_gardiant.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100vh;
+}
+
+
+.premium-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* Khoảng cách giữa logo và tiêu đề */
+  margin-bottom: 20px;
+}
+
+.premium-logo {
+  width: 40px; /* Kích thước logo */
+  height: 40px;
+  
+}
+
+.premium-title {
+  font-size: 24px;
+  margin: 0;
+  color: #333;
+  font-weight: bold;
+}
+.premium-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.premium-subtitle {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+/* Phần giới thiệu */
+.premium-intro {
+  margin: 20px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.premium-intro p {
+  line-height: 1.6;
+}
+
+.btn-try-free {
+  background-color: #28a745;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.btn-try-free:hover {
+  background-color: #218838;
+}
+
+/* Các thẻ premium */
+.premium-cards {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.premium-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  width: 250px;
+  min-height: 350px; /* Đảm bảo chiều cao bằng nhau */
+  display: flex;
+  flex-direction: column; /* Nội dung theo cột */
+  justify-content: space-between; /* Căn đều */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  background-color: #fff;
+}
+
+.premium-card h3 {
+  font-size: 20px;
+  color: #333;
+  white-space: nowrap; /* Ngăn xuống hàng */
+  overflow: hidden; /* Ẩn phần tràn */
+  text-overflow: ellipsis; /* Dấu "..." nếu dài quá */
+}
+
+.premium-price {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 10px 0;
+  color: #333;
+}
+
+.premium-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+}
+
+.premium-card li {
+  margin-bottom: 5px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-active {
+  background-color: #ccc;
+  color: #666;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: not-allowed;
+}

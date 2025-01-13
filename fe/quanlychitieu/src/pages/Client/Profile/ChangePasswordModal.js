@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";  
 import { verifyOldPassword, updateUser } from "../../../service/Auth";
-import { useNavigate } from "react-router-dom";
+
 
 const ChangePasswordModal = ({ show, handleClose, userId, profile }) => {
   const [oldPassword, setOldPassword] = useState("");

@@ -47,7 +47,7 @@ import Hobby from './pages/Client/hobby/Hobby';
 import HobbyCategory from './pages/Client/hobbyCategory/hobbyCategory';
 import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
 import AdminRoutes from './pages/Admin/Router/AdminRoutes';
-
+import Premium from './pages/Client/Premium/premium';
 import { NotificationProvider } from './components/Client/Header/NotificationContext';
 
 function App() {
@@ -92,7 +92,7 @@ function App() {
           <Route path="/savings-fund/edit/:id" element={<EditSavingsFund/>} />
           <Route path="/hobby" element={<Hobby/>} />
           <Route path="/hobbyCategory" element={<HobbyCategory/>} />
-
+          <Route path='/premium' element={<Premium/>} />
         </Route>
         <Route path="/admin/*" element={<PrivateRoute element={<AdminRoutes />} requiredRole="admin" />} />
       </>

@@ -4,7 +4,8 @@ import { Form, Button, Alert } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { storage } from "../../../config/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import ChangePasswordModal from "./ChangePasswordModal"; 
+import ChangePasswordModal from "./ChangePasswordModal";
+import ChangeEmailModal from "./ChangeEmailModal" ;
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import "./Profile.css";
 

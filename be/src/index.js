@@ -16,9 +16,11 @@ const authGoogle = require("./routes/authGoogle");
 const session = require("express-session");
 const passport = require("passport");
 const OAuth2Strategy = require("passport-google-oauth2").Strategy;
+const order = require("./routes/order")
 require('../passport');
 const User = require('./models/User');
-
+const paymentRoutes = require('./routes/paymentRoutes');
+const vnpayRoutes = require('./routes/vnpayRoutes');
 // const expenseRoutes= require("./routes/expenseRoutes");
 const income = require("./routes/income");
 const budgetRoutes = require("./routes/budget")
@@ -136,6 +138,7 @@ app.get("/logout", (req, res, next) => {
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+
 // app.use("/api/auth", authGoogle);
 app.use("/api/categories", categorieRoutes);
 app.use("/api/v2/categories", require('./routes/category'));
@@ -146,6 +149,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/savings-fund", savingsFund)
 app.use('/api', fundRoutes);
 app.use('/api/notification', notifiRoutes);
+app.use('/order', order);
+
+// app.use('/api/payment', paymentRoutes);
+// app.use('/api/vnpay', vnpayRoutes);    // Route xử lý VNPay Return
 connectDB();
 
 // app.use('/api/expenses', expenseRoutes);
