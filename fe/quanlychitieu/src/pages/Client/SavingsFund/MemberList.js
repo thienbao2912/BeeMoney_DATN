@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getFundMembers } from '../../../service/SavingsFund';
 
-const MemberList = ({ fundId }) => {
+const MemberList = ({ fundId, memberCount }) => {
     const [members, setMembers] = useState([]);
     const [error, setError] = useState(null);
 
@@ -22,11 +22,13 @@ const MemberList = ({ fundId }) => {
         return <div>{error}</div>;
     }
 
+    const totalMembers = members.length > 0 ? members.length : memberCount || 0;
+
     return (
         <div className="col-md-6">
             <div className="d-flex justify-content-between align-items-center mb-2 mt-2">
                 <h6 className="mb-0 text-secondary">
-                    <i className="fa fa-user me-2"></i>Thành viên
+                    <i className="fa fa-user me-2"></i>Thành viên {totalMembers} người
                 </h6>
             </div>
             <div className="card shadow">
@@ -35,7 +37,6 @@ const MemberList = ({ fundId }) => {
                         <table className="table table-hover align-items-center">
                             <tbody>
                                 {members.map((member) => {
-                                    // Xử lý nếu thông tin người dùng không tồn tại
                                     const user = member.userId || {};
                                     const avatar = user.avatar || '/images/sad.png';
                                     const name = user.name || 'Người dùng không tồn tại';

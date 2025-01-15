@@ -218,72 +218,67 @@ const DashboardStatistics = () => {
   return (
     <div className="container-fluid py-4">
 
-      <div className="row">
-        <div className="col-md-6 d-flex">
-          <div className="card w-100 mt-4">
-            <div className="card-header text-center">
-              <h5>Người Dùng Tạo Trong Tháng</h5>
-            </div>
-            <div className="card-body d-flex flex-column">
-              {currentUsers.length === 0 ? (
-                <p>Không có người dùng mới trong tháng này.</p>
-              ) : (
-                <>
-                  <table className="table">
-                    <thead className="thead-dark">
-                      <tr>
-                        <th style={{ width: "20%" }} scope="col">
-                          #
-                        </th>
-                        <th style={{ width: "40%" }} scope="col">
-                          Tên Người Dùng
-                        </th>
-                        <th style={{ width: "40%" }} scope="col">
-                          Ngày Tạo
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {currentUsers.map((user, index) => (
-                        <tr key={user._id}>
-                          <th scope="row">{indexOfFirstUser + index + 1}</th>
-                          <td>{user.name}</td>
-                          <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </>
-              )}
-            </div>
-            <nav>
-              <ul className="pagination justify-content-center">
-                {pageNumbers.map((number) => (
-                  <li key={number} className="page-item">
-                    <button onClick={() => paginate(number)} className="page-link">
-                      {number}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
-        </div>
-
-        <div className="col-md-6 d-flex">
-          <div className="card w-100 mt-4">
-            <div className="card-header text-center">
-              <h5>Tổng Người Dùng Trong 6 Tháng Qua</h5>
-            </div>
-            <div className="card-body d-flex flex-column">
-              <Bar
-                data={barDataSixMonths}
-                options={{ scales: { y: { beginAtZero: true } } }}
-              />
-            </div>
-          </div>
-        </div>
+<div className="row align-items-stretch">
+  <div className="col-md-6 d-flex">
+    <div className="card w-100 mt-4">
+      <div className="card-header text-center">
+        <h5>Người Dùng Tạo Trong Tháng</h5>
       </div>
+      <div className="card-body d-flex flex-column">
+        {currentUsers.length === 0 ? (
+          <p>Không có người dùng mới trong tháng này.</p>
+        ) : (
+          <>
+            <table className="table">
+              <thead className="thead-dark">
+                <tr>
+                  <th style={{ width: "20%" }} scope="col">#</th>
+                  <th style={{ width: "40%" }} scope="col">Tên Người Dùng</th>
+                  <th style={{ width: "40%" }} scope="col">Ngày Tạo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentUsers.map((user, index) => (
+                  <tr key={user._id}>
+                    <th scope="row">{indexOfFirstUser + index + 1}</th>
+                    <td>{user.name}</td>
+                    <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+      </div>
+    
+        <ul className="pagination justify-content-center">
+          {pageNumbers.map((number) => (
+            <li key={number} className="page-item">
+              <button onClick={() => paginate(number)} className="page-link">
+                {number}
+              </button>
+            </li>
+          ))}
+        </ul>
+    
+    </div>
+  </div>
+
+  <div className="col-md-6 d-flex">
+    <div className="card w-100 mt-4">
+      <div className="card-header text-center">
+        <h5>Tổng Người Dùng Trong 6 Tháng Qua</h5>
+      </div>
+      <div className="card-body d-flex flex-column">
+        <Bar
+          data={barDataSixMonths}
+          options={{ scales: { y: { beginAtZero: true } } }}
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
       <div className="row">
         <div className="col-md-6">
           <div className="card mt-4">

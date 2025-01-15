@@ -15,6 +15,7 @@ const EditSavingsFund = () => {
     startDate: '',
     endDate: '',
     categoryId: '',
+    memberCount: '',
   });
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -32,7 +33,7 @@ const EditSavingsFund = () => {
         );
 
         const savingFundResponse = await getSavingsFundById(id);
-        
+
         const formatDate = (dateStr) => {
           if (!dateStr) return '';
           const date = new Date(dateStr);
@@ -44,6 +45,7 @@ const EditSavingsFund = () => {
           currentAmount: formatCurrency(savingFundResponse.currentAmount || 0),
           startDate: formatDate(savingFundResponse.startDate),
           endDate: formatDate(savingFundResponse.endDate),
+          memberCount: savingFundResponse.memberCount,
           categoryId: savingFundResponse.categoryId,
         });
       } catch (error) {
@@ -58,8 +60,19 @@ const EditSavingsFund = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Đảm bảo số lượng thành viên là số nguyên dương
+    if (name === "memberCount" && value !== "") {
+      const parsedValue = parseInt(value, 10);
+      if (isNaN(parsedValue) || parsedValue <= 0) {
+        toast.error("Số lượng thành viên phải là số nguyên dương!");
+        return;
+      }
+    }
+
     setFormData({ ...formData, [name]: value });
   };
+
 
   const handleCategorySelect = (categoryId) => {
     setFormData({ ...formData, categoryId });
@@ -79,53 +92,57 @@ const EditSavingsFund = () => {
 
   const unformatCurrency = (value) => value.replace(/[^\d]/g, '');
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const errors = [];
+    const errors = [];
 
-  if (!formData.name.trim()) {
-    errors.push('Tên quỹ không được bỏ trống!');
-  }
-  if (!formData.targetAmount) {
-    errors.push('Số tiền mục tiêu không được bỏ trống!');
-  }
-  if (!formData.startDate) {
-    errors.push('Ngày bắt đầu không được bỏ trống!');
-  }
-  if (!formData.endDate) {
-    errors.push('Ngày kết thúc không được bỏ trống!');
-  }
-  if (formData.startDate && formData.endDate && new Date(formData.startDate) > new Date(formData.endDate)) {
-    errors.push('Ngày bắt đầu không được lớn hơn ngày kết thúc!');
-  }
-
-  if (errors.length > 0) {
-    errors.forEach((error) => toast.error(error));
-    return;
-  }
-
-  try {
-    const payload = {
-      ...formData,
-      currentAmount: unformatCurrency(formData.currentAmount),
-      targetAmount: unformatCurrency(formData.targetAmount),
-    };
-
-    if (!id) {
-      throw new Error('Fund ID is undefined');
+    if (!formData.name.trim()) {
+      errors.push("Tên quỹ không được bỏ trống!");
+    }
+    if (!formData.targetAmount) {
+      errors.push("Số tiền mục tiêu không được bỏ trống!");
+    }
+    if (!formData.startDate) {
+      errors.push("Ngày bắt đầu không được bỏ trống!");
+    }
+    if (!formData.endDate) {
+      errors.push("Ngày kết thúc không được bỏ trống!");
+    }
+    if (
+      formData.startDate &&
+      formData.endDate &&
+      new Date(formData.startDate) > new Date(formData.endDate)
+    ) {
+      errors.push("Ngày bắt đầu không được lớn hơn ngày kết thúc!");
+    }
+    if (!formData.memberCount || parseInt(formData.memberCount, 10) <= 0) {
+      errors.push("Số lượng thành viên phải là số nguyên dương!");
     }
 
-    const updatedFund = await editSavingsFund(id, payload);
-    navigate(`/savings-fund/detail/${id}`);
-    toast.success('Cập nhật thành công!');
-  } catch (error) {
-    toast.error('Cập nhật thất bại, vui lòng thử lại!');
-  }
-};
+    if (errors.length > 0) {
+      errors.forEach((error) => toast.error(error));
+      return;
+    }
 
-  
+    try {
+      const payload = {
+        ...formData,
+        currentAmount: unformatCurrency(formData.currentAmount),
+        targetAmount: unformatCurrency(formData.targetAmount),
+      };
 
+      if (!id) {
+        throw new Error("Fund ID is undefined");
+      }
+
+      await editSavingsFund(id, payload);
+      navigate(`/savings-fund/detail/${id}`);
+      toast.success("Cập nhật thành công!");
+    } catch (error) {
+      toast.error("Cập nhật thất bại, vui lòng thử lại!");
+    }
+  };
   if (loading) {
     return (
       <div className="text-center mt-5">
@@ -134,7 +151,6 @@ const handleSubmit = async (e) => {
       </div>
     );
   }
-
   return (
     <div className="container">
       <nav aria-label="breadcrumb">
@@ -169,18 +185,19 @@ const handleSubmit = async (e) => {
                   onChange={handleAmountInput}
                 />
               </div>
-              <div className="form-group col">
-                <label htmlFor="currentAmount" className="form-label">Số tiền hiện tại</label>
-                <input
-                  type="text"
-                  id="currentAmount"
-                  className="form-control"
-                  name="currentAmount"
-                  value={formData.currentAmount}
-                  onChange={handleAmountInput}
-                  disabled
-                />
-              </div>
+
+            </div>
+            <div className="form-group col">
+              <label htmlFor="memberCount" className="form-label">Số lượng thành viên</label>
+              <input
+                type="number"
+                id="memberCount"
+                className="form-control"
+                name="memberCount"
+                value={formData.memberCount}
+                onChange={handleInputChange}
+                min="1"
+              />
             </div>
             <div className="form-row">
               <div className="form-group col">

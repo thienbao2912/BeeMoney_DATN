@@ -53,3 +53,17 @@
     color: #000;
 }
 
+.card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .card-body {
+    flex-grow: 1;
+  }
+  
+  .d-flex .card {
+    min-height: 100%;
+  }
+  

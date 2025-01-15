@@ -36,12 +36,12 @@ const sendConfirmationEmail = async (email, code) => {
             <header style="text-align: center; margin-bottom: 20px;">
                 <img src="https://firebasestorage.googleapis.com/v0/b/dax-bemoney.appspot.com/o/logoemail%2Femail-thankyou.png?alt=media&token=d8b6f8f3-7563-467e-9ac4-848eaf7a7a1b" alt="BeeMoney Logo" style="max-width: 590px;">
             </header>
-    
+        
             <!-- Title -->
             <h2 style="color: #4CAF50; text-align: center; font-size: 20px; margin-bottom: 15px; font-weight: 600;">
                 Bạn Đã Nhận Một Lời Mời!
             </h2>
-    
+                https://beemoney.id.vn/login
             <!-- Intro -->
             <p style="font-size: 16px; line-height: 1.6; text-align: center; color: #555; margin-bottom: 20px;">
                 Bạn được mời tham gia Quỹ Tiết Kiệm BeeMoney. Mã xác nhận để tham gia:
@@ -67,11 +67,6 @@ const sendConfirmationEmail = async (email, code) => {
         </div>
         `
     };
-    
-    
-    
-    
-
     try {
         await transporter.sendMail(mailOptions);
         console.log('Email đã được gửi thành công');
@@ -79,21 +74,23 @@ const sendConfirmationEmail = async (email, code) => {
         console.error('Error sending email:', error);
     }
 };
-
 class SavingsFundController {
     static async sendInviteCode(req, res) {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-    
         const { email, fundId } = req.body;
-    
         try {
             // Tìm quỹ tiết kiệm theo ID
             const savingsFund = await SavingsFund.findById(fundId);
             if (!savingsFund) {
                 return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
+            }
+    
+            // Kiểm tra xem số lượng thành viên hiện tại đã đạt giới hạn chưa
+            if (savingsFund.members.length >= savingsFund.memberCount) {
+                return res.status(401).json({ message: 'Số lượng thành viên đã đạt giới hạn' });
             }
     
             // Kiểm tra xem email đã tham gia quỹ chưa
@@ -117,17 +114,12 @@ class SavingsFundController {
         }
     }
     
-    
-
-
     static async acceptInviteByCode(req, res) {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-
         const { code } = req.body;
-
         try {
             const confirmation = await Confirmation.findOne({ code });
             if (!confirmation) {
@@ -137,22 +129,18 @@ class SavingsFundController {
             if (confirmation.expiresAt < new Date()) {
                 return res.status(400).json({ message: 'Mã xác nhận đã hết hạn' });
             }
-
             const savingsFund = await SavingsFund.findById(confirmation.fundId);
             if (!savingsFund) {
                 return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
             }
-
             // Kiểm tra và khởi tạo members nếu nó không tồn tại
             if (!savingsFund.members) {
                 savingsFund.members = [];
             }
-
             // Kiểm tra nếu người dùng đã là thành viên
             if (savingsFund.members.some(member => member.userId.equals(req.user.id))) {
                 return res.status(400).json({ message: 'Tài khoản đã tồn tại trong quỹ tiết kiệm' });
             }
-
             // Thêm người dùng vào quỹ tiết kiệm
             savingsFund.members.push({
                 userId: req.user.id,
@@ -160,7 +148,6 @@ class SavingsFundController {
             });
             await savingsFund.save();
             await Confirmation.deleteOne({ code });
-
             res.json({ message: 'Tham gia quỹ tiết kiệm thành công', savingsFund });
         } catch (err) {
             console.error(err.message);

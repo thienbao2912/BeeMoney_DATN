@@ -9,7 +9,7 @@ class SavingsFundController {
             return res.status(400).json({ errors: errors.array() });
         }
         const userId = req.user.id;
-        const { name, targetAmount, categoryId, startDate, endDate } = req.body;
+        const { name, targetAmount, categoryId, startDate, endDate,memberCount } = req.body;
         if (new Date(startDate) >= new Date(endDate)) {
             return res.status(400).json({ message: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc' });
         }
@@ -25,6 +25,7 @@ class SavingsFundController {
                 startDate: new Date(startDate),
                 endDate: new Date(endDate),
                 userId,
+                memberCount,
                 members: [
                     {
                         userId: req.user.id,
@@ -180,23 +181,27 @@ class SavingsFundController {
     static async editSavingsFund(req, res) {
         const { id } = req.params; 
         const userId = req.user.id; 
-        const { name, targetAmount, categoryId, startDate, endDate } = req.body; 
+        const { name, targetAmount, categoryId, startDate, endDate, memberCount } = req.body; 
     
         try {
+            // Kiểm tra ngày bắt đầu và ngày kết thúc
             if (new Date(startDate) >= new Date(endDate)) {
                 return res.status(400).json({ message: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc' });
             }
     
+            // Tìm quỹ tiết kiệm theo ID
             const fund = await SavingsFund.findById(id);
             if (!fund) {
                 return res.status(404).json({ message: 'Quỹ tiết kiệm không tồn tại' });
             }
     
+            // Xác minh quyền sở hữu
             const isOwner = fund.userId.toString() === userId;
             if (!isOwner) {
                 return res.status(403).json({ message: 'Bạn không có quyền chỉnh sửa quỹ tiết kiệm này' });
             }
     
+            // Kiểm tra danh mục nếu có
             if (categoryId) {
                 const category = await Category.findById(categoryId);
                 if (!category) {
@@ -204,20 +209,36 @@ class SavingsFundController {
                 }
             }
     
+            // Kiểm tra và cập nhật memberCount
+            if (memberCount !== undefined) {
+                const parsedMemberCount = parseInt(memberCount, 10);
+                if (isNaN(parsedMemberCount) || parsedMemberCount < 0) {
+                    return res.status(400).json({ message: 'Số lượng thành viên phải là số nguyên không âm' });
+                }
+                if (parsedMemberCount < fund.memberCount) {
+                    return res.status(400).json({ message: 'Số lượng thành viên mới không được nhỏ hơn hiện tại' });
+                }
+                fund.memberCount = parsedMemberCount;
+            }
+    
+            // Cập nhật các trường khác nếu có
             if (name) fund.name = name;
             if (targetAmount) fund.targetAmount = targetAmount;
             if (categoryId) fund.categoryId = categoryId;
             if (startDate) fund.startDate = new Date(startDate);
             if (endDate) fund.endDate = new Date(endDate);
     
+            // Lưu thay đổi
             const updatedFund = await fund.save();
     
+            // Phản hồi thành công
             res.status(200).json({ message: 'Cập nhật quỹ tiết kiệm thành công', updatedFund });
         } catch (error) {
             console.error("Error updating savings fund:", error); 
             res.status(500).json({ message: 'Server error', error: error.message });
         }
     }
+    
     static async deleteSavingsFund(req, res) {
         try {
             const fundId = req.params.id; // ID của quỹ cần xóa

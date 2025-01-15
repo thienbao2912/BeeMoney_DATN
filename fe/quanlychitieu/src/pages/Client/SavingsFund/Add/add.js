@@ -19,11 +19,13 @@ const SavingsFundAdd = () => {
         defaultValues: {
             name: '',
             targetAmount: '0',
+            memberCount: '', 
             categoryId: '',
-            startDate: today.toISOString().split('T')[0], 
+            startDate: today.toISOString().split('T')[0],
             endDate: tomorrow.toISOString().split('T')[0],
         }
     });
+    
 
     useEffect(() => {
         const fetchCategoriesData = async () => {
@@ -45,43 +47,44 @@ const SavingsFundAdd = () => {
         const fetchUserSavingsGoals = async () => {
             try {
                 const data = await getUserSavingsGoals();
-                setRecentFunds(data);
+                // Giả sử `createdAt` là trường thể hiện ngày tạo quỹ
+                const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setRecentFunds(sortedData);
             } catch (error) {
                 console.error('Error fetching user savings goals:', error);
             } finally {
                 setIsLoadingFunds(false);
             }
         };
-
+    
         fetchUserSavingsGoals();
     }, []);
+    
     const unformatCurrency = (value) => {
         if (typeof value === 'string') {
-          return value.replace(/[^\d]/g, '');
+            return value.replace(/[^\d]/g, '');
         }
         return '';
-      };
+    };
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
             const targetAmount = unformatCurrency(data.targetAmount);
-            // Kiểm tra số tiền mục tiêu phải ít nhất 10,000đ
             if (targetAmount < 10000) {
-              toast.warning('Số tiền mục tiêu phải ít nhất 10,000đ');
-              setIsLoadingFunds(false);
-              return;
+                toast.warning('Số tiền mục tiêu phải ít nhất 10,000đ');
+                setIsSubmitting(false);
+                return;
             }
+    
             const payload = {
                 ...data,
                 targetAmount: Number(data.targetAmount.replace(/\./g, '').replace(/,/g, ''))
             };
-
-            console.log("Sending data:", payload);
+    
             const response = await createSavingsFund(payload);
-            console.log("API response:", response);
-
             const updatedFunds = await getUserSavingsGoals();
-            setRecentFunds(updatedFunds);
+            const sortedFunds = updatedFunds.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setRecentFunds(sortedFunds);
             reset();
         } catch (error) {
             console.error('Error creating savings fund:', error);
@@ -89,6 +92,7 @@ const SavingsFundAdd = () => {
             setIsSubmitting(false);
         }
     };
+    
 
     const formatCurrency = (amount) => {
         if (amount == null || isNaN(amount)) return '0 VNĐ';
@@ -149,6 +153,19 @@ const SavingsFundAdd = () => {
                                     className={`form-control ${errors.targetAmount ? 'is-invalid' : ''}`}
                                 />
                                 {errors.targetAmount && <div className="invalid-feedback">{errors.targetAmount.message}</div>}
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="memberCount" className="form-label">Số lượng thành viên</label>
+                                <input
+                                    type="memberCount"
+                                    id="memberCount"
+                                    {...register('memberCount', {
+                                        required: 'Số lượng thành viên là bắt buộc',
+                                        min: { value: 1, message: 'Số lượng thành viên phải lớn hơn 0' }
+                                    })}
+                                    className={`form-control ${errors.memberCount ? 'is-invalid' : ''}`}
+                                />
+                                {errors.memberCount && <div className="invalid-feedback">{errors.memberCount.message}</div>}
                             </div>
                             <Row>
                                 <Col md={6}>
@@ -275,7 +292,6 @@ const SavingsFundAdd = () => {
                                 recentFunds.length > 0 ? (
                                     recentFunds.slice(0, 15).map((fund, index) => {
                                         const fundCategory = categories.find(category => category._id === fund.categoryId);
-
                                         return (
                                             <ListGroup.Item key={index} className="d-flex align-items-center mb-3 p-3 border-0" style={{ boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)" }}>
                                                 {fundCategory && (
@@ -293,8 +309,6 @@ const SavingsFundAdd = () => {
                                                         <span className="flex-grow-1" style={{ fontWeight: "500", fontSize: "1rem" }}> {fund.name}</span>
                                                     </>
                                                 )}
-                                               
-                                              
                                                 <img
                                                     src={fund.categoryId.image}
                                                     alt={fund.categoryId.name}

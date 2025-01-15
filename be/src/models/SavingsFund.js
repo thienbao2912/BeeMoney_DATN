@@ -12,15 +12,14 @@ const SavingsFundSchema = new Schema({
     members: [{
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         contribution: { type: Number, default: 0 }
-      }],
+    }],
+    memberCount: { type: Number, default: 0 }, 
     transactions: [{
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         amount: { type: Number, required: true },
         note: { type: String },
         date: { type: Date, default: Date.now }
-    }] 
-}, {
-    timestamps: true
-});
+    }]
+}, { timestamps: true });
 
 module.exports = mongoose.model('SavingsFund', SavingsFundSchema);

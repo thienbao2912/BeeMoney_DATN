@@ -64,8 +64,8 @@ const FundDetail = () => {
       console.log('fundData', fundData);
       setFund(fundData.data || fundData);
       setIsOwner(fundData.isOwner);
-     
-     
+
+
     } catch (error) {
       if (error.response) {
         const status = error.response.status;
@@ -80,7 +80,8 @@ const FundDetail = () => {
             toast.warning('Quỹ tiết kiệm không tồn tại');
             setErrorMessageShown(true);
           }
-        } else {
+        } 
+        else {
           if (!errorMessageShown) {
             toast.error('Có lỗi xảy ra');
             setErrorMessageShown(true);
@@ -172,110 +173,113 @@ const FundDetail = () => {
 
     const amountToContribute = parseFloat(contributionAmount);
     if (isNaN(amountToContribute) || amountToContribute <= 0) {
-        toast.warning('Vui lòng nhập số tiền hợp lệ');
-        setLoading(false);
-        return;
+      toast.warning('Vui lòng nhập số tiền hợp lệ');
+      setLoading(false);
+      return;
     }
 
     if (amountToContribute < 1000) {
-        toast.warning('Số tiền ít nhất là 1,000 đồng');
-        setLoading(false);
-        return;
+      toast.warning('Số tiền ít nhất là 1,000 đồng');
+      setLoading(false);
+      return;
     }
 
     try {
-        // Lấy token từ cookie
-        const cookies = new Cookies();
-        const token = cookies.get('token');
+      // Lấy token từ cookie
+      const cookies = new Cookies();
+      const token = cookies.get('token');
 
-        const response = await fetch(`http://localhost:4000/api/savings-fund/contribute/${id}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-auth-token': token,
-            },
-            body: JSON.stringify({ amount: amountToContribute, note }),
-        });
-
-        // Xử lý nếu phản hồi không thành công
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw { response: { status: response.status, data: errorData } };
-        }
-
-        // Lấy dữ liệu từ phản hồi
-        const data = await response.json();
-
-        // Cập nhật UI
-        setFund((prevFund) => ({
-            ...prevFund,
-            currentAmount: prevFund.currentAmount + amountToContribute,
-        }));
-
-        const currentUser = await getUserProfile();
-        setTransactionUsers((prev) => [...prev, currentUser]);
-
-        setContributionAmount('');
-        setNote('');
-        setShowContributeModal(false);
-
-        toast.success('Nạp tiền thành công!');
-    } catch (error) {
-        if (error.response) {
-            const status = error.response.status;
-            if (status === 400) {
-                toast.error('Số dư không đủ để nạp tiền!');
-            } else {
-                toast.error(error.response.data.message || 'Có lỗi xảy ra, vui lòng thử lại!');
-            }
-        } else {
-            toast.error('Lỗi kết nối hoặc lỗi không xác định.');
-        }
-    } finally {
-        setLoading(false);
-    }
-};
-
-
-
-const handleInvite = async (e) => {
-  e.preventDefault();
-
-  if (!inviteEmail || !fund) {
-    toast.warning('Vui lòng nhập email hợp lệ');
-    return;
-  }
-
-  setLoadingSend(true);
-
-  try {
-    const cookies = new Cookies();
-    const token = cookies.get('token');
-
-    await axios.post(
-      'http://localhost:4000/api/send-invite-code',
-      { email: inviteEmail, fundId: fund._id },
-      {
+      const response = await fetch(`http://localhost:4000/api/savings-fund/contribute/${id}`, {
+        method: 'PATCH',
         headers: {
+          'Content-Type': 'application/json',
           'x-auth-token': token,
         },
-      }
-    );
+        body: JSON.stringify({ amount: amountToContribute, note }),
+      });
 
-    toast.success('Lời mời đã được gửi thành công');
-    setInviteEmail('');
-    setShowInviteModal(false);
-  } catch (error) {
-    if (error.response && error.response.status === 400) {
-      toast.warning('Email này đã tham gia quỹ');
-    } else {
-      toast.error('Có lỗi xảy ra khi gửi lời mời');
+      // Xử lý nếu phản hồi không thành công
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw { response: { status: response.status, data: errorData } };
+      }
+
+      // Lấy dữ liệu từ phản hồi
+      const data = await response.json();
+
+      // Cập nhật UI
+      setFund((prevFund) => ({
+        ...prevFund,
+        currentAmount: prevFund.currentAmount + amountToContribute,
+      }));
+
+      const currentUser = await getUserProfile();
+      setTransactionUsers((prev) => [...prev, currentUser]);
+
+      setContributionAmount('');
+      setNote('');
+      setShowContributeModal(false);
+
+      toast.success('Nạp tiền thành công!');
+    } catch (error) {
+      if (error.response) {
+        const status = error.response.status;
+        if (status === 400) {
+          toast.error('Số dư không đủ để nạp tiền!');
+        } else {
+          toast.error(error.response.data.message || 'Có lỗi xảy ra, vui lòng thử lại!');
+        }
+      } else {
+        toast.error('Lỗi kết nối hoặc lỗi không xác định.');
+      }
+    } finally {
+      setLoading(false);
     }
-    console.error('Lỗi khi gửi lời mời', error.response ? error.response.data : error.message);
-  } finally {
-    setLoadingSend(false);
-  }
-};
+  };
+
+
+
+  const handleInvite = async (e) => {
+    e.preventDefault();
+
+    if (!inviteEmail || !fund) {
+      toast.warning('Vui lòng nhập email hợp lệ');
+      return;
+    }
+
+    setLoadingSend(true);
+
+    try {
+      const cookies = new Cookies();
+      const token = cookies.get('token');
+
+      await axios.post(
+        'http://localhost:4000/api/send-invite-code',
+        { email: inviteEmail, fundId: fund._id },
+        {
+          headers: {
+            'x-auth-token': token,
+          },
+        }
+      );
+
+      toast.success('Lời mời đã được gửi thành công');
+      setInviteEmail('');
+      setShowInviteModal(false);
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        toast.warning('Email này đã tham gia quỹ');
+      } else  if (error.response && error.response.status === 401) {
+        toast.warning('Vượt quá số lượng thành viên!');
+      }
+      else {
+        toast.error('Có lỗi xảy ra khi gửi lời mời');
+      }
+      console.error('Lỗi khi gửi lời mời', error.response ? error.response.data : error.message);
+    } finally {
+      setLoadingSend(false);
+    }
+  };
 
 
 
@@ -303,10 +307,10 @@ const handleInvite = async (e) => {
       <div className="text-center text-secondary">
         <h5>Bạn không có quyền truy cập vào quỹ tiết kiệm này.</h5>
         <img
-    src='/images/sad.png'
-    width="100"
-    
-  />
+          src='/images/sad.png'
+          width="100"
+
+        />
       </div>
     );
   }
@@ -351,9 +355,6 @@ const handleInvite = async (e) => {
                           {fund.name}
                         </h6>
                       </td>
-
-
-
                       <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         <span className="text-muted small">
                           <i className="fa-solid fa-sack-dollar me-2"></i>
@@ -387,20 +388,20 @@ const handleInvite = async (e) => {
                       </td>
                       <td>
                         <div className="progress-wrapper d-flex align-items-center mt-2">
-                      {isOwner && (
-                        <Link style={{ textDecoration: "none" }}  className="text-success" to={`/savings-fund/edit/${id}`}> 
-                        <i class="fa-solid fa-pen-to-square"></i> Sửa
-                        </Link>
-                      )}
-                        {isOwner && (
-                        <div style={{ cursor: "pointer" }} className="text-danger ms-4" onClick={() => openConfirmationModal(fund)}>
-                          <i 
-                            className="bi bi-trash-fill"
-                            
-                          /> Xóa
+                          {isOwner && (
+                            <Link style={{ textDecoration: "none" }} className="text-success" to={`/savings-fund/edit/${id}`}>
+                              <i class="fa-solid fa-pen-to-square"></i> Sửa
+                            </Link>
+                          )}
+                          {isOwner && (
+                            <div style={{ cursor: "pointer" }} className="text-danger ms-4" onClick={() => openConfirmationModal(fund)}>
+                              <i
+                                className="bi bi-trash-fill"
+
+                              /> Xóa
+                            </div>
+                          )}
                         </div>
-                         )}
-                         </div>
                         {isConfirmationModalOpen && (
                           <ConfirmationModal
                             isOpen={isConfirmationModalOpen}

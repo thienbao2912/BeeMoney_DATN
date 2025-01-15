@@ -21,8 +21,10 @@ const SavingsGoalsList = ({ userId }) => {
             setIsLoading(true);
             try {
                 const userGoals = await getUserSavingsGoals(userId);
-                setGoals(userGoals);
-
+                // Sắp xếp danh sách theo ngày mới nhất (giả sử có thuộc tính 'createdAt')
+                const sortedGoals = userGoals.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setGoals(sortedGoals);
+    
                 const categoryList = await getCategories(userId);
                 setCategories(categoryList);
             } catch (error) {
@@ -31,9 +33,10 @@ const SavingsGoalsList = ({ userId }) => {
                 setIsLoading(false);
             }
         };
-
+    
         fetchData();
     }, [userId]);
+    
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
     const handleViewDetails = (id) => {
@@ -104,7 +107,7 @@ const SavingsGoalsList = ({ userId }) => {
                         height: "40px",
                         padding: "0",
                     }}
-                  >
+                >
                     <FaPlus style={{ margin: "0", fontSize: "20px" }} />
                 </Button>
             </div>
@@ -127,8 +130,8 @@ const SavingsGoalsList = ({ userId }) => {
                                             }}
                                         >
                                             <img
-                                               src={goal.categoryId.image|| '/images/chicken.png'}
-                                               alt={goal.categoryId.name || 'Ảnh mục tiêu'}
+                                                src={goal.categoryId.image || '/images/chicken.png'}
+                                                alt={goal.categoryId.name || 'Ảnh mục tiêu'}
                                                 className="img-fluid rounded"
                                                 style={{
                                                     width: "40px",
@@ -148,8 +151,9 @@ const SavingsGoalsList = ({ userId }) => {
                                         </div>
                                         <div>
                                             <i className="bi bi-people-fill me-1"></i>
-                                            {goal.members.length || "0"} người
+                                            {goal.members.length || "0"} / {goal.memberCount || "0"} người
                                         </div>
+
                                     </Col>
                                 </Row>
 
@@ -179,11 +183,8 @@ const SavingsGoalsList = ({ userId }) => {
                                         %
                                     </div>
                                 </div>
-
-
                                 {/* Footer Section */}
                                 <div className="d-flex justify-content-between align-items-center">
-
                                     <div>
                                         <Button
                                             variant="link"
