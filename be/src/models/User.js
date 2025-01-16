@@ -12,9 +12,9 @@ const UserSchema = new mongoose.Schema({
     username: String,
     email: String,
     password: String,
-    is_premium: { type: Boolean, default: false },
+    isPremium: { type: Boolean, default: false },
     subscription_id: { type: String, default: null },
-    
+    premiumExpiry: { type: Date, default: null }, 
     email: { type: String, required: true, unique: true },
     password: { type: String },
     name: { type: String, required: true },

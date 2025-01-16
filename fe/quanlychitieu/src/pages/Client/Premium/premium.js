@@ -1,63 +1,111 @@
 import React from "react";
 import "./Premium.css";
 import { createPayment } from "../../../service/Premium"; // Import service
+import cookies from 'js-cookie';
 
 const Premium = () => {
+ 
   const plans = [
-    { 
-      title: "Premium", 
-      price: "29.000đ /mo", 
-      amount: 29000, 
-      orderId: "premium_1month", 
-      button: "Mua ngay", 
-      bankCode: "VISA",
-      language: "vn" 
+    {
+      title: "Premium",
+      price: "29.000đ /mo",
+      amount: 29000,
+      orderId: "premium_1month",
+      button: "Mua ngay",
+      bankCode: "NCB",
+      language: "vn",
     },
-    { 
-      title: "Super Premium", 
-      price: "139.000đ /6 mo", 
-      amount: 139000, 
-      orderId: "premium_6month", 
-      button: "Mua ngay", 
-      bankCode: "VISA", // ACB
-      language: "vn" 
+    {
+      title: "Super Premium",
+      price: "139.000đ /6 mo",
+      amount: 139000,
+      orderId: "premium_6month",
+      button: "Mua ngay",
+      bankCode: "NCB", // ACB
+      language: "vn",
     },
   ];
 
   const handleSubscribe = async (plan) => {
     try {
+      const userId = localStorage.getItem('userId'); 
       const { amount, orderId, bankCode, language } = plan;
-      const paymentUrl = await createPayment(amount, orderId, bankCode, language);
-      window.location.href = paymentUrl; // Chuyển hướng người dùng đến trang thanh toán VNPay
+      console.log(userId);
+      
+      // Dữ liệu cần gửi dưới dạng JSON
+      const requestBody = {
+        amount,
+        orderId,
+        bankCode,
+        language,
+        userId,
+      };
+     
+      // Gửi yêu cầu tạo thanh toán qua API tại localhost:4000
+      const response = await fetch("http://localhost:4000/proxy/paymentvnp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          
+        },
+        mode: "cors",
+        body: JSON.stringify(requestBody), // Chuyển dữ liệu thành JSON
+      });
+
+
+      if (!response.ok) {
+        throw new Error("Lỗi khi tạo thanh toán");
+      }
+
+      // Nhận URL thanh toán từ phản hồi API
+      const data = await response.json();
+      const paymentUrl = data.paymentUrl;
+      
+      console.log(data.paymentUrl);
+      // Chuyển hướng người dùng đến trang thanh toán VNPay
+      window.location.href = paymentUrl;
+      
     } catch (error) {
       console.error("Lỗi khi gọi API tạo thanh toán:", error);
       alert("Có lỗi xảy ra khi tạo thanh toán. Vui lòng thử lại!");
     }
+    
   };
 
   return (
     <div className="premium-container">
       <div className="premium-header">
-        <img src="/images/piggy-bank.png" alt="BeeMoney Logo" className="premium-logo" />
+        <img
+          src="/images/piggy-bank.png"
+          alt="BeeMoney Logo"
+          className="premium-logo"
+        />
         <h1 className="premium-title">BeeMoney Premium</h1>
       </div>
       <p className="premium-subtitle">
-        BeeMoney Premium - Tận hưởng tính năng nâng cao, quản lý tài chính dễ dàng hơn bao giờ hết.
+        BeeMoney Premium - Tận hưởng tính năng nâng cao, quản lý tài chính dễ
+        dàng hơn bao giờ hết.
       </p>
 
       {/* Phần giới thiệu */}
       <section className="premium-intro">
         <p>
-          Trải nghiệm toàn bộ tính năng nâng cao và tiện lợi hơn trong 1 tuần miễn phí
+          Trải nghiệm toàn bộ tính năng nâng cao và tiện lợi hơn trong 1 tuần
+          miễn phí
           <br />
           và sau đó chỉ từ 29.000đ hoặc 25.000đ / tháng
         </p>
-        <button className="btn-try-free" onClick={() => handleSubscribe({
-          amount: 0, 
-          orderId: "trial_1week", 
-          bankCode: "VCB", 
-          language: "vn"
-        })}>
+        <button
+          className="btn-try-free"
+          onClick={() =>
+            handleSubscribe({
+              amount: 0,
+              orderId: "trial_1week",
+              bankCode: "VCB",
+              language: "vn",
+            })
+          }
+        >
           Dùng thử 1 tuần
         </button>
       </section>

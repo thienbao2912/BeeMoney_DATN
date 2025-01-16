@@ -5,7 +5,7 @@ const middlewareController = {
   // verifyToken
   verifyToken: (req, res, next) => {
     const token = req.header('x-auth-token');
-    
+     
     if (token) {
       const accessToken = token;
       jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {

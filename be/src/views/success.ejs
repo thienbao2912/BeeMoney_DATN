@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả thanh toán</title>
+</head>
+<body>
+    <h1>Kết quả thanh toán</h1>
+    <p>Mã phản hồi: <%= code %></p>
+    
+    <h3>Thông tin chi tiết:</h3>
+    <ul>
+        <li>Mã giao dịch: <%= code %></li>
+        <li>Tình trạng thanh toán: 
+            <% if (code === '00') { %>
+                Thành công
+            <% } else { %>
+                Thất bại
+            <% } %>
+        </li>
+    </ul>
+</body>
+</html>

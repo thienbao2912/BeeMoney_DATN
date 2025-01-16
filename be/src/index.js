@@ -16,20 +16,29 @@ const authGoogle = require("./routes/authGoogle");
 const session = require("express-session");
 const passport = require("passport");
 const OAuth2Strategy = require("passport-google-oauth2").Strategy;
-const order = require("./routes/order")
+const order = require("./routes/order");
 require('../passport');
 const User = require('./models/User');
-const paymentRoutes = require('./routes/paymentRoutes');
-const vnpayRoutes = require('./routes/vnpayRoutes');
+const userRoute = require('./routes/user');
+const fetch = require("node-fetch");
 // const expenseRoutes= require("./routes/expenseRoutes");
 const income = require("./routes/income");
 const budgetRoutes = require("./routes/budget")
 const hobbyRoutes = require("./routes/Hobby")
 const hobbyCategoryRoutes = require("./routes/HobbyCategory")
+const path = require('path');
+
 const app = express();
+// Thiết lập view engine
+app.set('view engine', 'ejs');
+// Đặt thư mục chứa các view
+app.set('views', path.join(__dirname, 'views'));
+
+// Cấu hình thư mục cho static files
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(cors({
-  origin: process.env.URL_FE,
+  origin: [process.env.URL_FE,'http://localhost:4000/order/create_payment_url'],
   methods:"GET, POST, PUT, DELETE, PATCH",
   credentials:true
 }))
@@ -96,7 +105,10 @@ passport.serializeUser((user,done)=>{
 passport.deserializeUser((user,done)=>{
     done(null,user);
 });
+const checkPremiumStatus = require('./services/checkPremiumStatus');
 
+// Kiểm tra trạng thái Premium khi ứng dụng khởi động
+checkPremiumStatus();
 app.get("/auth/google",passport.authenticate("google",{scope:["profile","email"],prompt: "select_account"}));
 
 app.get("/auth/google/callback", passport.authenticate("google", {
@@ -136,11 +148,10 @@ app.get("/logout", (req, res, next) => {
   });
 
 app.use(express.urlencoded({ extended: true }));
-
 // Routes
 
 // app.use("/api/auth", authGoogle);
-app.use("/api/categories", categorieRoutes);
+app.use("/api/categories",categorieRoutes);
 app.use("/api/v2/categories", require('./routes/category'));
 app.use("/api/transactions", transactionRoutes);
 app.use('/api/savings-goals', require('./routes/savingsGoal'));
@@ -150,9 +161,8 @@ app.use("/api/savings-fund", savingsFund)
 app.use('/api', fundRoutes);
 app.use('/api/notification', notifiRoutes);
 app.use('/order', order);
-
-// app.use('/api/payment', paymentRoutes);
-// app.use('/api/vnpay', vnpayRoutes);    // Route xử lý VNPay Return
+// Đăng ký route
+app.use('/api/users', userRoute);
 connectDB();
 
 // app.use('/api/expenses', expenseRoutes);
@@ -160,6 +170,23 @@ app.use('/api/incomes', income);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/hobbys', hobbyRoutes);
 app.use('/api/hobbyCategoies', hobbyCategoryRoutes);
+app.post("/proxy/paymentvnp" ,async (req, res) => {
+    try {
+      const response = await fetch("http://localhost:4000/order/create_payment_url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+         
+        },
+        body: JSON.stringify(req.body)
+      });
+  
+      const text = await response.text(); 
+      res.status(response.status).send(text);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
 
 // Start server
 const PORT = process.env.PORT || 4000;

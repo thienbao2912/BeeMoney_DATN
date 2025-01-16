@@ -81,7 +81,7 @@ const Sidebar = () => {
             width="40"
             className="rounded-circle"
           />
-          <div className="greeting">Hi, {user.name}</div>
+          <div className="greeting">Hello, {user.name}</div>
         </div>
         <nav className="sidebar-nav">
           <ul className="navbar-nav">
