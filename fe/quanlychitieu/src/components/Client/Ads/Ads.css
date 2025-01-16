@@ -1,0 +1,31 @@
+.ad-banner {
+  background-color: #fff;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30%; /* Chiều rộng banner */
+  z-index: 1000;
+}
+
+.ad-banner img {
+  width: 100%; /* Chiếm toàn bộ chiều rộng container */
+  height: auto; /* Giữ tỉ lệ */
+  object-fit: contain;
+}
+
+.ad-banner button {
+  background-color: transparent;
+  border: none;
+  font-size: 18px;
+  color: #888;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+}
