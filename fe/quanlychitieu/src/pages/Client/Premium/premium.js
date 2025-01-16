@@ -1,10 +1,15 @@
 import React from "react";
 import "./Premium.css";
-import { createPayment } from "../../../service/Premium"; // Import service
-import cookies from 'js-cookie';
+import moment from 'moment';
 
 const Premium = () => {
- 
+  // Tính toán ngày hết hạn cho mỗi gói
+  const getExpiryDate = (months) => {
+    const currentDate = new Date();
+    currentDate.setMonth(currentDate.getMonth() + months);
+    return moment(currentDate).toISOString();  // Trả về định dạng ISO 8601
+  };
+
   const plans = [
     {
       title: "Premium",
@@ -14,6 +19,7 @@ const Premium = () => {
       button: "Mua ngay",
       bankCode: "NCB",
       language: "vn",
+      premiumExpiry: getExpiryDate(1), // Hết hạn sau 1 tháng
     },
     {
       title: "Super Premium",
@@ -23,15 +29,16 @@ const Premium = () => {
       button: "Mua ngay",
       bankCode: "NCB", // ACB
       language: "vn",
+      premiumExpiry: getExpiryDate(6), // Hết hạn sau 6 tháng
     },
   ];
 
   const handleSubscribe = async (plan) => {
     try {
       const userId = localStorage.getItem('userId'); 
-      const { amount, orderId, bankCode, language } = plan;
-      console.log(userId);
-      
+      const { amount, orderId, bankCode, language, premiumExpiry } = plan;
+      console.log("Dữ liệu gửi đi:", { amount, orderId, bankCode, language, premiumExpiry });
+  
       // Dữ liệu cần gửi dưới dạng JSON
       const requestBody = {
         amount,
@@ -39,38 +46,39 @@ const Premium = () => {
         bankCode,
         language,
         userId,
+        premiumExpiry, // Thêm trường premiumExpiry vào dữ liệu gửi
       };
-     
+  
+      console.log("Request body:", requestBody);  // Kiểm tra dữ liệu gửi đi
+  
       // Gửi yêu cầu tạo thanh toán qua API tại localhost:4000
       const response = await fetch("http://localhost:4000/proxy/paymentvnp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          
         },
         mode: "cors",
         body: JSON.stringify(requestBody), // Chuyển dữ liệu thành JSON
       });
-
-
+  
       if (!response.ok) {
         throw new Error("Lỗi khi tạo thanh toán");
       }
-
+  
       // Nhận URL thanh toán từ phản hồi API
       const data = await response.json();
       const paymentUrl = data.paymentUrl;
-      
+  
       console.log(data.paymentUrl);
       // Chuyển hướng người dùng đến trang thanh toán VNPay
       window.location.href = paymentUrl;
-      
+  
     } catch (error) {
       console.error("Lỗi khi gọi API tạo thanh toán:", error);
       alert("Có lỗi xảy ra khi tạo thanh toán. Vui lòng thử lại!");
     }
-    
   };
+  
 
   return (
     <div className="premium-container">
@@ -116,6 +124,7 @@ const Premium = () => {
           <div key={plan.orderId} className="premium-card">
             <h3>{plan.title}</h3>
             <p className="premium-price">{plan.price}</p>
+            <p className="premium-expiry">Hết hạn: {moment(plan.premiumExpiry).format("DD/MM/YYYY")}</p> {/* Hiển thị ngày hết hạn */}
             <ul>
               <li>Tính năng cao cấp 1</li>
               <li>Tính năng cao cấp 2</li>

@@ -28,98 +28,89 @@ router.get("/refund", function (req, res, next) {
   res.render("refund", { title: "Hoàn tiền giao dịch thanh toán" });
 });
 
-router.post(
-  "/create_payment_url",
-  function (req, res, next) {
-    process.env.TZ = "Asia/Ho_Chi_Minh";
+router.post("/create_payment_url", function (req, res, next) {
+  process.env.TZ = "Asia/Ho_Chi_Minh";
 
-    const moment = require("moment");
-    const config = require("config");
-    const querystring = require("qs");
-    const crypto = require("crypto");
-    // Lấy userId từ middleware
+  const moment = require("moment");
+  const config = require("config");
+  const querystring = require("qs");
+  const crypto = require("crypto");
 
-    // Lấy thông tin từ request body
-    const { amount, bankCode, language, userId } = req.body;
-    // Kiểm tra thông tin body
-    if (!amount || isNaN(amount) || amount <= 0) {
-      return res.status(400).json({ message: "Số tiền không hợp lệ!" });
-    }
-    if (!userId) {
-      return res
-        .status(400)
-        .json({ message: "UserId không hợp lệ hoặc không được cung cấp!" });
-    }
+  // Lấy thông tin từ request body
+  const { amount, bankCode, language, userId, premiumExpiry } = req.body;
 
-    // Bước kiểm tra tham số
-    // if (!amount || isNaN(amount) || amount <= 0) {
-    //     return res.status(400).json({ message: 'Số tiền không hợp lệ!' });
-    // }
-    // if (!bankCode || typeof bankCode !== 'string' || bankCode.trim() === '') {
-    //     return res.status(400).json({ message: 'Mã ngân hàng không hợp lệ!' });
-    // }
-    // if (language && typeof language !== 'string') {
-    //     return res.status(400).json({ message: 'Ngôn ngữ phải là chuỗi ký tự hợp lệ!' });
-    // }
-
-    // Thiết lập thông số thanh toán
-    const date = new Date();
-    const createDate = moment(date).format("YYYYMMDDHHmmss");
-    const ipAddr =
-      req.headers["x-forwarded-for"] ||
-      req.connection.remoteAddress ||
-      req.socket.remoteAddress ||
-      req.connection.socket.remoteAddress ||
-      "127.0.0.1";
-
-    const tmnCode = config.get("vnp_TmnCode");
-    const secretKey = config.get("vnp_HashSecret");
-    let vnpUrl = config.get("vnp_Url");
-    const returnUrl = config.get("vnp_ReturnUrl");
-    const orderId = moment(date).format("DDHHmmss");
-    const locale = language && language.trim() !== "" ? language : "vn";
-    const currCode = "VND";
-
-    // Tạo vnp_Params
-    let vnp_Params = {};
-    vnp_Params["vnp_Version"] = "2.1.0";
-    vnp_Params["vnp_Command"] = "pay";
-    vnp_Params["vnp_TmnCode"] = tmnCode;
-    vnp_Params["vnp_Locale"] = locale;
-    vnp_Params["vnp_CurrCode"] = currCode;
-    vnp_Params["vnp_TxnRef"] = orderId;
-    vnp_Params["vnp_OrderInfo"] =
-      "Thanh toan cho ma GD: " + orderId + ", userId: " + userId;
-    vnp_Params["vnp_OrderType"] = "other";
-    vnp_Params["vnp_Amount"] = amount * 100; // Quy đổi thành đơn vị nhỏ nhất
-    vnp_Params["vnp_ReturnUrl"] = returnUrl;
-    vnp_Params["vnp_IpAddr"] = ipAddr;
-    vnp_Params["vnp_CreateDate"] = createDate;
-
-    if (bankCode !== null && bankCode !== "") {
-      vnp_Params["vnp_BankCode"] = bankCode;
-    }
-
-    // Sắp xếp tham số
-    vnp_Params = sortObject(vnp_Params);
-
-    // Tạo chữ ký
-    const signData = querystring.stringify(vnp_Params, { encode: false });
-    const hmac = crypto.createHmac("sha512", secretKey);
-    const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
-    vnp_Params["vnp_SecureHash"] = signed;
-
-    // Tạo URL thanh toán
-    vnpUrl += "?" + querystring.stringify(vnp_Params, { encode: false });
-
-    // Chuyển hướng đến URL VNPay
-    res.json({ paymentUrl: vnpUrl });
+  // Kiểm tra thông tin body
+  if (!amount || isNaN(amount) || amount <= 0) {
+    return res.status(400).json({ message: "Số tiền không hợp lệ!" });
   }
-);
+  if (!userId) {
+    return res.status(400).json({ message: "UserId không hợp lệ hoặc không được cung cấp!" });
+  }
+  if (!premiumExpiry) {
+    return res.status(400).json({ message: "Ngày hết hạn không hợp lệ hoặc không được cung cấp!" });
+  }
+
+  // Thiết lập thông số thanh toán
+  const date = new Date();
+  const createDate = moment(date).format("YYYYMMDDHHmmss");
+  const ipAddr =
+    req.headers["x-forwarded-for"] ||
+    req.connection.remoteAddress ||
+    req.socket.remoteAddress ||
+    req.connection.socket.remoteAddress ||
+    "127.0.0.1";
+
+  const tmnCode = config.get("vnp_TmnCode");
+  const secretKey = config.get("vnp_HashSecret");
+  let vnpUrl = config.get("vnp_Url");
+  const returnUrl = config.get("vnp_ReturnUrl");
+  const orderId = moment(date).format("DDHHmmss");
+  const locale = language && language.trim() !== "" ? language : "vn";
+  const currCode = "VND";
+
+  // Tạo vnp_Params
+  let vnp_Params = {};
+  vnp_Params["vnp_Version"] = "2.1.0";
+  vnp_Params["vnp_Command"] = "pay";
+  vnp_Params["vnp_TmnCode"] = tmnCode;
+  vnp_Params["vnp_Locale"] = locale;
+  vnp_Params["vnp_CurrCode"] = currCode;
+  vnp_Params["vnp_TxnRef"] = orderId;
+  vnp_Params["vnp_OrderInfo"] =
+    "Thanh toan cho ma GD: " + orderId + ", userId: " + userId + ", Premium Expiry: " + premiumExpiry; // Thêm thông tin premiumExpiry vào đây
+  vnp_Params["vnp_OrderType"] = "other";
+  vnp_Params["vnp_Amount"] = amount * 100; // Quy đổi thành đơn vị nhỏ nhất
+  vnp_Params["vnp_ReturnUrl"] = returnUrl;
+  vnp_Params["vnp_IpAddr"] = ipAddr;
+  vnp_Params["vnp_CreateDate"] = createDate;
+
+  if (bankCode !== null && bankCode !== "") {
+    vnp_Params["vnp_BankCode"] = bankCode;
+  }
+
+  // Sắp xếp tham số
+  vnp_Params = sortObject(vnp_Params);
+
+  // Tạo chữ ký
+  const signData = querystring.stringify(vnp_Params, { encode: false });
+  const hmac = crypto.createHmac("sha512", secretKey);
+  const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+  vnp_Params["vnp_SecureHash"] = signed;
+
+  // Tạo URL thanh toán
+  vnpUrl += "?" + querystring.stringify(vnp_Params, { encode: false });
+
+  // Chuyển hướng đến URL VNPay
+  res.json({ paymentUrl: vnpUrl });
+});
+
 
 router.get("/vnpay_return", async function (req, res, next) {
   let vnp_Params = req.query;
   let secureHash = vnp_Params["vnp_SecureHash"];
+
+  // In ra vnp_Params để kiểm tra
+  console.log("vnp_Params:", vnp_Params);
 
   delete vnp_Params["vnp_SecureHash"];
   delete vnp_Params["vnp_SecureHashType"];
@@ -137,56 +128,58 @@ router.get("/vnpay_return", async function (req, res, next) {
 
   if (secureHash === signed) {
     if (vnp_Params["vnp_ResponseCode"] === "00") {
-      const orderInfo = vnp_Params["vnp_OrderInfo"]; // Chuỗi chứa userId và thông tin khác
-
-      console.log("vnp_OrderInfo:", orderInfo);  // In ra giá trị của vnp_OrderInfo để kiểm tra
+      const orderInfo = vnp_Params["vnp_OrderInfo"];
+      console.log("vnp_OrderInfo:", orderInfo);  // In ra orderInfo nhận được
 
       try {
-        // Giải mã URL và thay thế dấu "+" thành khoảng trắng
+        // Giải mã orderInfo để lấy thông tin userId và premiumExpiry
         const decodedOrderInfo = decodeURIComponent(orderInfo).replace(/\+/g, ' ');
 
-        console.log("Decoded orderInfo:", decodedOrderInfo); // In ra chuỗi sau khi giải mã và thay thế
+        console.log("Decoded Order Info:", decodedOrderInfo); // In ra decodedOrderInfo để kiểm tra
 
-        // Tách userId từ decodedOrderInfo (giả sử format: "Thanh toan cho ma GD: ..., userId: <_id>")
+        // Tách userId và premiumExpiry từ decodedOrderInfo
+        const regex = /userId:\s*([a-zA-Z0-9]+),\s*Premium Expiry:\s*([0-9T:\-\.+]+)/;
+        const match = decodedOrderInfo.match(regex);
 
-        // Cập nhật regex để tìm userId
-        const idMatch = decodedOrderInfo.match(/userId:\s*([a-zA-Z0-9]+)/); // Cập nhật regex
-        if (idMatch) {
-          console.log("userId tìm thấy:", idMatch[1]); // In ra userId
+        if (match) {
+          const userId = match[1];  // userId từ decodedOrderInfo
+          const premiumExpiry = match[2];  // premiumExpiry từ decodedOrderInfo
+
+          // Kiểm tra tính hợp lệ của userId
+          if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.render("error", { message: "ID người dùng không hợp lệ!" });
+          }
+
+          // Tìm người dùng từ MongoDB
+          const user = await User.findById(userId);
+
+          if (user) {
+            // Chuyển đổi premiumExpiry thành ngày hợp lệ
+            const expiryDate = new Date(premiumExpiry);  // Chuyển đổi thành đối tượng Date
+
+            // Kiểm tra nếu ngày hết hạn hợp lệ
+            if (isNaN(expiryDate)) {
+              return res.render("error", { message: "Ngày hết hạn không hợp lệ!" });
+            }
+
+            // Cập nhật trạng thái Premium và ngày hết hạn Premium
+            user.isPremium = true;
+            user.premiumExpiry = expiryDate;  // Lưu ngày hết hạn vào MongoDB
+            await user.save();
+
+            res.render("success", {
+              message: "Thanh toán thành công, bạn đã trở thành Premium!",
+              code: vnp_Params["vnp_ResponseCode"]
+            });
+          } else {
+            res.render("error", { message: "Người dùng không tồn tại!" });
+          }
         } else {
-          console.log("Không tìm thấy userId");
-        }
-
-        const userId = idMatch ? idMatch[1] : null;
-
-        if (!userId) {
-          return res.render("error", { message: "Không tìm thấy userId trong thông tin đơn hàng." });
-        }
-
-        // Kiểm tra ObjectId hợp lệ
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-          return res.render("error", { message: "ID người dùng không hợp lệ!" });
-        }
-
-        const user = await User.findById(userId);
-
-        if (user) {
-          user.isPremium = true;
-          await user.save();
-
-          res.render("success", {
-            message: "Thanh toán thành công, bạn đã trở thành Premium!",
-            code: vnp_Params["vnp_ResponseCode"] // Truyền mã phản hồi vào EJS
-          });
-          
-        } else {
-          res.render("error", { message: "Người dùng không tồn tại!" });
+          res.render("error", { message: "Không tìm thấy thông tin thanh toán hợp lệ." });
         }
       } catch (error) {
         console.error("Lỗi khi cập nhật người dùng:", error);
-        res.render("error", {
-          message: "Có lỗi xảy ra trong quá trình xử lý thanh toán.",
-        });
+        res.render("error", { message: "Có lỗi xảy ra trong quá trình xử lý thanh toán." });
       }
     } else {
       res.render("error", {
@@ -199,6 +192,7 @@ router.get("/vnpay_return", async function (req, res, next) {
     res.render("error", { message: "Chữ ký không hợp lệ!" });
   }
 });
+
 
 
 
