@@ -1,55 +1,57 @@
+const cron = require('node-cron');
 const Budget = require('../models/Budget');
 const Transaction = require('../models/Transaction');
 const { Types } = require('mongoose');
-const Category = require('../models/Category'); // Import model Category
+const Category = require('../models/Category');
 
 class BudgetController {
     static async createBudget(req, res) {
         try {
-            const { categoryId, startDate, endDate, amount, userId } = req.body;
-    
-            // Kiểm tra tính hợp lệ của userId
+            const { name, categoryId, startDate, endDate, amount, userId, repeat } = req.body;
+
+            if (!name || !name.trim()) {
+                return res.status(400).json({ message: 'Tên ngân sách không được để trống' });
+            }
+
             if (!Types.ObjectId.isValid(userId)) {
                 return res.status(400).json({ message: 'UserId không hợp lệ' });
             }
-    
-            // Kiểm tra ngày bắt đầu và ngày kết thúc
+
             if (new Date(startDate) > new Date(endDate)) {
                 return res.status(400).json({ message: 'Ngày bắt đầu không được sau ngày kết thúc' });
             }
-    
-            // Kiểm tra categoryId
+
             const existingCategory = await Category.findById(categoryId);
             if (!existingCategory) {
                 return res.status(404).json({ message: 'Category not found' });
             }
-    
-            // Kiểm tra ngân sách đã tồn tại
+
             const currentDate = new Date();
             const existingBudget = await Budget.findOne({
                 categoryId,
                 userId,
                 startDate: { $lte: endDate },
-                endDate: { $gte: startDate, $gte: currentDate }  // Thêm điều kiện để bỏ qua ngân sách hết hạn
+                endDate: { $gte: startDate, $gte: currentDate }
             });
 
             if (existingBudget) {
                 return res.status(400).json({ message: 'Ngân sách của danh mục này đã tồn tại và còn hiệu lực' });
             }
-    
-            // Tạo ngân sách mới
+
             const budget = new Budget({
+                name,
                 categoryId,
                 startDate,
                 endDate,
                 amount,
-                userId
+                userId,
+                status: 'active',
+                budgetStatus: 'available',
+                repeat: repeat || false, // Mặc định repeat là false nếu không được cung cấp
             });
-    
+
             await budget.save();
-            console.log(`Budget created: ${JSON.stringify(budget)}`);
-    
-            // Tính toán tổng chi tiêu
+
             const expenses = await Transaction.find({
                 categoryId,
                 type: 'expense',
@@ -59,39 +61,36 @@ class BudgetController {
                     $lte: new Date(endDate)
                 }
             }).exec();
-    
-            console.log(`Expenses found: ${expenses.length}`);
-            expenses.forEach(transaction => {
-                console.log(`Transaction ID: ${transaction._id}, Amount: ${transaction.amount}`);
-            });
-    
-            const totalExpenses = expenses.reduce((total, transaction) => {
-                const transactionAmount = parseFloat(transaction.amount);
-                console.log(`Transaction amount: ${transaction.amount}, Parsed amount: ${transactionAmount}`);
-                return total + transactionAmount;
-            }, 0);
-    
-            console.log(`Total expenses calculated: ${totalExpenses}`);
-    
-            // Cập nhật ngân sách
+
+            const totalExpenses = expenses.reduce((total, transaction) => total + parseFloat(transaction.amount), 0);
             budget.totalExpenses = totalExpenses;
             budget.remainingBudget = budget.amount - totalExpenses;
+
+            if (new Date() > new Date(budget.endDate)) {
+                budget.status = 'inactive';
+            }
+
+            if (budget.remainingBudget === 0) {
+                budget.budgetStatus = 'exhausted';
+            } else if (budget.remainingBudget < 0) {
+                budget.budgetStatus = 'over-budget';
+            }
+
             await budget.save();
-    
+
             let message = 'Budget created successfully';
             if (budget.remainingBudget === 0) {
                 message = 'Ngân sách đã hết';
             } else if (budget.remainingBudget < 0) {
                 message = 'Chi tiêu vượt ngân sách';
             }
-    
+
             res.status(201).json({ budget, message });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: error.message });
         }
     }
-
     static async getById(req, res) {
         try {
             let userId = req.headers['authorization'] ? req.headers['authorization'].replace('Bearer ', '') : req.params.userId;
@@ -101,26 +100,23 @@ class BudgetController {
                 return res.status(400).json({ message: 'Invalid IDs' });
             }
 
-            console.log(`Received User ID: ${userId}, Budget ID: ${budgetId}`);
-
             let data = await Budget.findOne({ userId, _id: budgetId }).populate('categoryId');
 
             if (!data) {
                 return res.status(404).json({ message: 'Budget not found' });
             }
 
-            res.status(200).json({ data: data });
+            res.status(200).json({ data });
         } catch (error) {
             console.error('Server Error:', error);
             res.status(500).json({ message: 'Server error' });
         }
-    }     
+    }
 
     static async deleteBudget(req, res) {
         try {
             const { budgetId } = req.params;
 
-            // Xóa budget theo Id
             const deletedBudget = await Budget.findByIdAndDelete(budgetId);
 
             if (!deletedBudget) {
@@ -133,14 +129,12 @@ class BudgetController {
             res.status(500).json({ error: error.message });
         }
     }
-        static async getAllBudgets(req, res) {
+
+    static async getAllBudgets(req, res) {
         try {
             const { userId } = req.query;
-            // Lấy tất cả các ngân sách của userId và populate các trường liên quan
-            const budgets = await Budget.find({ userId }).populate('categoryId').exec();
 
-            // console.log(`Budgets found: ${budgets.length}`);
-            // console.log(budgets);
+            const budgets = await Budget.find({ userId }).populate('categoryId').exec();
 
             res.status(200).json(budgets);
         } catch (error) {
@@ -153,7 +147,6 @@ class BudgetController {
         try {
             const budgetId = req.params.budgetId;
 
-            // Tìm budget để lấy thông tin startDate và endDate
             const budget = await Budget.findById(budgetId);
             if (!budget) {
                 return res.status(404).json({ message: 'Budget not found' });
@@ -163,7 +156,6 @@ class BudgetController {
             const startDate = new Date(budget.startDate);
             const endDate = new Date(budget.endDate);
 
-            // Tìm các giao dịch có categoryId và date nằm trong khoảng startDate và endDate của ngân sách
             const expenses = await Transaction.find({
                 categoryId,
                 type: 'expense',
@@ -180,34 +172,48 @@ class BudgetController {
             res.status(500).json({ error: error.message });
         }
     }
+
     static async updateBudget(req, res) {
         try {
             const { budgetId } = req.params;
-            const { categoryId, startDate, endDate, amount, userId } = req.body;
-    
+            const { name, categoryId, startDate, endDate, amount, userId, repeat } = req.body;
+
+            if (!name || !name.trim()) {
+                return res.status(400).json({ message: 'Tên ngân sách không được để trống' });
+            }
+
             if (!Types.ObjectId.isValid(userId)) {
                 return res.status(400).json({ message: 'UserId không hợp lệ' });
             }
-    
+
             if (new Date(startDate) > new Date(endDate)) {
                 return res.status(400).json({ message: 'Ngày bắt đầu không được sau ngày kết thúc' });
             }
-    
+
             const existingCategory = await Category.findById(categoryId);
             if (!existingCategory) {
+                // Cập nhật trạng thái ngân sách nếu danh mục không còn tồn tại
                 return res.status(404).json({ message: 'Category not found' });
             }
-    
+            
+            // Kiểm tra nếu danh mục bị xóa và cập nhật trạng thái ngân sách
+            const categoryExists = await Category.exists({ _id: categoryId });
+            if (!categoryExists) {
+                budget.status = 'inactive';
+            }
+
             const budget = await Budget.findById(budgetId);
             if (!budget) {
                 return res.status(404).json({ message: 'Budget not found' });
             }
-    
+
+            budget.name = name;
             budget.categoryId = categoryId;
             budget.startDate = startDate;
             budget.endDate = endDate;
             budget.amount = amount;
-    
+            budget.repeat = repeat || false;
+
             const expenses = await Transaction.find({
                 categoryId,
                 type: 'expense',
@@ -217,27 +223,84 @@ class BudgetController {
                     $lte: new Date(endDate)
                 }
             }).exec();
-    
+
             const totalExpenses = expenses.reduce((total, transaction) => total + parseFloat(transaction.amount), 0);
-    
+
             budget.totalExpenses = totalExpenses;
             budget.remainingBudget = budget.amount - totalExpenses;
+
+            if (new Date() > new Date(budget.endDate)) {
+                budget.status = 'inactive';
+            }
+
+            if (budget.remainingBudget === 0) {
+                budget.budgetStatus = 'exhausted';
+            } else if (budget.remainingBudget < 0) {
+                budget.budgetStatus = 'over-budget';
+            } else {
+                budget.budgetStatus = 'available';
+            }
+
             await budget.save();
-    
+
             let message = 'Budget updated successfully';
             if (budget.remainingBudget === 0) {
                 message = 'Ngân sách đã hết';
             } else if (budget.remainingBudget < 0) {
                 message = 'Chi tiêu vượt ngân sách';
             }
-    
+
             res.status(200).json({ budget, message });
         } catch (error) {
             console.error('Error updating budget:', error);
             res.status(500).json({ error: error.message });
         }
     }
-    
+    static async checkAndRepeatBudgets() {
+        try {
+            const currentDate = new Date();
+
+            const budgetsToRepeat = await Budget.find({
+                endDate: { $lt: currentDate },
+                repeat: true,
+                status: 'inactive',
+            });
+
+            for (const oldBudget of budgetsToRepeat) {
+                const oldStartDate = new Date(oldBudget.startDate);
+                const oldEndDate = new Date(oldBudget.endDate);
+                const duration = oldEndDate - oldStartDate;
+
+                const newStartDate = new Date(oldEndDate.getTime() + 1);
+                const newEndDate = new Date(newStartDate.getTime() + duration);
+
+                const newBudget = new Budget({
+                    name: oldBudget.name,
+                    categoryId: oldBudget.categoryId,
+                    startDate: newStartDate,
+                    endDate: newEndDate,
+                    amount: oldBudget.amount,
+                    userId: oldBudget.userId,
+                    status: 'active',
+                    budgetStatus: 'available',
+                    repeat: true,
+                });
+
+                await newBudget.save();
+            }
+        } catch (error) {
+            console.error('Error in repeating budgets:', error);
+        }
+    }
+
+    static setupBudgetCronJob() {
+        cron.schedule('0 0 * * *', async () => {
+            console.log('Running Budget Repeat Cron Job...');
+            await BudgetController.checkAndRepeatBudgets();
+        });
+        console.log('Budget Cron Job setup completed.');
+    }
+
 }
 
 module.exports = BudgetController;

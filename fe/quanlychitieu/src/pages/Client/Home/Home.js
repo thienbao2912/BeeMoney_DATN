@@ -107,7 +107,7 @@ const Home = () => {
                             expensesMap.set(categoryId, {
                                 name: item.categoryId.name,
                                 y: Number(item.amount) || 0,
-                                categoryImage: item.categoryId.image || 'default-image-url'
+                                categoryImage: item.categoryId.image || 'images/exclamation.png'
                             });
                         } else {
                             const existingItem = expensesMap.get(categoryId);
@@ -115,9 +115,9 @@ const Home = () => {
                         }
                     }
                     expenseDetailsList.push({
-                        name: item.categoryId?.name || 'Unknown',
+                        name: item.categoryId?.name || 'Danh mục này đã bị xóa!',
                         amount: Number(item.amount) || 0,
-                        categoryImage: item.categoryId?.image || 'default-image-url',
+                        categoryImage: item.categoryId?.image || 'images/exclamation.png',
                         date: new Date(item.date).toLocaleDateString() || 'No Date',
                         description: item.description || 'No Description'
                     });
@@ -133,7 +133,7 @@ const Home = () => {
                             incomeMap.set(categoryId, {
                                 name: item.categoryId.name,
                                 y: Number(item.amount) || 0,
-                                categoryImage: item.categoryId.image || 'default-image-url'
+                                categoryImage: item.categoryId.image || 'images/exclamation.png'
                             });
                         } else {
                             const existingItem = incomeMap.get(categoryId);
@@ -141,9 +141,9 @@ const Home = () => {
                         }
                     }
                     incomeDetailsList.push({
-                        name: item.categoryId?.name || 'Unknown',
+                        name: item.categoryId?.name || 'Danh mục này đã bị xóa!',
                         amount: Number(item.amount) || 0,
-                        categoryImage: item.categoryId?.image || 'default-image-url',
+                        categoryImage: item.categoryId?.image || 'images/exclamation.png',
                         date: new Date(item.date).toLocaleDateString() || 'No Date',
                         description: item.description || 'No Description'
                     });
@@ -240,17 +240,32 @@ const Home = () => {
         const dataMap = new Map();
 
         data.forEach(item => {
-            if (item.categoryId && item.categoryId.name) {
-                const categoryId = item.categoryId._id;
+            const categoryId = item.categoryId ? item.categoryId._id : null; // Kiểm tra xem có categoryId hay không
+            if (categoryId) { // Nếu có categoryId, tiếp tục xử lý như bình thường
                 if (!dataMap.has(categoryId)) {
                     dataMap.set(categoryId, {
-                        name: item.categoryId.name,
+                        name: item.categoryId.name || 'Không xác định', // Nếu không có tên danh mục, dùng tên mặc định
                         y: Number(item.amount) || 0,
-                        categoryImage: item.categoryId.image || 'default-image-url',
+                        categoryImage: item.categoryId.image || 'images/exclamation.png',
                         transactions: [item],
                     });
                 } else {
                     const existingItem = dataMap.get(categoryId);
+                    existingItem.y += Number(item.amount) || 0;
+                    existingItem.transactions.push(item);
+                }
+            } else {
+                // Nếu không có categoryId (null), tạo mục riêng cho giao dịch này
+                const defaultCategory = 'Danh mục đã bị xóa'; // Tên mặc định cho các giao dịch không có category
+                if (!dataMap.has(defaultCategory)) {
+                    dataMap.set(defaultCategory, {
+                        name: defaultCategory,
+                        y: Number(item.amount) || 0,
+                        categoryImage: 'images/exclamation.png',
+                        transactions: [item],
+                    });
+                } else {
+                    const existingItem = dataMap.get(defaultCategory);
                     existingItem.y += Number(item.amount) || 0;
                     existingItem.transactions.push(item);
                 }
@@ -270,12 +285,12 @@ const Home = () => {
 
     const renderCategoryDetails = (type) => {
         if (!selectedCategory.category || selectedCategory.type !== type) return null;
-
+    
         const { category } = selectedCategory;
         const data = type === 'expense' ? expensesData : incomeData;
-
+    
         const categoryDetails = data.find(data => data.name === category.name);
-
+    
         return (
             <div className="details-section">
                 <h6 className="card-title">Chi tiết {type === 'expense' ? 'chi tiêu' : 'thu nhập'}</h6>
@@ -284,7 +299,7 @@ const Home = () => {
                         <div className="d-flex px-2 py-1 align-items-center justify-content-between border-bottom" key={index}>
                             <div className="me-3 d-flex align-items-center">
                                 <img
-                                    src={item.categoryId.image || "../images/no.png"}
+                                    src={item.categoryId && item.categoryId.image ? item.categoryId.image : "images/exclamation.png"}
                                     className="rounded-circle"
                                     alt={item.name}
                                     style={{ width: '40px', height: '40px', objectFit: 'cover' }}
@@ -313,7 +328,7 @@ const Home = () => {
 
     return (
         <div className="container mt-4 mb-5">
-             <WalletCard/>
+            <WalletCard />
             <div className="row mb-4">
                 <div className="col-md-3">
                     <select className="form-select" value={filterOption} onChange={e => setFilterOption(e.target.value)}>
@@ -344,7 +359,7 @@ const Home = () => {
                     </div>
                 )}
             </div>
-           
+
             <div className="row mt-3">
                 <div className="col-md-6 mb-3">
                     <div className="total-overview card" style={{ height: '34rem' }}>
@@ -358,9 +373,9 @@ const Home = () => {
                             />
                         </div>
                     </div>
-                   
+
                 </div>
-              
+
                 <div className="col-md-6 mb-3">
                     <div style={{ height: '34rem' }} className='card'>
                         <div className='card-body'>
@@ -460,7 +475,7 @@ const Home = () => {
                                         <div className="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
                                             <div className="d-flex align-items-center">
                                                 <img
-                                                    src={category.categoryImage || "../images/no.png"}
+                                                    src={category.categoryImage || "images/exclamation.png"}
                                                     className="rounded-circle me-3"
                                                     alt={category.name}
                                                     style={{ width: '40px', height: '40px', objectFit: 'cover' }}
@@ -508,7 +523,7 @@ const Home = () => {
                                         <div className="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
                                             <div className="d-flex align-items-center">
                                                 <img
-                                                    src={category.categoryImage || "../images/no.png"}
+                                                    src={category.categoryImage || "images/exclamation.png"}
                                                     className="rounded-circle me-3"
                                                     alt={category.name}
                                                     style={{ width: '40px', height: '40px', objectFit: 'cover' }}

@@ -62,8 +62,8 @@ const Budget = () => {
           });
         }
         setBudgets(response);
-         // Kiểm tra ngân sách nào dưới 20%
-         const lowBudget = response.find(
+        // Kiểm tra ngân sách nào dưới 20%
+        const lowBudget = response.find(
           (budget) =>
             (budget.remainingBudget / (budget.amount || 1)) * 100 < 20
         );
@@ -99,7 +99,7 @@ const Budget = () => {
     }
 
     setFilteredBudgets(filtered);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   }, [filterOption, selectedMonth, budgets]);
 
   const handleFilterChange = (e) => {
@@ -125,7 +125,7 @@ const Budget = () => {
       toast.error('Lỗi khi xóa ngân sách!');
     }
   };
-  
+
   const closeLowBudgetModal = () => {
     setIsLowBudgetModalOpen(false);
     setLowBudget(null);
@@ -168,12 +168,12 @@ const Budget = () => {
 
   return (
     <div className="categories-overview">
-       
+
       <nav aria-label="breadcrumb">
         {/* Modal thông báo ngân sách thấp */}
-       
+
         <ol className="breadcrumb">
-          
+
           <li className="breadcrumb-item active" aria-current="page">
             Ngân sách
           </li>
@@ -252,12 +252,22 @@ const Budget = () => {
                               objectFit: "cover",
                             }}
                           />
-                          <h5 className="mb-0">{budget.categoryId.name}</h5>
+                          <h5 className="mb-0">{budget.name}</h5>
                         </>
                       ) : (
-                        <div className="category-info-placeholder me-2">
-                          <span>Danh mục đã biến mất!</span>
-                        </div>
+                        <>
+                          <img
+                            src="images/exclamation.png"
+                            alt="Danh mục đã biến mất"
+                            className="category-image me-2"
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              objectFit: "cover",
+                            }}
+                          />
+                          <h5 className="mb-0">{budget.name}</h5>
+                        </>
                       )}
                     </div>
 
@@ -270,19 +280,28 @@ const Budget = () => {
                         }).format(budget.amount)}
                       </span>
                       <span
-                        className={`d-block ${
-                          budget.remainingBudget >= 0
-                            ? "text-success"
+                        className={`d-block ${budget.budgetStatus === "available"
+                          ? "text-success"
+                          : budget.budgetStatus === "exhausted"
+                            ? "text-warning"
                             : "text-danger"
-                        }`}
+                          }`}
                       >
-                        {budget.remainingBudget >= 0 ? (
+                        {budget.budgetStatus === "available" ? (
                           <>
                             Còn lại:{" "}
                             {new Intl.NumberFormat("vi-VN", {
                               style: "currency",
                               currency: "VND",
                             }).format(budget.remainingBudget)}
+                          </>
+                        ) : budget.budgetStatus === "exhausted" ? (
+                          <>
+                            Ngân sách đã hết:{" "}
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(0)}
                           </>
                         ) : (
                           <>
@@ -298,24 +317,27 @@ const Budget = () => {
                   </div>
 
                   <div className="date text-secondary mb-3">
-                    <i className="fas fa-calendar-alt"></i>{" "}
-                    {`${new Intl.DateTimeFormat("vi-VN").format(
-                      new Date(budget.startDate)
-                    )} - ${new Intl.DateTimeFormat("vi-VN").format(
-                      new Date(budget.endDate)
-                    )}`}
+                    {budget.status === "inactive" && budget.categoryId === null ? (
+                      <span className="text-danger">Ngừng hoạt động</span>
+                    ) : budget.status === "inactive" ? (
+                      <span className="text-danger">Ngân sách đã hết hạn</span>
+                    ) : (
+                      <>
+                        <i className="fas fa-calendar-alt"></i>{" "}
+                        {`${new Intl.DateTimeFormat("vi-VN").format(new Date(budget.startDate))} - ${new Intl.DateTimeFormat("vi-VN").format(new Date(budget.endDate))}`}
+                      </>
+                    )}
                   </div>
 
                   <div className="progress-wrapper mb-3">
                     <div className="progress">
                       <div
-                        className={`progress-bar ${
-                          budget.remainingBudget <= 0
-                            ? "bg-danger"
-                            : calculatePercentageRemaining(budget) < 50
+                        className={`progress-bar ${budget.remainingBudget <= 0
+                          ? "bg-danger"
+                          : calculatePercentageRemaining(budget) < 50
                             ? "bg-warning"
                             : "bg-success"
-                        }`}
+                          }`}
                         style={{
                           width:
                             budget.remainingBudget <= 0
@@ -375,9 +397,8 @@ const Budget = () => {
               (page) => (
                 <li
                   key={page}
-                  className={`page-item ${
-                    page === currentPage ? "active" : ""
-                  }`}
+                  className={`page-item ${page === currentPage ? "active" : ""
+                    }`}
                 >
                   <button
                     className="page-link"

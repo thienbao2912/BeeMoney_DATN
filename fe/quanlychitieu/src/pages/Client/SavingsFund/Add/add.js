@@ -20,7 +20,7 @@ const SavingsFundAdd = () => {
             name: '',
             targetAmount: '0',
             categoryId: '',
-            startDate: today.toISOString().split('T')[0], 
+            startDate: today.toISOString().split('T')[0],
             endDate: tomorrow.toISOString().split('T')[0],
         }
     });
@@ -57,19 +57,19 @@ const SavingsFundAdd = () => {
     }, []);
     const unformatCurrency = (value) => {
         if (typeof value === 'string') {
-          return value.replace(/[^\d]/g, '');
+            return value.replace(/[^\d]/g, '');
         }
         return '';
-      };
+    };
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
             const targetAmount = unformatCurrency(data.targetAmount);
             // Kiểm tra số tiền mục tiêu phải ít nhất 10,000đ
             if (targetAmount < 10000) {
-              toast.warning('Số tiền mục tiêu phải ít nhất 10,000đ');
-              setIsLoadingFunds(false);
-              return;
+                toast.warning('Số tiền mục tiêu phải ít nhất 10,000đ');
+                setIsLoadingFunds(false);
+                return;
             }
             const payload = {
                 ...data,
@@ -293,17 +293,31 @@ const SavingsFundAdd = () => {
                                                         <span className="flex-grow-1" style={{ fontWeight: "500", fontSize: "1rem" }}> {fund.name}</span>
                                                     </>
                                                 )}
-                                               
-                                              
-                                                <img
-                                                    src={fund.categoryId.image}
-                                                    alt={fund.categoryId.name}
-                                                    style={{
-                                                        width: "24px",
-                                                        height: "24px",
-                                                        marginRight: "8px",
-                                                    }}
-                                                />
+
+                                                {fund.categoryId && fund.categoryId.image ? (
+                                                    <img
+                                                        src={fund.categoryId.image}
+                                                        alt={fund.categoryId.name}
+                                                        style={{
+                                                            width: "24px",
+                                                            height: "24px",
+                                                            marginRight: "8px",
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <>
+                                                        <img
+                                                            src="/images/exclamation.png" // Đặt đường dẫn tới ảnh mặc định
+                                                            alt="Danh mục đã bị xóa"
+                                                            style={{
+                                                                width: "30px",
+                                                                height: "30px",
+                                                                marginRight: "12px",
+                                                                borderRadius: "50%",
+                                                            }}
+                                                        />
+                                                    </>
+                                                )}
                                                 <span className="flex-grow-1">Quỹ {fund.name}</span>
                                                 <span className="text-success" style={{ fontWeight: "600" }}>
                                                     {formatCurrency(fund.targetAmount)}

@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
+
 const CategorySchema = new Schema({
     "type": String,
     "name": String,
     "image": String,
     "description": String,
     "status": { type: String, default: 'active' },
+    "isDeleted": { type: Boolean, default: false }, // Thêm trạng thái xóa
     "userId": {
         type: Schema.Types.ObjectId,
         ref: 'User',

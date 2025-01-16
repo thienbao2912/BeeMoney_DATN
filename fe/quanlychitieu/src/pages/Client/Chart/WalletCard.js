@@ -105,9 +105,9 @@ const WalletCard = () => {
               >
                 {isWalletVisible
                   ? new Intl.NumberFormat("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    }).format(user.wallet ?? 0)
+                    style: "currency",
+                    currency: "VND",
+                  }).format(user.wallet ?? 0)
                   : "******đ"}
               </h2>
             </div>
@@ -122,8 +122,8 @@ const WalletCard = () => {
           </div>
         </div>
       </div>
-     {/* Ngân sách */}
-     <div className="col-md-3">
+      {/* Ngân sách */}
+      <div className="col-md-3">
         <div className="card shadow-sm p-3">
           <div className="d-flex align-items-center mb-3">
             <i
@@ -159,24 +159,51 @@ const WalletCard = () => {
           <hr className="my-2" />
           <div className="d-flex justify-content-between align-items-center mt-2">
             <div>
-              <img
-                src={latestBudget?.categoryId?.image || '/images/rabbit.png'}
-                alt={latestBudget?.categoryId?.name || 'Không tồn tại'}
-                width="15px"
-              />
-
-              <span className="text-secondary" style={{ fontSize: "15px" }}>
-                {latestBudget
-                  ? ` ${latestBudget.categoryId.name.substring(0, 15)}${latestBudget.categoryId.name.length > 15 ? "..." : ""
-                  }`
-                  : "Không có"}
-              </span>
-
+              {latestBudget ? (
+                latestBudget.categoryId ? (
+                  // Trường hợp ngân sách có danh mục còn tồn tại
+                  <>
+                    <img
+                      src={latestBudget.categoryId.image || "/images/rabbit.png"}
+                      alt={latestBudget.categoryId.name || "Không tồn tại"}
+                      width="15px"
+                    />
+                    <span className="text-secondary" style={{ fontSize: "15px" }}>
+                      {latestBudget.categoryId.name.substring(0, 15)}
+                      {latestBudget.categoryId.name.length > 15 ? "..." : ""}
+                    </span>
+                  </>
+                ) : (
+                  // Trường hợp ngân sách có danh mục đã bị xóa
+                  <>
+                    <img
+                      src="images/exclamation.png"
+                      alt="Danh mục đã bị xóa"
+                      width="15px"
+                    />
+                    <span className="text-danger" style={{ fontSize: "13px", marginLeft: "4px" }}>
+                      Danh mục này đã bị xóa!
+                    </span>
+                  </>
+                )
+              ) : (
+                // Trường hợp chưa có ngân sách nào
+                <>
+                  <img
+                    src="/images/rabbit.png"
+                    alt="Chưa có ngân sách"
+                    width="15px"
+                  />
+                  <span className="text-muted" style={{ fontSize: "13px", marginLeft: "4px" }}>
+                    Chưa có ngân sách nào
+                  </span>
+                </>
+              )}
             </div>
             <Link to="/budget">
               <i
                 className="bi bi-arrow-90deg-right text-secondary"
-                style={{ fontSize: '15px', cursor: 'pointer' }}
+                style={{ fontSize: "15px", cursor: "pointer" }}
               ></i>
             </Link>
           </div>
@@ -220,24 +247,49 @@ const WalletCard = () => {
           <hr className="my-2" />
           <div className="d-flex justify-content-between align-items-center mt-2">
             <div>
-              <img
-                src={latestSavingsGoal?.categoryId?.image || "/images/rabbit.png"}
-                alt={latestSavingsGoal?.categoryId?.name || "Không tồn tại"}
-                width="15px"
-
-              />
-              <span className="text-secondary" style={{ fontSize: "15px" }}>
-                {latestSavingsGoal
-                  ? ` ${latestSavingsGoal.name.substring(0, 15)}${latestSavingsGoal.name.length > 15 ? "..." : ""
-                  }`
-                  : "Không có"}
-              </span>
-
+              {latestSavingsGoal ? (
+                latestSavingsGoal.categoryId ? (
+                  <>
+                    <img
+                      src={latestSavingsGoal.categoryId.image || "/images/rabbit.png"}
+                      alt={latestSavingsGoal.categoryId.name || "Không tồn tại"}
+                      width="15px"
+                    />
+                    <span className="text-secondary" style={{ fontSize: "15px" }}>
+                      {latestSavingsGoal.categoryId.name.substring(0, 15)}
+                      {latestSavingsGoal.categoryId.name.length > 15 ? "..." : ""}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <img
+                      src="images/exclamation.png"
+                      alt="Danh mục đã bị xóa"
+                      width="15px"
+                    />
+                    <span className="text-danger" style={{ fontSize: "13px", marginLeft: "4px" }}>
+                      Danh mục này đã bị xóa!
+                    </span>
+                  </>
+                )
+              ) : (
+                <>
+                  <img
+                    src="/images/rabbit.png"
+                    alt="Chưa có mục tiêu tiết kiệm"
+                    width="15px"
+                  />
+                  <span className="text-muted" style={{ fontSize: "13px", marginLeft: "4px" }}>
+                    Chưa có mục tiêu nào
+                  </span>
+                </>
+              )}
             </div>
-            <Link to="/saving-goal/list"> <i
-              className="bi bi-arrow-90deg-right text-secondary"
-              style={{ fontSize: "15px", cursor: "pointer" }}
-            ></i>
+            <Link to="/saving-goal/list">
+              <i
+                className="bi bi-arrow-90deg-right text-secondary"
+                style={{ fontSize: "15px", cursor: "pointer" }}
+              ></i>
             </Link>
           </div>
         </div>
@@ -280,25 +332,50 @@ const WalletCard = () => {
           <hr className="my-2" />
           <div className="d-flex justify-content-between align-items-center mt-2">
             <div>
-              <img
-                src={latestSavingsFund?.categoryId?.image || "/images/rabbit.png"}
-                alt={latestSavingsFund?.categoryId?.name || "Không tồn tại"}
-                width="15px"
-
-              />
-              <span className="text-secondary" style={{ fontSize: "15px" }}>
-                {latestSavingsFund
-                  ? ` ${latestSavingsFund.name.substring(0, 15)}${latestSavingsFund.name.length > 15 ? "..." : ""
-                  }`
-                  : "Không có"}
-              </span>
+              {latestSavingsFund ? (
+                latestSavingsFund.categoryId ? (
+                  <>
+                    <img
+                      src={latestSavingsFund.categoryId.image || "/images/rabbit.png"}
+                      alt={latestSavingsFund.categoryId.name || "Không tồn tại"}
+                      width="15px"
+                    />
+                    <span className="text-secondary" style={{ fontSize: "15px" }}>
+                      {latestSavingsFund.categoryId.name.substring(0, 15)}
+                      {latestSavingsFund.categoryId.name.length > 15 ? "..." : ""}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <img
+                      src="images/exclamation.png"
+                      alt="Danh mục đã bị xóa"
+                      width="15px"
+                    />
+                    <span className="text-danger" style={{ fontSize: "13px", marginLeft: "4px" }}>
+                      Danh mục này đã bị xóa!
+                    </span>
+                  </>
+                )
+              ) : (
+                <>
+                  <img
+                    src="/images/rabbit.png"
+                    alt="Chưa có quỹ chung"
+                    width="15px"
+                  />
+                  <span className="text-muted" style={{ fontSize: "13px", marginLeft: "4px" }}>
+                    Chưa có quỹ chung nào
+                  </span>
+                </>
+              )}
             </div>
-            <Link to="/savings-fund/list"> <i
-              className="bi bi-arrow-90deg-right text-secondary"
-              style={{ fontSize: "15px", cursor: "pointer" }}
-            ></i>
+            <Link to="/savings-fund/list">
+              <i
+                className="bi bi-arrow-90deg-right text-secondary"
+                style={{ fontSize: "15px", cursor: "pointer" }}
+              ></i>
             </Link>
-
           </div>
         </div>
       </div>

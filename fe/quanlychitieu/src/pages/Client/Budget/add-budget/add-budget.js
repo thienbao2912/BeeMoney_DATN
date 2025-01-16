@@ -7,6 +7,21 @@ import "./add-budget.css";
 import { toast, ToastContainer } from 'react-toastify'; // Import Toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import Toastify styles
 
+const forbiddenWords = ['Chết', 'Ma Túy', 'Khùng'];
+
+const removeAccents = (str) => {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+};
+
+const normalizeText = (text) => {
+    return removeAccents(text).toLowerCase().replace(/\s+/g, '');
+};
+
+const containsForbiddenWords = (value) => {
+    const normalizedValue = normalizeText(value);
+    return forbiddenWords.some(word => normalizedValue.includes(normalizeText(word)));
+};
+
 const AddBudget = () => {
     const [categories, setCategories] = useState([]);
     const [budgets, setBudgets] = useState([]);
@@ -16,14 +31,15 @@ const AddBudget = () => {
     const [error, setError] = useState('');
     const [isDuplicate, setIsDuplicate] = useState(false); // Trạng thái mới kiểm tra lỗi trùng lặp
     const [toastMessage, setToastMessage] = useState('');
-    const [toastType, setToastType] = useState('success'); 
+    const [toastType, setToastType] = useState('success');
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         defaultValues: {
-            startDate: today.toISOString().split('T')[0], 
+            budgetName: '',
+            startDate: today.toISOString().split('T')[0],
             endDate: tomorrow.toISOString().split('T')[0],
             amount: '',
             categoryId: ''
@@ -53,9 +69,9 @@ const AddBudget = () => {
 
                     const currentDate = new Date();
                     const validBudgets = updatedBudgets
-                    .filter(budget => new Date(budget.endDate) >= currentDate)
-                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                    .slice(0, 4);
+                        .filter(budget => new Date(budget.endDate) >= currentDate)
+                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                        .slice(0, 4);
 
                     setBudgets(validBudgets);
                     setLoadingBudgets(false);
@@ -91,7 +107,7 @@ const AddBudget = () => {
         setLoading(true);
         setError('');
         setIsDuplicate(false); // Reset trạng thái isDuplicate khi bắt đầu submit
-        
+
         // Kiểm tra ngày hợp lệ
         const dateValidationError = validateDates(data.startDate, data.endDate);
         if (dateValidationError !== true) {
@@ -99,21 +115,23 @@ const AddBudget = () => {
             setLoading(false);
             return;
         }
-    
+
         const userId = localStorage.getItem('userId');
-    
+
         const budgetData = {
+            name: data.budgetName,
             categoryId: data.categoryId,
             startDate: data.startDate,
             endDate: data.endDate,
             amount: parseFloat(data.amount.replace(/,/g, '')),
+            repeat: !!data.repeatBudget,
             userId
         };
-    
+
         try {
             // Gọi API tạo ngân sách
             await createBudget(budgetData); // Your existing createBudget function
-    
+
             // Hiển thị thông báo thành công nếu không phải lỗi trùng lặp
             if (!isDuplicate) {
                 toast.success("Ngân sách đã được thêm thành công!");
@@ -132,10 +150,15 @@ const AddBudget = () => {
             setLoading(false); // Dừng trạng thái loading
         }
     };
-    
-    
-    
-    
+
+    const handleNameChange = (event) => {
+        const value = event.target.value;
+        if (containsForbiddenWords(value)) {
+            setError('Tên ngân sách chứa từ cấm');
+        } else {
+            setError('');
+        }
+    };
 
     const handleAmountChange = (e) => {
         let value = e.target.value;
@@ -170,6 +193,20 @@ const AddBudget = () => {
                     <div className="income-overview card">
                         <div className="card-body">
                             <form onSubmit={handleSubmit(onSubmit)}>
+                                <div className="form-group">
+                                    <label htmlFor="budgetName">Tên ngân sách</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        id="budgetName"
+                                        {...register('budgetName', { required: 'Tên ngân sách là bắt buộc' })}
+                                        onChange={(e) => {
+                                            handleNameChange(e);
+                                        }}
+                                    />
+                                    {error && <p className="text-danger">{error}</p>}
+                                    {errors.budgetName && <p className="text-danger">{errors.budgetName.message}</p>}
+                                </div>
                                 <div className="form-row">
                                     <div className="form-group col">
                                         <label htmlFor="startDate">Ngày bắt đầu</label>
@@ -190,7 +227,7 @@ const AddBudget = () => {
                                             className="form-control"
                                             {...register('endDate', { required: 'Ngày kết thúc là bắt buộc' })}
                                             min={today.toISOString().split('T')[0]}
-                                            />
+                                        />
                                         {errors.endDate && <p className="text-danger">{errors.endDate.message}</p>}
                                     </div>
                                 </div>
@@ -209,6 +246,18 @@ const AddBudget = () => {
                                     />
                                     {errors.amount && <p className="text-danger">{errors.amount.message}</p>}
                                 </div>
+                                <div className="form-group">
+                                    <div className="form-check d-flex align-items-center">
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input mt-3"
+                                            id="repeatBudget"
+                                            {...register('repeatBudget')}
+                                        />
+                                        <label htmlFor="repeatBudget" className="form-check-label ms-2">Lặp lại ngân sách</label>
+                                    </div>
+                                </div>
+
                                 <div className="form-group">
                                     <label htmlFor="category">Danh mục</label>
                                     <div className="custom-category-grid">
@@ -305,7 +354,7 @@ const AddBudget = () => {
                     </div>
                 </div>
             </div>
-                        <ToastContainer /> 
+            <ToastContainer />
 
         </div>
     );

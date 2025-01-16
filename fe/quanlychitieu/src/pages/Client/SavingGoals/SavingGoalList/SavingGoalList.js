@@ -52,34 +52,34 @@ const SavingGoalList = () => {
   }, []);
 
   const filteredGoals = savingsGoals
-  .filter((goal) => {
-    if (filterOption === "month" && selectedMonth !== "all") {
-      const month = parseInt(selectedMonth);
-      const startDate = new Date(goal.startDate);
-      const endDate = new Date(goal.endDate);
-      return (
-        startDate.getMonth() + 1 === month ||
-        endDate.getMonth() + 1 === month
-      );
-    }
-    return true;
-  })
-  .sort((a, b) => {
-    if (filterOption === "top5") {
-      return b.targetAmount - a.targetAmount; 
-    }
-    if (filterOption === "bottom5") {
-      return a.targetAmount - b.targetAmount; 
-    }
-    return 0; 
-  })
-  .slice(0, filterOption === "top5" || filterOption === "bottom5" ? 5 : undefined);
-  
+    .filter((goal) => {
+      if (filterOption === "month" && selectedMonth !== "all") {
+        const month = parseInt(selectedMonth);
+        const startDate = new Date(goal.startDate);
+        const endDate = new Date(goal.endDate);
+        return (
+          startDate.getMonth() + 1 === month ||
+          endDate.getMonth() + 1 === month
+        );
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (filterOption === "top5") {
+        return b.targetAmount - a.targetAmount;
+      }
+      if (filterOption === "bottom5") {
+        return a.targetAmount - b.targetAmount;
+      }
+      return 0;
+    })
+    .slice(0, filterOption === "top5" || filterOption === "bottom5" ? 5 : undefined);
+
   const handleDelete = async (goalId) => {
     setLoading(true)
     try {
       await deleteSavingsGoal(goalId);
-      
+
       setSavingsGoals((prevGoals) =>
         prevGoals.filter((goal) => goal._id !== goalId)
       );
@@ -151,35 +151,35 @@ const SavingGoalList = () => {
       </nav>
       <div className="row align-items-center">
         <div className="row align-items-center mb-3">
+          <div className="col-md-3">
+            <select
+              className="form-select me-2"
+              value={filterOption}
+              onChange={(e) => setFilterOption(e.target.value)}
+            >
+              <option value="all">Hiển thị tất cả</option>
+              <option value="top5">5 mục tiêu lớn nhất</option>
+              <option value="bottom5">5 mục tiêu nhỏ nhất</option>
+              <option value="month">Lọc theo tháng</option>
+            </select>
+          </div>
+          {filterOption === "month" && (
             <div className="col-md-3">
               <select
-                className="form-select me-2"
-                value={filterOption}
-                onChange={(e) => setFilterOption(e.target.value)}
+                className="form-select"
+                value={selectedMonth}
+                onChange={handleMonthChange}
               >
                 <option value="all">Hiển thị tất cả</option>
-                <option value="top5">5 mục tiêu lớn nhất</option>
-                <option value="bottom5">5 mục tiêu nhỏ nhất</option>
-                <option value="month">Lọc theo tháng</option>
+                {[...Array(12).keys()].map((i) => (
+                  <option key={i + 1} value={i + 1}>
+                    Tháng {i + 1}
+                  </option>
+                ))}
               </select>
             </div>
-            {filterOption === "month" && (
-              <div className="col-md-3">
-                <select
-                  className="form-select"
-                  value={selectedMonth}
-                  onChange={handleMonthChange}
-                >
-                  <option value="all">Hiển thị tất cả</option>
-                  {[...Array(12).keys()].map((i) => (
-                    <option key={i + 1} value={i + 1}>
-                      Tháng {i + 1}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
+          )}
+        </div>
 
         <div className="col-md-12 d-flex justify-content-end mt-3 mt-md-0">
           <a href="/saving-goal/past" className="btn btn-secondary">
@@ -203,31 +203,31 @@ const SavingGoalList = () => {
 
               <div className="card saving-goal">
                 <div className="card-body">
-                <div className="category-target d-flex align-items-center mb-3">
-  <img
-    src={goal.categoryId?.image || "/images/no.png"} // Fallback to a placeholder image if category is missing
-    alt={goal.categoryId?.name || "Không tồn tại"} // Fallback to a default name if category is missing
-    width="50px"
-  />
-  <h5 className="ms-3">
-    {goal.name.length > 13 ? `${goal.name.substring(0, 13)}...` : goal.name}
-  </h5>
-  <div className="ms-auto d-flex flex-column align-items-end">
-    <div className="text-secondary">
-      <i className="fa-solid fa-sack-dollar me-2"></i>
-      {goal.currentAmount != null
-        ? (goal.currentAmount.toString().length > 9
-            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount).slice(0, 9)}...`
-            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount))
-        : "0 đ"} /
-      {goal.targetAmount != null
-        ? (goal.targetAmount.toString().length > 9
-            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount).slice(0, 9)}...`
-            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount))
-        : "0 đ"}
-    </div>
-  </div>
-</div>
+                  <div className="category-target d-flex align-items-center mb-3">
+                    <img
+                      src={goal.categoryId?.image || "/images/exclamation.png"} // Fallback to a placeholder image if category is missing
+                      alt={goal.categoryId?.name || "Danh mục đã bị xóa"} // Fallback to a default name if category is missing
+                      width="50px"
+                    />
+                    <h5 className="ms-3">
+                      {goal.name.length > 13 ? `${goal.name.substring(0, 13)}...` : goal.name}
+                    </h5>
+                    <div className="ms-auto d-flex flex-column align-items-end">
+                      <div className="text-secondary">
+                        <i className="fa-solid fa-sack-dollar me-2"></i>
+                        {goal.currentAmount != null
+                          ? (goal.currentAmount.toString().length > 9
+                            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount).slice(0, 9)}...`
+                            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.currentAmount))
+                          : "0 đ"} /
+                        {goal.targetAmount != null
+                          ? (goal.targetAmount.toString().length > 9
+                            ? `${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount).slice(0, 9)}...`
+                            : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(goal.targetAmount))
+                          : "0 đ"}
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="progress-wrapper d-flex align-items-center mt-2">
                     <span className="text-muted small me-2">{Math.round(percentage)}%</span>
@@ -266,13 +266,13 @@ const SavingGoalList = () => {
                       </div>
                     </div>
                   </div>
-                
-                    <div className="text-center align-items-center">
-                      <Link to={`/saving-goal/detail/${goal._id}`}
-                        className="text-primary"
-                        aria-label="Detail">Xem chi tiết </Link>
-                    </div>
-                
+
+                  <div className="text-center align-items-center">
+                    <Link to={`/saving-goal/detail/${goal._id}`}
+                      className="text-primary"
+                      aria-label="Detail">Xem chi tiết </Link>
+                  </div>
+
                 </div>
               </div>
             </div>

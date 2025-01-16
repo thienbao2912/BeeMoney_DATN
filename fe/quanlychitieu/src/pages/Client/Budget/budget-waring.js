@@ -13,8 +13,17 @@ const BudgetWarning = ({ budgets }) => {
       return;
     }
 
+    // Lọc bỏ các ngân sách có danh mục đã bị xóa (categoryId là null hoặc undefined)
+    const validBudgets = budgets.filter((budget) => budget.categoryId && budget.categoryId.name);
+
+    if (validBudgets.length === 0) {
+      setWarningMessage("Không có ngân sách hợp lệ.");
+      setShowPopup(false);
+      return;
+    }
+
     // Tính tổng ngân sách theo từng danh mục
-    const categoryTotal = budgets.reduce((acc, budget) => {
+    const categoryTotal = validBudgets.reduce((acc, budget) => {
       const categoryName = budget.categoryId.name;
       if (!acc[categoryName]) {
         acc[categoryName] = 0;
@@ -25,7 +34,7 @@ const BudgetWarning = ({ budgets }) => {
     setCategoryBudgets(categoryTotal); // Lưu tổng ngân sách theo danh mục
 
     // Tính tổng remainingBudget theo từng danh mục
-    const categoryRemainingTotal = budgets.reduce((acc, budget) => {
+    const categoryRemainingTotal = validBudgets.reduce((acc, budget) => {
       const categoryName = budget.categoryId.name;
       if (!acc[categoryName]) {
         acc[categoryName] = 0;

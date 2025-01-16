@@ -19,6 +19,7 @@ const passport = require("passport");
 const OAuth2Strategy = require("passport-google-oauth2").Strategy;
 require('../passport');
 const User = require('./models/User');
+const BudgetController = require('./controllers/budgetController');
 
 // const expenseRoutes= require("./routes/expenseRoutes");
 const income = require("./routes/income");
@@ -28,16 +29,19 @@ const hobbyCategoryRoutes = require("./routes/HobbyCategory")
 const app = express();
 app.use(express.json());
 app.use(cors({
+    // origin: process.env.URL_FE,
+    // methods: "GET, POST, PUT, DELETE, PATCH",
+    // credentials: true
   origin: [process.env.URL_FE, 'https://app.nativenotify.com'],
   methods:"GET, POST, PUT, DELETE, PATCH",
   credentials:true
 }))
 
 app.use(session({
-  secret: process.env.JWT_ACCESS_KEY,
-  resave:false,
-  saveUninitialized:true,
-  cookie: { secure: false, httpOnly: true, sameSite: 'Lax' }
+    secret: process.env.JWT_ACCESS_KEY,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false, httpOnly: true, sameSite: 'Lax' }
 }))
 
 app.use(passport.initialize());
@@ -45,65 +49,79 @@ app.use(passport.session());
 
 passport.use(
     new OAuth2Strategy({
-        clientID:process.env.GOOGLE_CLIENT_ID,
-        clientSecret:process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL:"/auth/google/callback",
-        scope:["profile","email"],
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: "/auth/google/callback",
+        scope: ["profile", "email"],
         prompt: "consent",
     },
-    async(accessToken,refreshToken,profile,done)=>{
-        try {
-            let user = await User.findOne({ "socialLogin.googleId": profile.id });
+        async (accessToken, refreshToken, profile, done) => {
+            try {
+                let user = await User.findOne({ "socialLogin.googleId": profile.id });
 
-            if(!user){
-                user = new User({
-                    socialLogin: { googleId: profile.id },
-                    name:profile.displayName,
-                    email:profile.emails[0].value,
-                    avatar:profile.photos[0].value,
-                    role: 'user',
-                    status: 'active'
-                });
+                if (!user) {
+                    user = new User({
+                        socialLogin: { googleId: profile.id },
+                        name: profile.displayName,
+                        email: profile.emails[0].value,
+                        avatar: profile.photos[0].value,
+                        role: 'user',
+                        status: 'active'
+                    });
 
-                await user.save();
+                    await user.save();
+                }
+
+                if (!accessToken) {
+                    console.error("Failed to obtain access token");
+                    return done(new Error("Failed to obtain access token"), null);
+                }
+                const payload = {
+                    id: user.id,
+                    role: user.role,
+                    name: user.name,
+                };
+
+                const jwtSecret = process.env.JWT_ACCESS_KEY;
+                const token = jwt.sign(payload, jwtSecret, { expiresIn: '100h' });
+                return done(null, { user, token })
+            } catch (error) {
+                return done(error, null)
             }
-            
-            if (!accessToken) {
-                console.error("Failed to obtain access token");
-                return done(new Error("Failed to obtain access token"), null);
-            }
-            const payload = {
-                id: user.id,
-                role: user.role,
-                name: user.name,
-            };
-
-            const jwtSecret = process.env.JWT_ACCESS_KEY;
-            const token = jwt.sign(payload, jwtSecret, { expiresIn: '100h' });
-            return done(null,{ user, token })
-        } catch (error) {
-            return done(error,null)
         }
-    }
     )
 )
 
-passport.serializeUser((user,done)=>{
-    done(null,user);
+passport.serializeUser((user, done) => {
+    done(null, user);
 })
 
-passport.deserializeUser((user,done)=>{
-    done(null,user);
+passport.deserializeUser((user, done) => {
+    done(null, user);
 });
 
-app.get("/auth/google",passport.authenticate("google",{scope:["profile","email"],prompt: "select_account"}));
+BudgetController.setupBudgetCronJob();
+if (process.env.NODE_ENV === 'production') {
+    BudgetController.setupBudgetCronJob();
+} else {
+    console.log("Cron job is disabled in non-production environments.");
+}
+
+let isCronJobInitialized = false;
+
+if (process.env.NODE_ENV === 'production' && !isCronJobInitialized) {
+    BudgetController.setupBudgetCronJob();
+    isCronJobInitialized = true;
+}
+
+app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"], prompt: "select_account" }));
 
 app.get("/auth/google/callback", passport.authenticate("google", {
     failureRedirect: "http://localhost:3000/login?error=google_auth_failed",
 }), (req, res) => {
     if (req.user?.user?.status === "locked") {
         return res.redirect("http://localhost:3000/login?error=account_locked");
-      }
+    }
     if (req.user && req.user.token && req.user.user._id) {
         const { token, user } = req.user;
         const isFirstLogin = user.isFirstLogin || false; // Thêm isFirstLogin
@@ -113,26 +131,26 @@ app.get("/auth/google/callback", passport.authenticate("google", {
     }
 });
 
-app.get("/login/sucess",async(req,res)=>{
+app.get("/login/sucess", async (req, res) => {
 
-    if(req.user){
-        res.status(200).json({message:"user Login",user:req.user})
-    }else{
-        res.status(400).json({message:"Not Authorized"})
+    if (req.user) {
+        res.status(200).json({ message: "user Login", user: req.user })
+    } else {
+        res.status(400).json({ message: "Not Authorized" })
     }
 })
 
 app.get("/logout", (req, res, next) => {
     req.logout(function (err) {
         if (err) return next(err);
-      
+
         req.session.destroy((err) => {
-          if (err) return console.error("Session destruction error:", err);
-          res.clearCookie("connect.sid", { path: "/" });
-          res.redirect("http://localhost:3000/login");
+            if (err) return console.error("Session destruction error:", err);
+            res.clearCookie("connect.sid", { path: "/" });
+            res.redirect("http://localhost:3000/login");
         });
-      });
-  });
+    });
+});
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -175,5 +193,5 @@ app.post("/proxy/notification", async (req, res) => {
 // Start server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`Server running on port http://localhost:${PORT}`);
+    console.log(`Server running on port http://localhost:${PORT}`);
 });

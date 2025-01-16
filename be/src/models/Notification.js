@@ -16,8 +16,7 @@ const NotificationSchema = new mongoose.Schema({
     },
     categoryId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
-        required: true
+        ref: 'Category'
     },
     status: { type: String, enum: ['not read', 'read'], default: 'not read' },
 }, { timestamps: true });

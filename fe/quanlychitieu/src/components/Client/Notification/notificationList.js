@@ -47,7 +47,7 @@ const NotificationList = () => {
     // Matching the category image to the notification
     const getCategoryImage = (categoryId) => {
         const budget = budgets.find(budget => budget.categoryId && budget.categoryId._id === categoryId);
-        return budget ? budget.categoryId.image : null;
+        return budget ? budget.categoryId.image : "images/exclamation.png";
     };
 
     useEffect(() => {

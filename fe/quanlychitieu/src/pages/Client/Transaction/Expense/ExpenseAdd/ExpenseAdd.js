@@ -67,8 +67,8 @@ const ExpenseAdd = () => {
     const fetchCategoriesAndExpenses = async () => {
       setLoadingCategoriesAndExpenses(true);
       try {
-        
-       
+
+
         const categoriesResponse = await getCategories("expense", userId);
         if (Array.isArray(categoriesResponse)) {
           const filteredCategories = categoriesResponse.filter(
@@ -82,11 +82,11 @@ const ExpenseAdd = () => {
 
         const expensesResponse = await getAllTransactions("expense", userId);
         setExpenses(expensesResponse || []);
-       
-       
+
+
         // Lấy ngân sách
         const userBudgets = await getAllBudgets(userId);
-        
+
         const currentDate = new Date();
         currentDate.setHours(0, 0, 0, 0);
         const filteredBudgets = userBudgets
@@ -103,8 +103,8 @@ const ExpenseAdd = () => {
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         setBudgets(filteredBudgets);
-      
-       
+
+
         // Kiểm tra ngân sách dưới 20%
         const lowBudget = filteredBudgets.find(
           (budget) => (budget.remainingBudget / (budget.amount || 1)) * 100 < 20
@@ -142,22 +142,22 @@ const ExpenseAdd = () => {
         amount: unformatCurrency(data.amount),
         type: "expense",
       };
-  
+
       if (!payload.date || !payload.amount || !payload.categoryId) {
         throw new Error("Missing required fields");
       }
-  
+
       await addTransaction(payload);  // Thêm chi tiêu
       toast.success("Thêm chi tiêu thành công");
-  
+
       setValue("date", today);  // Reset form
       setValue("amount", "");
       setValue("description", "");
       setValue("categoryId", "");
-  
+
       const expensesResponse = await getAllTransactions("expense", userId);  // Cập nhật chi tiêu
       setExpenses(expensesResponse || []);
-  
+
     } catch (err) {
       console.error(
         "Error adding expense:",
@@ -168,8 +168,8 @@ const ExpenseAdd = () => {
       setLoading(false);
     }
   };
-  
-  
+
+
 
   const formatCurrency = (value) => {
     return Number(value).toLocaleString("vi-VN");
@@ -186,9 +186,9 @@ const ExpenseAdd = () => {
   // Handle button click to show the budget warning
   const handleButtonClick = () => {
     setTimeout(() => {
-      setIsButtonClicked(true); 
+      setIsButtonClicked(true);
     }, 2000);
-   
+
   };
 
   if (loadingCategoriesAndExpenses) {
@@ -255,9 +255,8 @@ const ExpenseAdd = () => {
                       type="date"
                       id="date"
                       name="date"
-                      className={`form-control ${
-                        errors.date ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.date ? "is-invalid" : ""
+                        }`}
                       {...register("date", { required: "Ngày là bắt buộc" })}
                       max={today}
                     />
@@ -273,9 +272,8 @@ const ExpenseAdd = () => {
                       type="text"
                       id="amount"
                       name="amount"
-                      className={`form-control ${
-                        errors.amount ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.amount ? "is-invalid" : ""
+                        }`}
                       {...register("amount", {
                         required: "Số tiền là bắt buộc",
                       })}
@@ -294,9 +292,8 @@ const ExpenseAdd = () => {
                     type="text"
                     id="description"
                     name="description"
-                    className={`form-control ${
-                      errors.description ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${errors.description ? "is-invalid" : ""
+                      }`}
                     {...register("description", {
                       required: "Ghi chú là bắt buộc",
                       validate: (value) =>
@@ -317,9 +314,8 @@ const ExpenseAdd = () => {
                       categories.map((category) =>
                         category && category.image ? (
                           <button
-                            className={`custom-category-btn ${
-                              category._id === categoryId ? "active" : ""
-                            }`}
+                            className={`custom-category-btn ${category._id === categoryId ? "active" : ""
+                              }`}
                             type="button"
                             key={category._id}
                             onClick={() => setValue("categoryId", category._id)}
@@ -387,10 +383,20 @@ const ExpenseAdd = () => {
                           height="50"
                         />
                       ) : (
-                        <div
-                          className="placeholder-image"
-                          style={{ width: "50px", height: "50px" }}
-                        />
+                        <>
+                          {/* Hiển thị hình ảnh mặc định khi danh mục không tồn tại */}
+                          <img
+                            src="/images/exclamation.png"  // Đặt đường dẫn đến hình ảnh mặc định
+                            alt="Danh mục đã bị xóa"
+                            width="50"
+                            height="50"
+                            className="rounded"
+                            style={{ marginRight: "8px" }} // Khoảng cách giữa ảnh và chữ
+                          />
+                          <p className="text-xs text-secondary mb-0 font-weight-bold" style={{ marginLeft: "4px" }}>
+                            Danh mục đã bị xóa!
+                          </p>
+                        </>
                       )}
                     </div>
                     <div className="text-center flex-grow-1">
